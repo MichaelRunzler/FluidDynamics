@@ -16,7 +16,8 @@ public class FDDataGenerators
         DataGenerator gen = event.getGenerator();
 
         if(event.includeServer()){
-            //TODO add server-side generators
+            gen.addProvider(new FDRecipeProvider(gen));
+            //TODO add more providers
         }
 
         if(event.includeClient()){

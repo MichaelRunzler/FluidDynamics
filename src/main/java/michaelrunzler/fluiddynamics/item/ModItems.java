@@ -29,7 +29,6 @@ public class ModItems
     {
         FluidDynamics.logModEvent(Level.DEBUG, "Starting item registration cycle...");
 
-//        registerItem("ingot_copper", () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_ITEMS)));
         for(MaterialEnum type : MaterialEnum.values())
         {
             // Generate supplier and register items for ingot, nugget, and dust of this type
@@ -41,7 +40,7 @@ public class ModItems
 
             // Register language mappings
             FDEnLangProvider.addItemLangMapping(ingot, type.englishName + " Ingot");
-            //FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget");
+            //FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget"); // TODO re-enable
             //FDEnLangProvider.addItemLangMapping(dust, type.englishName + " Dust");
 
             // These items don't have any special attributes, so we can ignore tag mappings
