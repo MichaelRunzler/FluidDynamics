@@ -2,16 +2,12 @@ package michaelrunzler.fluiddynamics.block;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.generators.FDBlockTagProvider;
+import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
-import michaelrunzler.fluiddynamics.item.ModItems;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -39,15 +35,26 @@ public class ModBlocks
         // Ores
         //
 
-        //registerBlock("ore_native_copper", () -> new FDOre(OreEnum.NATIVE_COPPER));
-
         for(OreEnum type : OreEnum.values())
         {
             FDOreHelper ore = new FDOreHelper(type);
             RegistryObject<Block> block = registerBlock(ore.name, () -> new FDOre(type));
-            for(TagKey<Block> k : ore.tags)
-                if(k != null)
-                    FDBlockTagProvider.addTagMapping(k, block.getKey());
+            for(TagKey<Block> k : ore.tags) if(k != null) FDBlockTagProvider.addTagMapping(k, block.getKey());
+
+            FDEnLangProvider.addBlockLangMapping(block, ore.englishName);
+        }
+
+        //
+        // Resource Blocks
+        //
+
+        for(MaterialEnum type : MaterialEnum.values())
+        {
+            FDMaterialBlockHelper mat = new FDMaterialBlockHelper(type);
+            RegistryObject<Block> block = registerBlock(mat.name, () -> new FDMaterialBlock(type));
+            for(TagKey<Block> k : mat.tags) if(k != null) FDBlockTagProvider.addTagMapping(k, block.getKey());
+
+            FDEnLangProvider.addBlockLangMapping(block, mat.englishName);
         }
 
         FluidDynamics.logModEvent(Level.DEBUG, "...done.");

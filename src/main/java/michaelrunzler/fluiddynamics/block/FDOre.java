@@ -39,6 +39,7 @@ class FDOreHelper
     OreEnum type;
     TagKey<Block>[] tags;
     String name;
+    String englishName;
 
     FDOreHelper(OreEnum type)
     {
@@ -55,5 +56,6 @@ class FDOreHelper
 
         tags = new TagKey[]{type.miningLevel != 0 ? BlockTags.MINEABLE_WITH_PICKAXE : null, miningLevel};
         this.name = "ore_" + type.name().toLowerCase();
+        this.englishName = type.englishName;
     }
 }

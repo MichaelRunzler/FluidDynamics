@@ -1,66 +1,49 @@
 package michaelrunzler.fluiddynamics.generators;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
-import michaelrunzler.fluiddynamics.block.ModBlocks;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.LanguageProvider;
+import net.minecraftforge.registries.RegistryObject;
+
+import java.util.HashMap;
 
 /**
  * Provides English-language translations for block/item names.
  */
 public class FDEnLangProvider extends LanguageProvider
 {
+    private static final HashMap<RegistryObject<Block>, String> blockMappings = new HashMap<>();
+    private static final HashMap<RegistryObject<Item>, String> itemMappings = new HashMap<>();
+
     public FDEnLangProvider(DataGenerator gen) {
-        super(gen, FluidDynamics.MODID, "en-us");
+        super(gen, FluidDynamics.MODID, "en_us");
     }
 
     @Override
     protected void addTranslations()
     {
-        // We can't really automatically do this because the names for TEs don't follow a strict naming scheme,
-        // so we have to do it manually
+        // Add automappings from the generated blocks
+        for(RegistryObject<Block> block : blockMappings.keySet())
+            addBlock(block, blockMappings.get(block));
 
-        //
-        // Ores
-        //
+        for(RegistryObject<Item> item : itemMappings.keySet())
+            addItem(item, itemMappings.get(item));
 
-        addBlock(ModBlocks.registeredBlocks.get("ore_native_copper"), " Ore");
-        addBlock(ModBlocks.registeredBlocks.get("ore_native_tin"), " Ore");
-        addBlock(ModBlocks.registeredBlocks.get("ore_pentlandite"), " Ore");
-        addBlock(ModBlocks.registeredBlocks.get("ore_spherocobaltite"), " Ore");
-        addBlock(ModBlocks.registeredBlocks.get("ore_tetrataenite"), " Ore");
-        addBlock(ModBlocks.registeredBlocks.get("ore_wolframite"), " Ore");
-        addBlock(ModBlocks.registeredBlocks.get("ore_bauxite"), " Ore");
-        addBlock(ModBlocks.registeredBlocks.get("ore_bertrandite"), " Ore");
+        // Add manual mappings
+        add("itemGroup.tab_blocks", "Fluid Dynamics: Blocks");
+        add("itemGroup.tab_items", "Fluid Dynamics: Items");
+    }
 
-        //
-        //  Resource Blocks
-        //
+    /**
+     * Adds a new language mapping that will be added on the next call to addTranslations() through the resource generator system.
+     */
+    public static void addBlockLangMapping(RegistryObject<Block> block, String name) {
+        blockMappings.put(block, name);
+    }
 
-        addBlock(ModBlocks.registeredBlocks.get("block_aluminum"), "Aluminium Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_beryllium"), "Beryllium Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_bronze"), "Bronze Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_cobalt"), "Cobalt Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_copper"), "Copper Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_invar"), "Invar Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_iridium"), "Iridium Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_nickel"), "Nickel Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_osmium"), "Osmium Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_palladium"), "Palladium Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_sharicite"), "Inert Sharicite Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_infused_sharicite"), "Energetic Sharicite Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_silicon"), "Crystalline Silicon Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_steel"), "Steel Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_superconductor"), "Superconducting Alloy Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_tin"), "Tin Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_titanium"), "Titanium Block");
-        addBlock(ModBlocks.registeredBlocks.get("block_tungsten"), "Tungsten Block");
-
-
-        //
-        // Processed Resources (gems/ingots)
-        //
-
-        //TODO
+    public static void addItemLangMapping(RegistryObject<Item> item, String name) {
+        itemMappings.put(item, name);
     }
 }
