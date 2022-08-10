@@ -40,13 +40,13 @@ public class ModItems
             Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON).stacksTo(64));
 
             RegistryObject<Item> ingot = registerItem("ingot_" + type.name().toLowerCase(), itemSupplier);
-            RegistryObject<Item> nugget = registerItem("nugget_" + type.name().toLowerCase(), itemSupplier); // TODO re-enable once textures are in place
-            //RegistryObject<Item> dust = registerItem("dust_" + type.name().toLowerCase(), itemSupplier);
+            RegistryObject<Item> nugget = registerItem("nugget_" + type.name().toLowerCase(), itemSupplier);
+            RegistryObject<Item> dust = registerItem("dust_" + type.name().toLowerCase(), itemSupplier);
 
             // Register language mappings
             FDEnLangProvider.addItemLangMapping(ingot, type.englishName + " Ingot");
-            FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget"); // TODO re-enable
-            //FDEnLangProvider.addItemLangMapping(dust, "Powdered " + type.englishName);
+            FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget");
+            FDEnLangProvider.addItemLangMapping(dust, "Powdered " + type.englishName);
 
             // These items don't have any special attributes, so we can ignore tag mappings
         }
@@ -55,16 +55,16 @@ public class ModItems
         // Crushed ore listings
         //
 
-        /* TODO re-enable once textures are in place
         for(OreEnum type : OreEnum.values())
         {
             // Same as for materials
             Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON).stacksTo(64));
 
-            RegistryObject<Item> dust = registerItem("dust_" + type.name().toLowerCase(), itemSupplier);
+            RegistryObject<Item> dust = registerItem("crushed_" + type.name().toLowerCase(), itemSupplier);
+            RegistryObject<Item> pureDust = registerItem("purified_" + type.name().toLowerCase(), itemSupplier);
             FDEnLangProvider.addItemLangMapping(dust, "Crushed " + type.englishName);
+            FDEnLangProvider.addItemLangMapping(pureDust, "Purified Crushed " + type.englishName);
         }
-        */
 
         FluidDynamics.logModEvent(Level.DEBUG, "...done.");
     }

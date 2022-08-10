@@ -28,7 +28,7 @@ public class MaterialRecipes
             blockRecipe(type, c);
             nuggetRecipe(type, c);
             nuggetIngotRecipe(type, c);
-            //dustSmeltingRecipe(type, c); TODO add back when dusts are in
+            dustSmeltingRecipe(type, c);
             blockIngotRecipe(type, c);
         }
     }
@@ -54,7 +54,7 @@ public class MaterialRecipes
                 .pattern("xxx")
                 .pattern("xxx")
                 .define('x', itm.get())
-                .group("fluid_dynamics_materials_ingot")
+                .group("fluid_dynamics_materials_ingot_n")
                 .unlockedBy("n_ingot_" + mat.name().toLowerCase() + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
                 .save(c, "nugget_ingot_" + mat.name().toLowerCase());
     }
@@ -65,7 +65,7 @@ public class MaterialRecipes
         RegistryObject<Item> out = ModItems.registeredItems.get("ingot_" + mat.name().toLowerCase());
         ShapelessRecipeBuilder.shapeless(out.get(), 9)
                 .requires(itm.get())
-                .group("fluid_dynamics_materials_ingot")
+                .group("fluid_dynamics_materials_ingot_b")
                 .unlockedBy("b_ingot_" + mat.name().toLowerCase() + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(out.get()))
                 .save(c, "block_ingot_" + mat.name().toLowerCase());
     }
