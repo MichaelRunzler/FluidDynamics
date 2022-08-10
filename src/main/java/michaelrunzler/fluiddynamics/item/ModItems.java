@@ -2,6 +2,7 @@ package michaelrunzler.fluiddynamics.item;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.block.MaterialEnum;
+import michaelrunzler.fluiddynamics.block.OreEnum;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import net.minecraft.world.item.Item;
@@ -29,22 +30,41 @@ public class ModItems
     {
         FluidDynamics.logModEvent(Level.DEBUG, "Starting item registration cycle...");
 
+        //
+        // Material listings
+        //
+
         for(MaterialEnum type : MaterialEnum.values())
         {
             // Generate supplier and register items for ingot, nugget, and dust of this type
             Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON).stacksTo(64));
 
             RegistryObject<Item> ingot = registerItem("ingot_" + type.name().toLowerCase(), itemSupplier);
-            //RegistryObject<Item> nugget = registerItem("nugget_" + type.name().toLowerCase(), itemSupplier); // TODO re-enable once textures are in place
+            RegistryObject<Item> nugget = registerItem("nugget_" + type.name().toLowerCase(), itemSupplier); // TODO re-enable once textures are in place
             //RegistryObject<Item> dust = registerItem("dust_" + type.name().toLowerCase(), itemSupplier);
 
             // Register language mappings
             FDEnLangProvider.addItemLangMapping(ingot, type.englishName + " Ingot");
-            //FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget"); // TODO re-enable
-            //FDEnLangProvider.addItemLangMapping(dust, type.englishName + " Dust");
+            FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget"); // TODO re-enable
+            //FDEnLangProvider.addItemLangMapping(dust, "Powdered " + type.englishName);
 
             // These items don't have any special attributes, so we can ignore tag mappings
         }
+
+        //
+        // Crushed ore listings
+        //
+
+        /* TODO re-enable once textures are in place
+        for(OreEnum type : OreEnum.values())
+        {
+            // Same as for materials
+            Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON).stacksTo(64));
+
+            RegistryObject<Item> dust = registerItem("dust_" + type.name().toLowerCase(), itemSupplier);
+            FDEnLangProvider.addItemLangMapping(dust, "Crushed " + type.englishName);
+        }
+        */
 
         FluidDynamics.logModEvent(Level.DEBUG, "...done.");
     }

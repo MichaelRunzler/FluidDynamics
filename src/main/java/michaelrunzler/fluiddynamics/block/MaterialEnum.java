@@ -19,7 +19,7 @@ public enum MaterialEnum
     PALLADIUM(  2.0f, 12, 1.0f, 0.9f, 1.0f, 35, 0.7f, 1828.1f, 71.8f, "Palladium"),  // Not as good as iron, but extremely enchantable, moreso than gold
     IRIDIUM(    8.5f, 20, 2.2f, 2.3f, 2.2f, 8,  4.0f, 2719.0f, 147.0f, "Sintered Iridium"), // Like osmium, but a bit more enchantable and rare
     BRONZE(     4.5f, 17, 1.3f, 1.4f, 1.3f, 16, 1.2f, 1328.0f, 80.0f, "Bronze Alloy"),  // Similar to cobalt, but a bit better at the cost of durability
-    STEEL(      5.2f, 18, 1.5f, 1.6f, 1.5f, 8,  2.2f, 1798.0f, 45.0f, "Carbon Steel"),  // The superior option to both bronze and cobalt, but hard to make
+    STEEL(      5.2f, 18, 1.5f, 1.6f, 1.5f, 8,  2.2f, 1810.0f, 45.0f, "Carbon Steel"),  // The superior option to both bronze and cobalt, but hard to make
     INVAR(      4.0f, 17, 1.6f, 1.3f, 1.6f, 2,  1.5f, 1700.0f, 13.5f, "Invar Alloy"),  // More durable than steel, but not as good and basically unenchantable
  SUPERCONDUCTOR(7.5f, 18, 1.6f, 1.7f, 1.6f, 50, 1.9f, 4125.0f, 1345.0f, "Superconducting Alloy"),// A bit worse than osmium or iridium, but insanely enchantable
     SHARICITE(  30.0f,20, 5.0f, 2.0f, 5.0f, 0,  100f, 8600.0f, 11.0f, "Inert Sharicite");  // Incredibly durable, but not that effective, hard to obtain, and completely unenchantable
