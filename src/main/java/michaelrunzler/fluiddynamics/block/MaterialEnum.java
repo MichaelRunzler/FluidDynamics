@@ -21,8 +21,9 @@ public enum MaterialEnum
     BRONZE(     4.5f, 17, 1.3f, 1.4f, 1.3f, 16, 1.2f, 1328.0f, 80.0f, "Bronze Alloy"),  // Similar to cobalt, but a bit better at the cost of durability
     STEEL(      5.2f, 18, 1.5f, 1.6f, 1.5f, 8,  2.2f, 1810.0f, 45.0f, "Carbon Steel"),  // The superior option to both bronze and cobalt, but hard to make
     INVAR(      4.0f, 17, 1.6f, 1.3f, 1.6f, 2,  1.5f, 1700.0f, 13.5f, "Invar Alloy"),  // More durable than steel, but not as good and basically unenchantable
- SUPERCONDUCTOR(7.5f, 18, 1.6f, 1.7f, 1.6f, 50, 1.9f, 4125.0f, 1345.0f, "Superconducting Alloy"),// A bit worse than osmium or iridium, but insanely enchantable
-    SHARICITE(  30.0f,20, 5.0f, 2.0f, 5.0f, 0,  100f, 8600.0f, 11.0f, "Inert Sharicite");  // Incredibly durable, but not that effective, hard to obtain, and completely unenchantable
+ SUPERCONDUCTOR(7.5f, 18, 1.6f, 1.5f, 1.6f, 50, 1.9f, 4125.0f, 1345.0f, "Superconducting Alloy"),// A bit worse than osmium or iridium, but insanely enchantable
+    SHARICITE(  30.0f,16, 5.0f, 4.0f, 4.0f, 0,  100f, 8600.0f, 11.0f, "Energized Sharicite"),  // Incredibly effective and better than Osmiridium for tools, but hard to obtain and completely unenchantable
+    OSMIRIDIUM( 30.0f,24, 10.0f,1.5f, 10.0f,10, 1000f,4352.0f, 123.2f, "Osmiridium Superalloy"); // Even more durable than Sharicite, and makes excellent armor, but not very good as tool material
 
     public final float hardness;
     public final int armorVal;

@@ -14,13 +14,17 @@ public class FDDataGenerators
     {
         DataGenerator gen = event.getGenerator();
 
-        if(event.includeServer()){
+        if(event.includeServer())
+        {
+            FDBlockTagProvider blockProvider = new FDBlockTagProvider(gen, event.getExistingFileHelper());
+            gen.addProvider(blockProvider);
             gen.addProvider(new FDRecipeProvider(gen));
-            gen.addProvider(new FDBlockTagProvider(gen, event.getExistingFileHelper()));
+            gen.addProvider(new FDItemTagProvider(gen, blockProvider, event.getExistingFileHelper()));
             gen.addProvider(new FDLootTableProvider(gen));
         }
 
-        if(event.includeClient()){
+        if(event.includeClient())
+        {
             gen.addProvider(new FDBlockStateProvider(gen, event.getExistingFileHelper()));
             gen.addProvider(new FDModelProvider(gen, event.getExistingFileHelper()));
             gen.addProvider(new FDEnLangProvider(gen));

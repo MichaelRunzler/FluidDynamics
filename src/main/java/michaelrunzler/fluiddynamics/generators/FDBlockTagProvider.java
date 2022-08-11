@@ -1,9 +1,11 @@
 package michaelrunzler.fluiddynamics.generators;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
+import michaelrunzler.fluiddynamics.block.ModBlocks;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -16,7 +18,7 @@ import java.util.HashMap;
  */
 public class FDBlockTagProvider extends BlockTagsProvider
 {
-    private static HashMap<TagKey<Block>, ArrayList<ResourceKey<Block>>> mappings = new HashMap<>();
+    private static final HashMap<TagKey<Block>, ArrayList<ResourceKey<Block>>> mappings = new HashMap<>();
 
     public FDBlockTagProvider(DataGenerator gen, ExistingFileHelper helper) {
         super(gen, FluidDynamics.MODID, helper);
@@ -35,11 +37,12 @@ public class FDBlockTagProvider extends BlockTagsProvider
         }
 
         mappings.clear();
-    }
 
-    @Override
-    public String getName() {
-        return "Fluid Dynamics Tag List";
+        //
+        // Manual tags
+        //
+
+        tag(BlockTags.COPPER_ORES).add(ModBlocks.registeredBlocks.get("ore_native_copper").get());
     }
 
     /**

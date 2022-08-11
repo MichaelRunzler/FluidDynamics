@@ -4,7 +4,9 @@ import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.block.MaterialEnum;
 import michaelrunzler.fluiddynamics.block.OreEnum;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
+import michaelrunzler.fluiddynamics.generators.FDItemTagProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraftforge.registries.DeferredRegister;
@@ -48,7 +50,8 @@ public class ModItems
             FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget");
             FDEnLangProvider.addItemLangMapping(dust, "Powdered " + type.englishName);
 
-            // These items don't have any special attributes, so we can ignore tag mappings
+            // Add beacon tags for ingots
+            FDItemTagProvider.addTagMapping(ItemTags.BEACON_PAYMENT_ITEMS, ingot.getKey());
         }
 
         //

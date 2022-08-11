@@ -18,31 +18,37 @@ import java.util.function.Consumer;
  */
 public class OreRecipes 
 {
+    private static final float BASE_SMELT_MULTIPLIER = 0.1f;
+    private static final float ACCELERATED_SMELT_MULTIPLIER = 0.2f;
+    
     public static void generateOreSmeltingRecipes(Consumer<FinishedRecipe> c)
     {
-        rawOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint / 5));
-        rawOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint / 5));
-        rawOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint / 5));
-        rawOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint / 5));
-        rawOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint / 5));
-        rawOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint / 5));
-        rawOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint / 5));
+        // Raw ore can be smelted, and yields 1 at the standard speed
+        rawOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
 
-        crushedOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint / 10));
-        crushedOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint / 10));
-        crushedOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint / 10));
-        crushedOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint / 10));
-        crushedOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint / 10));
-        crushedOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint / 10));
-        crushedOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint / 10));
+        // Crushed ore yields 1 at double speed
+        crushedOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint * BASE_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint * BASE_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint * BASE_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint * BASE_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * BASE_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint * BASE_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * BASE_SMELT_MULTIPLIER));
 
-        purifiedOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint / 10));
-        purifiedOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint / 10));
-        purifiedOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint / 10));
-        purifiedOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint / 10));
-        purifiedOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint / 10));
-        purifiedOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint / 10));
-        purifiedOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint / 10));
+        // Purified ore yields 1 at double speed, but you get 2 for every crushed ore
+        purifiedOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        purifiedOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        purifiedOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        purifiedOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        purifiedOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        purifiedOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        purifiedOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
     }
 
     public static void rawOreSmeltingRecipe(Consumer<FinishedRecipe> c, String oreName, String matName, int time) {

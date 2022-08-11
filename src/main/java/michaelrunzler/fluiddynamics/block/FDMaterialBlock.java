@@ -38,7 +38,7 @@ class FDMaterialBlockHelper
     {
         this.type = type;
 
-        tags = new TagKey[]{BlockTags.MINEABLE_WITH_PICKAXE};
+        tags = new TagKey[]{BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS};
         this.name = "block_" + type.name().toLowerCase();
         this.englishName = type.englishName + " Block";
     }

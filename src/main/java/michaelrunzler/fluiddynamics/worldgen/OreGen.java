@@ -25,6 +25,8 @@ import java.util.ArrayList;
 public class OreGen
 {
     private static final ArrayList<Holder<PlacedFeature>> features = new ArrayList<>();
+    private static final float BASE_PLACEMENT_COUNT = 20.0f;
+    private static final float BASE_VEIN_SIZE = 4.0f;
 
     public static void registerGeneratedFeatures()
     {
@@ -40,9 +42,9 @@ public class OreGen
     {
         String oreName = "ore_" + type.name().toLowerCase();
 
-        OreConfiguration overworldConfig = new OreConfiguration(new TagMatchTest(type.canReplace), ModBlocks.registeredBlocks.get(oreName).get().defaultBlockState(), type.minSize);
+        OreConfiguration overworldConfig = new OreConfiguration(new TagMatchTest(type.canReplace), ModBlocks.registeredBlocks.get(oreName).get().defaultBlockState(), (int)(BASE_VEIN_SIZE * type.sizeModifier));
         return registerPlacedFeature("oregen_" + oreName, new ConfiguredFeature<>(Feature.ORE, overworldConfig),
-                CountPlacement.of((int)(40 * type.rarity)),
+                CountPlacement.of((int)(BASE_PLACEMENT_COUNT * type.rarity)),
                 InSquarePlacement.spread(),
                 HeightRangePlacement.uniform(VerticalAnchor.absolute(type.minY), VerticalAnchor.absolute(type.maxY)));
     }
