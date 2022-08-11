@@ -13,21 +13,14 @@ public class FDOre extends Block
 {
     public OreEnum type;
 
-    private static final float BASE_DESTROY_TIME = 3.0f;
-    private static final float BASE_STRENGTH = 3.0f;
-    private static final float BASE_RESISTANCE = 3.0f;
-
     public FDOre(OreEnum type)
     {
-        super(Properties.of(Material.STONE));
+        super(Properties.of(Material.STONE)
+                .sound(SoundType.STONE)
+                .strength(type.hardness)
+                .requiresCorrectToolForDrops());
 
         this.type = type;
-
-        super.properties.sound(SoundType.STONE);
-        super.properties.strength(BASE_STRENGTH * type.hardness);
-        super.properties.explosionResistance(BASE_RESISTANCE * type.hardness);
-        super.properties.destroyTime(BASE_DESTROY_TIME * type.hardness);
-        if(type.miningLevel != 0) super.properties.requiresCorrectToolForDrops();
     }
 }
 

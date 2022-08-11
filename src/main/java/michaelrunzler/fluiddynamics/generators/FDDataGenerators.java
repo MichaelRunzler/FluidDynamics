@@ -5,7 +5,6 @@ import net.minecraft.data.DataGenerator;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
-import org.slf4j.event.Level;
 
 @Mod.EventBusSubscriber(modid = FluidDynamics.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class FDDataGenerators
@@ -17,11 +16,11 @@ public class FDDataGenerators
 
         if(event.includeServer()){
             gen.addProvider(new FDRecipeProvider(gen));
-            //TODO add more providers
+            gen.addProvider(new FDBlockTagProvider(gen, event.getExistingFileHelper()));
+            gen.addProvider(new FDLootTableProvider(gen));
         }
 
         if(event.includeClient()){
-            FluidDynamics.logModEvent(Level.DEBUG, "Generating data mappings...");
             gen.addProvider(new FDBlockStateProvider(gen, event.getExistingFileHelper()));
             gen.addProvider(new FDModelProvider(gen, event.getExistingFileHelper()));
             gen.addProvider(new FDEnLangProvider(gen));

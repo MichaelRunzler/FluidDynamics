@@ -4,10 +4,8 @@ import com.mojang.logging.LogUtils;
 import michaelrunzler.fluiddynamics.block.ModBlockItems;
 import michaelrunzler.fluiddynamics.block.ModBlocks;
 import michaelrunzler.fluiddynamics.item.ModItems;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import michaelrunzler.fluiddynamics.worldgen.OreGen;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -33,8 +31,9 @@ public class FluidDynamics
 
     public FluidDynamics()
     {
-        // Register the setup method for modloading
+        // Register the setup and init methods for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         // Register the enqueueIMC method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueIMC);
         // Register the processIMC method for modloading
@@ -51,13 +50,17 @@ public class FluidDynamics
         ModItems.items.register(eb);
         ModBlocks.blocks.register(eb);
         ModBlockItems.blockitems.register(eb);
-
-        //TODO add language files; add more items/blocks; figure out oregen; TEs/fluids (later)
     }
 
     private void setup(final FMLCommonSetupEvent event)
     {
+        IEventBus bus = MinecraftForge.EVENT_BUS;
+        bus.addListener(OreGen::onBiomeLoadingEvent);
+    }
 
+    private void init(final FMLCommonSetupEvent event)
+    {
+        event.enqueueWork(OreGen::registerGeneratedFeatures);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)
@@ -79,18 +82,6 @@ public class FluidDynamics
     public void onServerStarting(ServerStartingEvent event)
     {
 
-    }
-
-    // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
-    // Event bus for receiving Registry Events)
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents
-    {
-        @SubscribeEvent
-        public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent)
-        {
-
-        }
     }
 
     /**

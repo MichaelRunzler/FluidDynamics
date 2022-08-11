@@ -35,49 +35,61 @@ public class MaterialRecipes
 
     private static void blockRecipe(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + mat.name().toLowerCase());
-        ShapedRecipeBuilder.shaped(ModBlockItems.registeredBItems.get("block_" + mat.name().toLowerCase()).get())
+        String matName = mat.name().toLowerCase();
+        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+
+        ShapedRecipeBuilder.shaped(ModBlockItems.registeredBItems.get("block_" + matName).get())
                 .pattern("xxx")
                 .pattern("xxx")
                 .pattern("xxx")
                 .define('x', itm.get())
                 .group("fluid_dynamics_materials_block")
-                .unlockedBy("block_" + mat.name().toLowerCase() + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
-                .save(c, "block_" + mat.name().toLowerCase());
+                .unlockedBy("block_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .save(c, "block_" + matName);
     }
 
     private static void nuggetIngotRecipe(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
-        RegistryObject<Item> itm = ModItems.registeredItems.get("nugget_" + mat.name().toLowerCase());
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("ingot_" + mat.name().toLowerCase()).get())
+        String matName = mat.name().toLowerCase();
+        RegistryObject<Item> itm = ModItems.registeredItems.get("nugget_" + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+
+        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("ingot_" + matName).get())
                 .pattern("xxx")
                 .pattern("xxx")
                 .pattern("xxx")
                 .define('x', itm.get())
                 .group("fluid_dynamics_materials_ingot_n")
-                .unlockedBy("n_ingot_" + mat.name().toLowerCase() + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
-                .save(c, "nugget_ingot_" + mat.name().toLowerCase());
+                .unlockedBy("n_ingot_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .save(c, "nugget_ingot_" + matName);
     }
 
     private static void blockIngotRecipe(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
-        RegistryObject<Item> itm = ModBlockItems.registeredBItems.get("block_" + mat.name().toLowerCase());
-        RegistryObject<Item> out = ModItems.registeredItems.get("ingot_" + mat.name().toLowerCase());
+        String matName = mat.name().toLowerCase();
+        RegistryObject<Item> itm = ModBlockItems.registeredBItems.get("block_" + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+
+        RegistryObject<Item> out = ModItems.registeredItems.get("ingot_" + matName);
         ShapelessRecipeBuilder.shapeless(out.get(), 9)
                 .requires(itm.get())
                 .group("fluid_dynamics_materials_ingot_b")
-                .unlockedBy("b_ingot_" + mat.name().toLowerCase() + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(out.get()))
-                .save(c, "block_ingot_" + mat.name().toLowerCase());
+                .unlockedBy("b_ingot_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(out.get()))
+                .save(c, "block_ingot_" + matName);
     }
 
     private static void nuggetRecipe(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + mat.name().toLowerCase());
-        ShapelessRecipeBuilder.shapeless(ModItems.registeredItems.get("nugget_" + mat.name().toLowerCase()).get(), 9)
+        String matName = mat.name().toLowerCase();
+        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+
+        ShapelessRecipeBuilder.shapeless(ModItems.registeredItems.get("nugget_" + matName).get(), 9)
                 .requires(itm.get())
                 .group("fluid_dynamics_materials_nugget")
-                .unlockedBy("nugget_" + mat.name().toLowerCase() + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
-                .save(c, "nugget_" + mat.name().toLowerCase());
+                .unlockedBy("nugget_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .save(c, "nugget_" + matName);
     }
 
     private static void dustSmeltingRecipe(MaterialEnum mat, Consumer<FinishedRecipe> c)
@@ -85,11 +97,14 @@ public class MaterialRecipes
         // Only add recipes for materials whose melt point is below the temp of a vanilla furnace (1,800K)
         if(mat.meltPoint >= VANILLA_FURNACE_MELT_POINT) return;
 
-        RegistryObject<Item> itm = ModItems.registeredItems.get("dust_" + mat.name().toLowerCase());
-        RegistryObject<Item> out = ModItems.registeredItems.get("ingot_" + mat.name().toLowerCase());
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(itm.get()), out.get(), mat.meltPoint / 500.0f, 100)
+        String matName = mat.name().toLowerCase();
+        RegistryObject<Item> itm = ModItems.registeredItems.get("dust_" + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        RegistryObject<Item> out = ModItems.registeredItems.get("ingot_" + matName);
+
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(itm.get()), out.get(), 0.5f, (int)(mat.meltPoint / 5))
                 .group("fluid_dynamics_materials_dust")
-                .unlockedBy("dust_" + mat.name().toLowerCase() + "_trigget", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
-                .save(c, "dust_smelting_standard_" + mat.name().toLowerCase());
+                .unlockedBy("dust_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .save(c, "dust_smelting_standard_" + matName);
     }
 }

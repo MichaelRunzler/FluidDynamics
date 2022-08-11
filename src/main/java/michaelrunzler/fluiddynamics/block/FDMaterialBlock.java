@@ -13,20 +13,14 @@ public class FDMaterialBlock extends Block
 {
     public MaterialEnum type;
 
-    private static final float BASE_DESTROY_TIME = 3.0f;
-    private static final float BASE_STRENGTH = 3.0f;
-    private static final float BASE_RESISTANCE = 3.0f;
-
     public FDMaterialBlock(MaterialEnum type)
     {
-        super(Properties.of(Material.METAL));
+        super(Properties.of(Material.METAL)
+                .sound(SoundType.METAL)
+                .strength(type.hardness)
+                .requiresCorrectToolForDrops());
 
         this.type = type;
-
-        super.properties.sound(SoundType.METAL);
-        super.properties.strength(BASE_STRENGTH * type.hardness);
-        super.properties.explosionResistance(BASE_RESISTANCE * type.hardness);
-        super.properties.destroyTime(BASE_DESTROY_TIME * type.hardness);
     }
 }
 
