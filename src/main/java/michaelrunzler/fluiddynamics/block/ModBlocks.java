@@ -4,6 +4,8 @@ import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.generators.FDBlockTagProvider;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
+import michaelrunzler.fluiddynamics.types.MaterialEnum;
+import michaelrunzler.fluiddynamics.types.OreEnum;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;

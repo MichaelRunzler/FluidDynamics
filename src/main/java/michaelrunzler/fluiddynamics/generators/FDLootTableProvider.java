@@ -1,8 +1,8 @@
 package michaelrunzler.fluiddynamics.generators;
 
-import michaelrunzler.fluiddynamics.block.MaterialEnum;
+import michaelrunzler.fluiddynamics.types.MaterialEnum;
 import michaelrunzler.fluiddynamics.block.ModBlocks;
-import michaelrunzler.fluiddynamics.block.OreEnum;
+import michaelrunzler.fluiddynamics.types.OreEnum;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.level.block.Block;
 

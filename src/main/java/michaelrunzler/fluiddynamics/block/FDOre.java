@@ -1,5 +1,6 @@
 package michaelrunzler.fluiddynamics.block;
 
+import michaelrunzler.fluiddynamics.types.OreEnum;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;

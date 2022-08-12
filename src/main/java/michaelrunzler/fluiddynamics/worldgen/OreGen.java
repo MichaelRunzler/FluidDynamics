@@ -2,7 +2,7 @@ package michaelrunzler.fluiddynamics.worldgen;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.block.ModBlocks;
-import michaelrunzler.fluiddynamics.block.OreEnum;
+import michaelrunzler.fluiddynamics.types.OreEnum;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.world.level.biome.Biome;

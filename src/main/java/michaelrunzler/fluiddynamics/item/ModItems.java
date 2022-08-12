@@ -1,12 +1,13 @@
 package michaelrunzler.fluiddynamics.item;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
-import michaelrunzler.fluiddynamics.block.MaterialEnum;
-import michaelrunzler.fluiddynamics.block.OreEnum;
+import michaelrunzler.fluiddynamics.types.MaterialEnum;
+import michaelrunzler.fluiddynamics.types.OreEnum;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
 import michaelrunzler.fluiddynamics.generators.FDItemTagProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraftforge.registries.DeferredRegister;
@@ -39,11 +40,23 @@ public class ModItems
         for(MaterialEnum type : MaterialEnum.values())
         {
             // Generate supplier and register items for ingot, nugget, and dust of this type
+            String name = type.name().toLowerCase();
             Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON).stacksTo(64));
 
-            RegistryObject<Item> ingot = registerItem("ingot_" + type.name().toLowerCase(), itemSupplier);
-            RegistryObject<Item> nugget = registerItem("nugget_" + type.name().toLowerCase(), itemSupplier);
-            RegistryObject<Item> dust = registerItem("dust_" + type.name().toLowerCase(), itemSupplier);
+            RegistryObject<Item> ingot = registerItem("ingot_" + name, itemSupplier);
+            RegistryObject<Item> nugget = registerItem("nugget_" + name, itemSupplier);
+            RegistryObject<Item> dust = registerItem("dust_" + name, itemSupplier);
+            
+            // Generate armor pieces for this type
+            RegistryObject<Item> armorHead = registerItem("armor_head_" + name, () -> new FDArmorItem(type, EquipmentSlot.HEAD));
+            RegistryObject<Item> armorChest = registerItem("armor_chest_" + name, () -> new FDArmorItem(type, EquipmentSlot.CHEST));
+            RegistryObject<Item> armorLegs = registerItem("armor_legs_" + name, () -> new FDArmorItem(type, EquipmentSlot.LEGS));
+            RegistryObject<Item> armorFeet = registerItem("armor_feet_" + name, () -> new FDArmorItem(type, EquipmentSlot.FEET));
+
+            FDEnLangProvider.addItemLangMapping(armorHead, type.englishName + " Helmet");
+            FDEnLangProvider.addItemLangMapping(armorChest, type.englishName + " Chestplate");
+            FDEnLangProvider.addItemLangMapping(armorLegs, type.englishName + " Greaves");
+            FDEnLangProvider.addItemLangMapping(armorFeet, type.englishName + " Boots");
 
             // Register language mappings
             FDEnLangProvider.addItemLangMapping(ingot, type.englishName + " Ingot");

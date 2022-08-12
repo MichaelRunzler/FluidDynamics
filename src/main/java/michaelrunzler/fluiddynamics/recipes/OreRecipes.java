@@ -1,6 +1,6 @@
 package michaelrunzler.fluiddynamics.recipes;
 
-import michaelrunzler.fluiddynamics.block.MaterialEnum;
+import michaelrunzler.fluiddynamics.types.MaterialEnum;
 import michaelrunzler.fluiddynamics.block.ModBlockItems;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;

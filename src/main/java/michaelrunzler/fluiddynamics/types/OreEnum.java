@@ -1,4 +1,4 @@
-package michaelrunzler.fluiddynamics.block;
+package michaelrunzler.fluiddynamics.types;
 
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
