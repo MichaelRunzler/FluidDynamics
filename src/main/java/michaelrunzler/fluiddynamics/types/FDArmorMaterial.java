@@ -28,15 +28,16 @@ public class FDArmorMaterial implements ArmorMaterial
     public int getDefenseForSlot(@NotNull EquipmentSlot slot)
     {
         int value = 0;
+        int truncatedValue = Math.min(mat.armorVal, 20);
         // These values use a progressive distribution, rounded to the nearest integer:
         // 40% is distributed to the chestplate
         // 30% is distributed to the leggings
         // 15% is distributed to the helmet
         // The remainder is distributed to the boots
-        int chestVal = Math.round(mat.armorVal * 0.40f);
-        int legVal = Math.round(mat.armorVal * 0.30f);
-        int helmVal = Math.round(mat.armorVal * 0.15f);
-        int bootVal = mat.armorVal - (chestVal + legVal + helmVal);
+        int chestVal = Math.round(truncatedValue * 0.40f);
+        int legVal = Math.round(truncatedValue * 0.30f);
+        int helmVal = Math.round(truncatedValue * 0.15f);
+        int bootVal = truncatedValue - (chestVal + legVal + helmVal);
 
         switch (slot){
             case HEAD -> value = helmVal;
