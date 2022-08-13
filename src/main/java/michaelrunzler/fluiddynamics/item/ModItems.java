@@ -41,7 +41,7 @@ public class ModItems
         {
             // Generate supplier and register items for ingot, nugget, and dust of this type
             String name = type.name().toLowerCase();
-            Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON).stacksTo(64));
+            Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_RESOURCES).rarity(Rarity.COMMON).stacksTo(64));
 
             RegistryObject<Item> ingot = registerItem("ingot_" + name, itemSupplier);
             RegistryObject<Item> nugget = registerItem("nugget_" + name, itemSupplier);
@@ -74,7 +74,7 @@ public class ModItems
         for(OreEnum type : OreEnum.values())
         {
             // Same as for materials
-            Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON).stacksTo(64));
+            Supplier<Item> itemSupplier = () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_RESOURCES).rarity(Rarity.COMMON).stacksTo(64));
 
             RegistryObject<Item> dust = registerItem("crushed_" + type.name().toLowerCase(), itemSupplier);
             RegistryObject<Item> pureDust = registerItem("purified_" + type.name().toLowerCase(), itemSupplier);

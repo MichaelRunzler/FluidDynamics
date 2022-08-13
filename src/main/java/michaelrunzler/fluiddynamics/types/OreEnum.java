@@ -18,7 +18,7 @@ public enum OreEnum
     // Iron Ore has the following properties:
     // (3.0, 2, 2, 16, 1.0, 0, 64, OVERWORLD, STANDARD)
     NATIVE_COPPER(  3.0f, 2, 1.0f, 0.8f, 0, 64, BlockTags.STONE_ORE_REPLACEABLES, "Native Copper Ore"),
-    NATIVE_TIN(     2.5f, 1, 1.0f, 0.7f, 0, 80, BlockTags.STONE_ORE_REPLACEABLES, "Native Tin Ore"),
+    NATIVE_TIN(     2.5f, 1, 1.0f, 0.9f, 0, 80, BlockTags.STONE_ORE_REPLACEABLES, "Native Tin Ore"),
     BERTRANDITE(    3.5f, 2, 1.0f, 1.0f, 0, 48, BlockTags.STONE_ORE_REPLACEABLES, "Bertrandite"),
     SPHEROCOBALTITE(5.0f, 3, 1.0f, 0.4f, 0, 32, BlockTags.STONE_ORE_REPLACEABLES, "Spherocobaltite"),
     TETRATAENITE(   50.0f,4, 1.0f, 0.2f, -128,192, BlockTags.DIRT, "Tetrataenite"),

@@ -33,7 +33,8 @@ public class FDEnLangProvider extends LanguageProvider
 
         // Add manual mappings
         add("itemGroup.tab_blocks", "Fluid Dynamics: Blocks");
-        add("itemGroup.tab_items", "Fluid Dynamics: Items");
+        add("itemGroup.tab_resources", "Fluid Dynamics: Resources");
+        add("itemGroup.tab_armor", "Fluid Dynamics: Tools and Armor");
     }
 
     /**

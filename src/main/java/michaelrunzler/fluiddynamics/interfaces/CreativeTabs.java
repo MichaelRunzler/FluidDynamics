@@ -15,10 +15,17 @@ public class CreativeTabs
         }
     };
 
-    public static final CreativeModeTab TAB_ITEMS = new CreativeModeTab("tab_items") {
+    public static final CreativeModeTab TAB_RESOURCES = new CreativeModeTab("tab_resources") {
         @Override
         public @NotNull ItemStack makeIcon() {
             return new ItemStack(ModItems.registeredItems.get("ingot_copper").get());
+        }
+    };
+
+    public static final CreativeModeTab TAB_ITEMS = new CreativeModeTab("tab_items") {
+        @Override
+        public @NotNull ItemStack makeIcon() {
+            return new ItemStack(ModItems.registeredItems.get("dust_copper").get());
         }
     };
 
