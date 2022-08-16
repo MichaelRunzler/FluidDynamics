@@ -24,7 +24,8 @@ public class MaterialRecipes
 
     public static void generateMaterialRecipes(Consumer<FinishedRecipe> c)
     {
-        for(MaterialEnum type : MaterialEnum.values()) {
+        for(MaterialEnum type : MaterialEnum.values())
+        {
             blockRecipe(type, c);
             nuggetRecipe(type, c);
             nuggetIngotRecipe(type, c);

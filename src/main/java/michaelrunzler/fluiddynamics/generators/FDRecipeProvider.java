@@ -3,6 +3,7 @@ package michaelrunzler.fluiddynamics.generators;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.recipes.MaterialRecipes;
 import michaelrunzler.fluiddynamics.recipes.OreRecipes;
+import michaelrunzler.fluiddynamics.recipes.ToolArmorRecipes;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -28,6 +29,8 @@ public class FDRecipeProvider extends RecipeProvider
     {
         MaterialRecipes.generateMaterialRecipes(consumer);
         OreRecipes.generateOreSmeltingRecipes(consumer);
+        ToolArmorRecipes.generateArmor(consumer);
+        ToolArmorRecipes.generateTools(consumer);
 
         // Manual recipes follow:
 

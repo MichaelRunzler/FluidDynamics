@@ -25,7 +25,7 @@ public class CreativeTabs
     public static final CreativeModeTab TAB_ITEMS = new CreativeModeTab("tab_items") {
         @Override
         public @NotNull ItemStack makeIcon() {
-            return new ItemStack(ModItems.registeredItems.get("dust_copper").get());
+            return new ItemStack(ModItems.registeredItems.get("dust_copper").get()); // TODO change
         }
     };
 
@@ -33,6 +33,13 @@ public class CreativeTabs
         @Override
         public @NotNull ItemStack makeIcon() {
             return new ItemStack(ModItems.registeredItems.get("armor_chest_copper").get());
+        }
+    };
+
+    public static final CreativeModeTab TAB_TOOLS = new CreativeModeTab("tab_tools") {
+        @Override
+        public @NotNull ItemStack makeIcon() {
+            return new ItemStack(ModItems.registeredItems.get("pickaxe_copper").get());
         }
     };
 }

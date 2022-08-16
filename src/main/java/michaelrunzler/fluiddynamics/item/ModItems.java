@@ -58,6 +58,19 @@ public class ModItems
             FDEnLangProvider.addItemLangMapping(armorLegs, type.englishName + " Greaves");
             FDEnLangProvider.addItemLangMapping(armorFeet, type.englishName + " Boots");
 
+            // Generate tools for this type
+            RegistryObject<Item> toolPick = registerItem("pickaxe_" + name, () -> new FDPickaxe(type));
+            RegistryObject<Item> toolAxe = registerItem("axe_" + name, () -> new FDAxe(type));
+            RegistryObject<Item> toolSpade = registerItem("spade_" + name, () -> new FDSpade(type));
+            RegistryObject<Item> toolHoe = registerItem("hoe_" + name, () -> new FDHoe(type));
+            RegistryObject<Item> toolSword = registerItem("sword_" + name, () -> new FDSword(type));
+
+            FDEnLangProvider.addItemLangMapping(toolPick, type.englishName + " Pickaxe");
+            FDEnLangProvider.addItemLangMapping(toolAxe, type.englishName + " Axe");
+            FDEnLangProvider.addItemLangMapping(toolSpade, type.englishName + " Shovel");
+            FDEnLangProvider.addItemLangMapping(toolHoe, type.englishName + " Hoe");
+            FDEnLangProvider.addItemLangMapping(toolSword, type.englishName + " Sword");
+
             // Register language mappings
             FDEnLangProvider.addItemLangMapping(ingot, type.englishName + " Ingot");
             FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget");
