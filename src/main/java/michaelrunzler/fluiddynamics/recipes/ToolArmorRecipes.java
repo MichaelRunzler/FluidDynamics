@@ -106,11 +106,11 @@ public class ToolArmorRecipes
         String matName = mat.name().toLowerCase();
         RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
         if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
-        
+
         ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("axe_" + matName).get())
                 .pattern("xx ")
                 .pattern("xs ")
-                .pattern("  s")
+                .pattern(" s ")
                 .define('x', itm.get())
                 .define('s', Items.STICK)
                 .group("fluid_dynamics_axe")
