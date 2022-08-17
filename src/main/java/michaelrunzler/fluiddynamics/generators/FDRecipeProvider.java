@@ -1,6 +1,7 @@
 package michaelrunzler.fluiddynamics.generators;
 
 import michaelrunzler.fluiddynamics.item.ModItems;
+import michaelrunzler.fluiddynamics.recipes.ComponentRecipes;
 import michaelrunzler.fluiddynamics.recipes.MaterialRecipes;
 import michaelrunzler.fluiddynamics.recipes.OreRecipes;
 import michaelrunzler.fluiddynamics.recipes.ToolArmorRecipes;
@@ -31,8 +32,7 @@ public class FDRecipeProvider extends RecipeProvider
         OreRecipes.generateOreSmeltingRecipes(consumer);
         ToolArmorRecipes.generateArmor(consumer);
         ToolArmorRecipes.generateTools(consumer);
-
-        // Manual recipes follow:
+        ComponentRecipes.generateComponentRecipes(consumer);
 
         //
         // Special smelting recipes

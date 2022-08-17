@@ -95,6 +95,51 @@ public class ModItems
             FDEnLangProvider.addItemLangMapping(pureDust, "Purified Crushed " + type.englishName);
         }
 
+        //
+        // Component Items
+        //
+
+        Supplier<Item> componentSupplier = () -> new Item(new Item.Properties().stacksTo(64).tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON));
+
+        RegistryObject<Item> powerConverter = registerItem("power_converter", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(powerConverter, "Redstone-Beryllium Power Converter");
+
+        RegistryObject<Item> depletedCell = registerItem("depleted_cell", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(depletedCell, "Depleted Redstone-Beryllium Power Cell");
+
+        RegistryObject<Item> energyCell = registerItem("energy_cell", EnergyCell::new);
+        FDEnLangProvider.addItemLangMapping(energyCell, "Redstone-Beryllium Power Cell");
+
+        RegistryObject<Item> redstoneDynamo = registerItem("redstone_dynamo", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(redstoneDynamo, "Redstone-Beryllium Energy Dynamo");
+
+        RegistryObject<Item> actuator = registerItem("actuator", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(actuator, "Powered Actuation Servo");
+
+        RegistryObject<Item> heatingElement = registerItem("heating_element", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(heatingElement, "Invar Heating Element");
+
+        RegistryObject<Item> highTempHeatingElement = registerItem("high_temp_heating_element", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(highTempHeatingElement, "High-Temperature Tungsten Heating Element");
+
+        RegistryObject<Item> pressureChamber = registerItem("pressure_vessel", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(pressureChamber, "Reinforced Pressure Vessel");
+
+        RegistryObject<Item> electromagnet = registerItem("electromagnet", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(electromagnet, "Electromagnet Armature");
+
+        RegistryObject<Item> superconductor = registerItem("superconductor", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(superconductor, "Superconducting Electromagnet Armature");
+
+        RegistryObject<Item> heatExchanger = registerItem("heat_exchanger", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(heatExchanger, "Heat Exchanger");
+
+        RegistryObject<Item> processor = registerItem("processor", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(processor, "Automation Processor");
+
+        RegistryObject<Item> chemReactor = registerItem("chemical_reactor", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(chemReactor, "Electrocatalytic Reactor Core");
+
         FluidDynamics.logModEvent(Level.DEBUG, "...done.");
     }
 

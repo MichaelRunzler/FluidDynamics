@@ -25,7 +25,7 @@ public class CreativeTabs
     public static final CreativeModeTab TAB_ITEMS = new CreativeModeTab("tab_items") {
         @Override
         public @NotNull ItemStack makeIcon() {
-            return new ItemStack(ModItems.registeredItems.get("dust_copper").get()); // TODO change
+            return new ItemStack(ModItems.registeredItems.get("redstone_dynamo").get());
         }
     };
 
