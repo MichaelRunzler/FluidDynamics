@@ -31,6 +31,7 @@ public class MaterialRecipes
             nuggetIngotRecipe(type, c);
             dustSmeltingRecipe(type, c);
             blockIngotRecipe(type, c);
+            portableGrinderIngot(type, c);
         }
     }
 
@@ -38,7 +39,7 @@ public class MaterialRecipes
     {
         String matName = mat.name().toLowerCase();
         RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material ingot with type: " + matName);
 
         ShapedRecipeBuilder.shaped(ModBlockItems.registeredBItems.get("block_" + matName).get())
                 .pattern("xxx")
@@ -54,7 +55,7 @@ public class MaterialRecipes
     {
         String matName = mat.name().toLowerCase();
         RegistryObject<Item> itm = ModItems.registeredItems.get("nugget_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material nugget with type: " + matName);
 
         ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("ingot_" + matName).get())
                 .pattern("xxx")
@@ -70,7 +71,7 @@ public class MaterialRecipes
     {
         String matName = mat.name().toLowerCase();
         RegistryObject<Item> itm = ModBlockItems.registeredBItems.get("block_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material block with type: " + matName);
 
         RegistryObject<Item> out = ModItems.registeredItems.get("ingot_" + matName);
         ShapelessRecipeBuilder.shapeless(out.get(), 9)
@@ -84,7 +85,7 @@ public class MaterialRecipes
     {
         String matName = mat.name().toLowerCase();
         RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material ingot with type: " + matName);
 
         ShapelessRecipeBuilder.shapeless(ModItems.registeredItems.get("nugget_" + matName).get(), 9)
                 .requires(itm.get())
@@ -100,12 +101,28 @@ public class MaterialRecipes
 
         String matName = mat.name().toLowerCase();
         RegistryObject<Item> itm = ModItems.registeredItems.get("dust_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        if(itm == null) throw new NullPointerException("Unable to find material dust with type: " + matName);
         RegistryObject<Item> out = ModItems.registeredItems.get("ingot_" + matName);
 
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(itm.get()), out.get(), 0.5f, (int)(mat.meltPoint / 5))
                 .group("fluid_dynamics_materials_dust")
                 .unlockedBy("dust_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
                 .save(c, "dust_smelting_standard_" + matName);
+    }
+
+    private static void portableGrinderIngot(MaterialEnum mat, Consumer<FinishedRecipe> c)
+    {
+        String matName = mat.name().toLowerCase();
+        RegistryObject<Item> out = ModItems.registeredItems.get("dust_" + matName);
+        RegistryObject<Item> in = ModItems.registeredItems.get("ingot_" + matName);
+        if(in == null) throw new NullPointerException("Unable to find material ingot with type: " + matName);
+        if(out == null) throw new NullPointerException("Unable to find material dust with type: " + matName);
+
+        ShapelessRecipeBuilder.shapeless(out.get())
+                .requires(in.get())
+                .requires(ModItems.registeredItems.get("portable_grinder").get())
+                .group("fluid_dynamics_grinding_portable_ingot")
+                .unlockedBy("ingot_grinding_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(in.get()))
+                .save(c, "ingot_grinding_portable_" + matName);
     }
 }

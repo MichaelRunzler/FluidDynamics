@@ -14,13 +14,17 @@ import java.util.function.Consumer;
  */
 public class EnergyCell extends Item
 {
+    public static final int DURABILITY = 100;
+
     public EnergyCell() {
-        super(new Properties().tab(CreativeTabs.TAB_ITEMS).stacksTo(1).defaultDurability(100).setNoRepair().rarity(Rarity.COMMON));
+        super(new Properties().tab(CreativeTabs.TAB_ITEMS).stacksTo(1).defaultDurability(DURABILITY).setNoRepair().rarity(Rarity.COMMON));
     }
 
     @Override
     public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, T entity, Consumer<T> onBroken)
     {
+        //TODO generalize to handle depletion by block entities and non-mainhand sources (i.e. in-inventory charging)
+
         // Convert the cell into a depleted cell when its durability drops below 0
         int dmg = super.damageItem(stack, amount, entity, onBroken);
 

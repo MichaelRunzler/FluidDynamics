@@ -5,6 +5,7 @@ import michaelrunzler.fluiddynamics.block.ModBlockItems;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -49,6 +50,15 @@ public class OreRecipes
         purifiedOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
         purifiedOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
         purifiedOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+
+        // Grinding raw ore yields 1 crushed ore of the proper type 
+        portableGrinderOreRecipe(c, "native_tin");
+        portableGrinderOreRecipe(c, "native_copper");
+        portableGrinderOreRecipe(c, "bertrandite");
+        portableGrinderOreRecipe(c, "spherocobaltite");
+        portableGrinderOreRecipe(c, "tetrataenite");
+        portableGrinderOreRecipe(c, "bauxite");
+        portableGrinderOreRecipe(c, "pentlandite");
     }
 
     public static void rawOreSmeltingRecipe(Consumer<FinishedRecipe> c, String oreName, String matName, int time) {
@@ -74,5 +84,19 @@ public class OreRecipes
                 .group("fluid_dynamics_" + type + "_smelting")
                 .unlockedBy(name + "_smelting", InventoryChangeTrigger.TriggerInstance.hasItems(input))
                 .save(c, name + "_smelting");
+    }
+
+    private static void portableGrinderOreRecipe(Consumer<FinishedRecipe> c, String oreName)
+    {
+        RegistryObject<Item> in = ModBlockItems.registeredBItems.get("ore_" + oreName);
+        RegistryObject<Item> out = ModItems.registeredItems.get("crushed_" + oreName);
+        if(out == null) throw new NullPointerException("Unable to find ore with name: " + oreName);
+
+        ShapelessRecipeBuilder.shapeless(out.get())
+                .requires(in.get())
+                .requires(ModItems.registeredItems.get("portable_grinder").get())
+                .group("fluid_dynamics_grinding_portable_ore")
+                .unlockedBy("ore_grinding_" + oreName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(in.get()))
+                .save(c, "ore_grinding_portable_" + oreName);
     }
 }

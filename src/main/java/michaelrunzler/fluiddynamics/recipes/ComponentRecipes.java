@@ -4,7 +4,6 @@ import michaelrunzler.fluiddynamics.item.ModItems;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Items;
 
 import java.util.function.Consumer;
@@ -17,6 +16,16 @@ public class ComponentRecipes
 {
     public static void generateComponentRecipes(Consumer<FinishedRecipe> c)
     {
+        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("power_conduit").get())
+                .pattern("ggg")
+                .pattern("cbc")
+                .pattern("ggg")
+                .define('b', ModItems.registeredItems.get("ingot_beryllium").get())
+                .define('c', ModItems.registeredItems.get("ingot_copper").get())
+                .define('g', Items.GLASS_PANE)
+                .unlockedBy("power_conduit_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_copper").get()))
+                .save(c, "power_conduit");
+
         ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("power_converter").get())
                 .pattern("bcb")
                 .pattern("rgr")
@@ -27,17 +36,6 @@ public class ComponentRecipes
                 .define('g', Items.GOLD_INGOT)
                 .unlockedBy("power_converter_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_beryllium").get()))
                 .save(c, "power_converter");
-
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("energy_cell").get())
-                .pattern(" c ")
-                .pattern("tbt")
-                .pattern("trt")
-                .define('b', ModItems.registeredItems.get("ingot_beryllium").get())
-                .define('c', ModItems.registeredItems.get("ingot_copper").get())
-                .define('r', Items.REDSTONE)
-                .define('t', ModItems.registeredItems.get("ingot_tin").get())
-                .unlockedBy("energy_cell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_beryllium").get()))
-                .save(c, "energy_cell");
 
         ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("redstone_dynamo").get())
                 .pattern("bgb")
@@ -113,6 +111,16 @@ public class ComponentRecipes
                 .unlockedBy("superconductor_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_superconductor").get()))
                 .save(c, "superconductor");
 
+        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("super_conduit").get())
+                .pattern("ooo")
+                .pattern("ses")
+                .pattern("ooo")
+                .define('s', ModItems.registeredItems.get("ingot_superconductor").get())
+                .define('e', Items.EMERALD)
+                .define('o', Items.OBSIDIAN)
+                .unlockedBy("super_conduit_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_superconductor").get()))
+                .save(c, "super_conduit");
+
         ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("heat_exchanger").get())
                 .pattern("ana")
                 .pattern("cgc")
@@ -145,12 +153,5 @@ public class ComponentRecipes
                 .define('g', Items.GOLD_INGOT)
                 .unlockedBy("chemical_reactor_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_palladium").get()))
                 .save(c, "chemical_reactor");
-
-        ShapelessRecipeBuilder.shapeless(ModItems.registeredItems.get("energy_cell").get(), 1)
-                .requires(ModItems.registeredItems.get("ingot_beryllium").get(), 1)
-                .requires(ModItems.registeredItems.get("depleted_cell").get(), 1)
-                .requires(Items.REDSTONE, 1)
-                .unlockedBy("depleted_cell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("depleted_cell").get()))
-                .save(c, "depleted_cell_recharge");
     }
 }

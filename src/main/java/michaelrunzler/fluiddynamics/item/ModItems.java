@@ -91,8 +91,8 @@ public class ModItems
 
             RegistryObject<Item> dust = registerItem("crushed_" + type.name().toLowerCase(), itemSupplier);
             RegistryObject<Item> pureDust = registerItem("purified_" + type.name().toLowerCase(), itemSupplier);
-            FDEnLangProvider.addItemLangMapping(dust, "Crushed " + type.englishName);
-            FDEnLangProvider.addItemLangMapping(pureDust, "Purified Crushed " + type.englishName);
+            FDEnLangProvider.addItemLangMapping(dust, "Decomposed " + type.englishName);
+            FDEnLangProvider.addItemLangMapping(pureDust, "Purified " + type.englishName);
         }
 
         //
@@ -101,14 +101,11 @@ public class ModItems
 
         Supplier<Item> componentSupplier = () -> new Item(new Item.Properties().stacksTo(64).tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON));
 
+        RegistryObject<Item> powerConduit = registerItem("power_conduit", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(powerConduit, "Redstone-Beryllium Power Conduit");
+
         RegistryObject<Item> powerConverter = registerItem("power_converter", componentSupplier);
         FDEnLangProvider.addItemLangMapping(powerConverter, "Redstone-Beryllium Power Converter");
-
-        RegistryObject<Item> depletedCell = registerItem("depleted_cell", componentSupplier);
-        FDEnLangProvider.addItemLangMapping(depletedCell, "Depleted Redstone-Beryllium Power Cell");
-
-        RegistryObject<Item> energyCell = registerItem("energy_cell", EnergyCell::new);
-        FDEnLangProvider.addItemLangMapping(energyCell, "Redstone-Beryllium Power Cell");
 
         RegistryObject<Item> redstoneDynamo = registerItem("redstone_dynamo", componentSupplier);
         FDEnLangProvider.addItemLangMapping(redstoneDynamo, "Redstone-Beryllium Energy Dynamo");
@@ -131,6 +128,9 @@ public class ModItems
         RegistryObject<Item> superconductor = registerItem("superconductor", componentSupplier);
         FDEnLangProvider.addItemLangMapping(superconductor, "Superconducting Electromagnet Armature");
 
+        RegistryObject<Item> superConduit = registerItem("super_conduit", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(superConduit, "Superconducting Power Conduit");
+
         RegistryObject<Item> heatExchanger = registerItem("heat_exchanger", componentSupplier);
         FDEnLangProvider.addItemLangMapping(heatExchanger, "Heat Exchanger");
 
@@ -139,6 +139,25 @@ public class ModItems
 
         RegistryObject<Item> chemReactor = registerItem("chemical_reactor", componentSupplier);
         FDEnLangProvider.addItemLangMapping(chemReactor, "Electrocatalytic Reactor Core");
+
+        //
+        // Advanced Tools and Utility Items
+        //
+
+        RegistryObject<Item> depletedCell = registerItem("depleted_cell", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(depletedCell, "Depleted Redstone-Beryllium Power Cell");
+
+        RegistryObject<Item> energyCell = registerItem("energy_cell", EnergyCell::new);
+        FDEnLangProvider.addItemLangMapping(energyCell, "Redstone-Beryllium Power Cell");
+
+        RegistryObject<Item> portableGrinder = registerItem("portable_grinder", PortableGrinder::new);
+        FDEnLangProvider.addItemLangMapping(portableGrinder, "Portable Molecular Decompiler");
+
+        // The uncharged version of the portable grinder, returns a charged version of itself when used in crafting
+        RegistryObject<Item> unPortableGrinder = registerItem("uncharged_portable_grinder",
+                () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_TOOLS).rarity(Rarity.UNCOMMON).setNoRepair().stacksTo(1)
+                        .craftRemainder(ModItems.registeredItems.get("portable_grinder").get())));
+        FDEnLangProvider.addItemLangMapping(unPortableGrinder, "Portable Molecular Decompiler (uncharged)");
 
         FluidDynamics.logModEvent(Level.DEBUG, "...done.");
     }
