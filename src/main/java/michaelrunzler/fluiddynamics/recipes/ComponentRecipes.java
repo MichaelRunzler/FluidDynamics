@@ -16,6 +16,17 @@ public class ComponentRecipes
 {
     public static void generateComponentRecipes(Consumer<FinishedRecipe> c)
     {
+        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("machine_frame").get())
+                .pattern("cbc")
+                .pattern("aoa")
+                .pattern("cbc")
+                .define('c', ModItems.registeredItems.get("ingot_copper").get())
+                .define('b', ModItems.registeredItems.get("ingot_beryllium").get())
+                .define('a', ModItems.registeredItems.get("ingot_aluminium").get())
+                .define('o', ModItems.registeredItems.get("ingot_cobalt").get())
+                .unlockedBy("machine_frame_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_cobalt").get()))
+                .save(c, "machine_frame");
+
         ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("power_conduit").get())
                 .pattern("ggg")
                 .pattern("cbc")
@@ -153,5 +164,17 @@ public class ComponentRecipes
                 .define('g', Items.GOLD_INGOT)
                 .unlockedBy("chemical_reactor_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_palladium").get()))
                 .save(c, "chemical_reactor");
+
+        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("beam_emitter").get())
+                .pattern("brb")
+                .pattern("ndn")
+                .pattern(" g ")
+                .define('b', ModItems.registeredItems.get("ingot_beryllium").get())
+                .define('n', ModItems.registeredItems.get("ingot_nickel").get())
+                .define('r', Items.REDSTONE_BLOCK)
+                .define('d', Items.DIAMOND)
+                .define('g', Items.GLOWSTONE)
+                .unlockedBy("beam_emitter_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                .save(c, "beam_emitter");
     }
 }

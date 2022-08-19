@@ -101,6 +101,9 @@ public class ModItems
 
         Supplier<Item> componentSupplier = () -> new Item(new Item.Properties().stacksTo(64).tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON));
 
+        RegistryObject<Item> machineFrame = registerItem("machine_frame", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(machineFrame, "Universal Machine Frame");
+
         RegistryObject<Item> powerConduit = registerItem("power_conduit", componentSupplier);
         FDEnLangProvider.addItemLangMapping(powerConduit, "Redstone-Beryllium Power Conduit");
 
@@ -152,6 +155,9 @@ public class ModItems
 
         RegistryObject<Item> portableGrinder = registerItem("portable_grinder", PortableGrinder::new);
         FDEnLangProvider.addItemLangMapping(portableGrinder, "Portable Molecular Decompiler");
+
+        RegistryObject<Item> beamEmitter = registerItem("beam_emitter", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(beamEmitter, "Particle Beam Emitter");
 
         // The uncharged version of the portable grinder, returns a charged version of itself when used in crafting
         RegistryObject<Item> unPortableGrinder = registerItem("uncharged_portable_grinder",
