@@ -36,7 +36,7 @@ public class FDEnLangProvider extends LanguageProvider
         add("itemGroup.tab_resources", "Fluid Dynamics: Resources");
         add("itemGroup.tab_armor", "Fluid Dynamics: Armor");
         add("itemGroup.tab_tools", "Fluid Dynamics: Tools and Weapons");
-        add("itemGroup.tab_items", "Fluid Dynamics: Components");
+        add("itemGroup.tab_components", "Fluid Dynamics: Components");
     }
 
     /**

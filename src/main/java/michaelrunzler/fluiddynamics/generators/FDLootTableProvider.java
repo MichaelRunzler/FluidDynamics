@@ -27,5 +27,12 @@ public class FDLootTableProvider extends BaseLootTableProvider
             Block block = ModBlocks.registeredBlocks.get(name).get();
             lootTables.put(block, createSimpleTable(name, block));
         }
+
+        //
+        // Special non-machine blocks
+        //
+
+        lootTables.put(ModBlocks.registeredBlocks.get("machine_frame").get(), createSimpleTable("machine_frame",
+                ModBlocks.registeredBlocks.get("machine_frame").get()));
     }
 }

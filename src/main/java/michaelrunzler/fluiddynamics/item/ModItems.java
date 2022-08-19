@@ -99,10 +99,7 @@ public class ModItems
         // Component Items
         //
 
-        Supplier<Item> componentSupplier = () -> new Item(new Item.Properties().stacksTo(64).tab(CreativeTabs.TAB_ITEMS).rarity(Rarity.COMMON));
-
-        RegistryObject<Item> machineFrame = registerItem("machine_frame", componentSupplier);
-        FDEnLangProvider.addItemLangMapping(machineFrame, "Universal Machine Frame");
+        Supplier<Item> componentSupplier = () -> new Item(new Item.Properties().stacksTo(64).tab(CreativeTabs.TAB_COMPONENTS).rarity(Rarity.COMMON));
 
         RegistryObject<Item> powerConduit = registerItem("power_conduit", componentSupplier);
         FDEnLangProvider.addItemLangMapping(powerConduit, "Redstone-Beryllium Power Conduit");
