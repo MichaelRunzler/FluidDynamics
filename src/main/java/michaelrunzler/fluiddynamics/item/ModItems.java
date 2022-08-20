@@ -96,6 +96,27 @@ public class ModItems
         }
 
         //
+        // Vanilla-sourced material listings
+        //
+
+        Supplier<Item> vanillaSupplier = () -> new Item(new Item.Properties().stacksTo(64).tab(CreativeTabs.TAB_RESOURCES).rarity(Rarity.COMMON));
+
+        RegistryObject<Item> goldOreDust = registerItem("crushed_gold_ore", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(goldOreDust, "Decomposed Gold Ore");
+
+        RegistryObject<Item> pureGoldOre = registerItem("purified_gold_ore", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(pureGoldOre, "Purified Gold Ore");
+
+        RegistryObject<Item> goldDust = registerItem("dust_gold", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(goldDust, "Powdered Gold");
+
+        RegistryObject<Item> endstoneDust = registerItem("crushed_endstone", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(endstoneDust, "Decomposed End Stone");
+
+        RegistryObject<Item> rareEarthNugget = registerItem("nugget_rare_earth", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(rareEarthNugget, "Rare-Earth Metal Deposit");
+
+        //
         // Component Items
         //
 

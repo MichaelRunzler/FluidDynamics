@@ -8,10 +8,12 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -59,6 +61,10 @@ public class OreRecipes
         portableGrinderOreRecipe(c, "tetrataenite");
         portableGrinderOreRecipe(c, "bauxite");
         portableGrinderOreRecipe(c, "pentlandite");
+
+        // Add recipes for vanilla gold ore and endstone
+        portableGrinderRecipe(c, Items.GOLD_ORE, ModItems.registeredItems.get("crushed_gold_ore").get());
+        portableGrinderRecipe(c, Items.END_STONE, ModItems.registeredItems.get("crushed_endstone").get());
     }
 
     public static void rawOreSmeltingRecipe(Consumer<FinishedRecipe> c, String oreName, String matName, int time) {
@@ -92,11 +98,17 @@ public class OreRecipes
         RegistryObject<Item> out = ModItems.registeredItems.get("crushed_" + oreName);
         if(out == null) throw new NullPointerException("Unable to find ore with name: " + oreName);
 
-        ShapelessRecipeBuilder.shapeless(out.get())
-                .requires(in.get())
+        portableGrinderRecipe(c, in.get(), out.get());
+    }
+
+    private static void portableGrinderRecipe(Consumer<FinishedRecipe> c, Item in, Item out)
+    {
+        ShapelessRecipeBuilder.shapeless(out)
+                .requires(in)
                 .requires(ModItems.registeredItems.get("portable_grinder").get())
                 .group("fluid_dynamics_grinding_portable_ore")
-                .unlockedBy("ore_grinding_" + oreName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(in.get()))
-                .save(c, "ore_grinding_portable_" + oreName);
+                .unlockedBy("grinding_portable_" + Objects.requireNonNull(in.getRegistryName()).getPath() +
+                        "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(in))
+                .save(c, "grinding_portable_" + in.getRegistryName().getPath());
     }
 }
