@@ -22,7 +22,7 @@ public class CreativeTabs
         }
     };
 
-    public static final CreativeModeTab TAB_ITEMS = new CreativeModeTab("tab_items") {
+    public static final CreativeModeTab TAB_COMPONENTS = new CreativeModeTab("tab_components") {
         @Override
         public @NotNull ItemStack makeIcon() {
             return new ItemStack(ModItems.registeredItems.get("redstone_dynamo").get());

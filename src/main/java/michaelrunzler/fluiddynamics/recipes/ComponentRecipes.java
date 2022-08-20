@@ -1,5 +1,6 @@
 package michaelrunzler.fluiddynamics.recipes;
 
+import michaelrunzler.fluiddynamics.block.ModBlockItems;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -16,7 +17,7 @@ public class ComponentRecipes
 {
     public static void generateComponentRecipes(Consumer<FinishedRecipe> c)
     {
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("machine_frame").get())
+        ShapedRecipeBuilder.shaped(ModBlockItems.registeredBItems.get("machine_frame").get())
                 .pattern("cbc")
                 .pattern("aoa")
                 .pattern("cbc")

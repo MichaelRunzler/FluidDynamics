@@ -17,7 +17,7 @@ public class EnergyCell extends Item
     public static final int DURABILITY = 100;
 
     public EnergyCell() {
-        super(new Properties().tab(CreativeTabs.TAB_ITEMS).stacksTo(1).defaultDurability(DURABILITY).setNoRepair().rarity(Rarity.COMMON));
+        super(new Properties().tab(CreativeTabs.TAB_COMPONENTS).stacksTo(1).defaultDurability(DURABILITY).setNoRepair().rarity(Rarity.COMMON));
     }
 
     @Override
