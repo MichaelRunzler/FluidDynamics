@@ -3,6 +3,7 @@ package michaelrunzler.fluiddynamics;
 import com.mojang.logging.LogUtils;
 import michaelrunzler.fluiddynamics.block.ModBlockItems;
 import michaelrunzler.fluiddynamics.block.ModBlocks;
+import michaelrunzler.fluiddynamics.blockentity.ModBlockEntities;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.worldgen.OreGen;
 import net.minecraftforge.common.MinecraftForge;
@@ -45,6 +46,7 @@ public class FluidDynamics
         // Register blocks, items, etc.
         ModItems.registerAllItems();
         ModBlocks.registerAllBlocks();
+        ModBlockEntities.registerAllBEs();
 
         IEventBus eb = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.items.register(eb);
