@@ -161,6 +161,9 @@ public class ModItems
         RegistryObject<Item> chemReactor = registerItem("chemical_reactor", componentSupplier);
         FDEnLangProvider.addItemLangMapping(chemReactor, "Electrocatalytic Reactor Core");
 
+        RegistryObject<Item> beamEmitter = registerItem("beam_emitter", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(beamEmitter, "Particle Beam Emitter");
+
         //
         // Advanced Tools and Utility Items
         //
@@ -173,9 +176,6 @@ public class ModItems
 
         RegistryObject<Item> portableGrinder = registerItem("portable_grinder", PortableGrinder::new);
         FDEnLangProvider.addItemLangMapping(portableGrinder, "Portable Molecular Decompiler");
-
-        RegistryObject<Item> beamEmitter = registerItem("beam_emitter", componentSupplier);
-        FDEnLangProvider.addItemLangMapping(beamEmitter, "Particle Beam Emitter");
 
         // The uncharged version of the portable grinder, returns a charged version of itself when used in crafting
         RegistryObject<Item> unPortableGrinder = registerItem("uncharged_portable_grinder",

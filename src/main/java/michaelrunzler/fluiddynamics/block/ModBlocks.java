@@ -4,6 +4,7 @@ import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.generators.FDBlockTagProvider;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
+import michaelrunzler.fluiddynamics.types.MachineEnum;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
 import michaelrunzler.fluiddynamics.types.OreEnum;
 import net.minecraft.tags.BlockTags;
@@ -60,6 +61,13 @@ public class ModBlocks
 
             FDEnLangProvider.addBlockLangMapping(block, mat.englishName);
         }
+
+        //
+        // Machine Blocks
+        //
+
+        RegistryObject<Block> mfmd = registerBlock(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase(), MFMDBlock::new);
+        FDEnLangProvider.addBlockLangMapping(mfmd, MachineEnum.MOLECULAR_DECOMPILER.englishName);
 
         //
         // Special Non-Machine Blocks

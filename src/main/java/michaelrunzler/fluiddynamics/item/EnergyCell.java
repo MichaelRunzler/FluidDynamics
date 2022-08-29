@@ -1,35 +1,49 @@
 package michaelrunzler.fluiddynamics.item;
 
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-
-import java.util.function.Consumer;
 
 /**
  * A single-use Redstone-Beryllium energy cell item which becomes depleted after use and may be recharged through crafting.
  */
 public class EnergyCell extends Item
 {
-    public static final int DURABILITY = 100;
+    public static final int DURABILITY = 1000;
 
     public EnergyCell() {
         super(new Properties().tab(CreativeTabs.TAB_COMPONENTS).stacksTo(1).defaultDurability(DURABILITY).setNoRepair().rarity(Rarity.COMMON));
     }
 
-    @Override
-    public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, T entity, Consumer<T> onBroken)
+    /**
+     * Adds or removes energy from this Cell, and returns the new item stack with the changed durability.
+     * Positive values indicate depletion (discharge), negative values indicate addition (charge).
+     * Note that the returned itemstack might be a Depleted Cell instead of a standard Cell.
+     * If checkEnergy is true, an exception will be thrown if the requested energy transfer amount exceeds the cell's
+     * capacity. Otherwise, any overage (overcharge or over-discharge) will be lost without any errors.
+     */
+    public ItemStack chargeDischarge(ItemStack stack, int amount, boolean checkEnergy)
     {
-        //TODO generalize to handle depletion by block entities and non-mainhand sources (i.e. in-inventory charging)
+        if(checkEnergy)
+        {
+            if(amount > 0 && amount > (stack.getMaxDamage() - stack.getDamageValue()))
+                throw new IllegalStateException("Energy cell has insufficient energy remaining (has " + (stack.getMaxDamage() - stack.getDamageValue()) + ", needs " + amount + ")");
+            else if(amount < 0 && -amount > stack.getDamageValue())
+                throw new IllegalStateException("Energy cell has insufficient energy capacity (has " + stack.getDamageValue() + ", needs " + -amount + ")");
+        }
 
-        // Convert the cell into a depleted cell when its durability drops below 0
-        int dmg = super.damageItem(stack, amount, entity, onBroken);
+        super.setDamage(stack, stack.getDamageValue() + amount);
 
+        // Convert this item to a Depleted Cell if it is out of energy
         if(this.getDamage(stack) == stack.getMaxDamage())
-            entity.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.registeredItems.get("depleted_cell").get(), 1));
-        return dmg;
+            return new ItemStack(ModItems.registeredItems.get("depleted_cell").get(), stack.getCount());
+
+        return stack;
+    }
+
+    @Override
+    public boolean canBeDepleted() {
+        return super.canBeDepleted();
     }
 }

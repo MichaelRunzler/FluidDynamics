@@ -4,6 +4,8 @@ import com.mojang.logging.LogUtils;
 import michaelrunzler.fluiddynamics.block.ModBlockItems;
 import michaelrunzler.fluiddynamics.block.ModBlocks;
 import michaelrunzler.fluiddynamics.blockentity.ModBlockEntities;
+import michaelrunzler.fluiddynamics.interfaces.ModContainers;
+import michaelrunzler.fluiddynamics.interfaces.ModScreens;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.worldgen.OreGen;
 import net.minecraftforge.common.MinecraftForge;
@@ -47,11 +49,14 @@ public class FluidDynamics
         ModItems.registerAllItems();
         ModBlocks.registerAllBlocks();
         ModBlockEntities.registerAllBEs();
+        ModContainers.registerAllContainers();
 
         IEventBus eb = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.items.register(eb);
         ModBlocks.blocks.register(eb);
         ModBlockItems.blockitems.register(eb);
+        ModBlockEntities.blockEntities.register(eb);
+        ModContainers.containers.register(eb);
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -63,6 +68,7 @@ public class FluidDynamics
     private void init(final FMLCommonSetupEvent event)
     {
         event.enqueueWork(OreGen::registerGeneratedFeatures);
+        event.enqueueWork(ModScreens::registerAllScreens);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)

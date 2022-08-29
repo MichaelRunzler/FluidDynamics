@@ -1,6 +1,8 @@
 package michaelrunzler.fluiddynamics.blockentity;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
+import michaelrunzler.fluiddynamics.block.ModBlocks;
+import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,9 +19,11 @@ public class ModBlockEntities
     public static DeferredRegister<BlockEntityType<?>> blockEntities = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, FluidDynamics.MODID);
     public static HashMap<String, RegistryObject<BlockEntityType<?>>> registeredBEs = new HashMap<>();
 
+    @SuppressWarnings("ConstantConditions")
     public static void registerAllBEs()
     {
-        //TODO add BE registry entries
+        registerBE(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase(), () -> BlockEntityType.Builder.of(MFMDBE::new,
+                ModBlocks.registeredBlocks.get(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase()).get()).build(null));
     }
 
     /**

@@ -1,6 +1,7 @@
 package michaelrunzler.fluiddynamics.generators;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
+import michaelrunzler.fluiddynamics.block.MFMDBlock;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -37,6 +38,8 @@ public class FDEnLangProvider extends LanguageProvider
         add("itemGroup.tab_armor", "Fluid Dynamics: Armor");
         add("itemGroup.tab_tools", "Fluid Dynamics: Tools and Weapons");
         add("itemGroup.tab_components", "Fluid Dynamics: Components");
+
+        add(MFMDBlock.SCREEN_TITLE, "Molecular Decompiler");
     }
 
     /**
