@@ -31,6 +31,7 @@ public class FDRecipeProvider extends RecipeProvider
         ToolArmorRecipes.generateTools(consumer);
         ComponentRecipes.generateComponentRecipes(consumer);
         AdvToolRecipes.generateAdvToolRecipes(consumer);
+        MachineRecipes.generateMachineRecipes(consumer);
 
         //
         // Special smelting recipes
