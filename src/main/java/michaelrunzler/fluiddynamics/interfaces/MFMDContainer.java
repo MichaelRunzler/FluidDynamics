@@ -61,8 +61,7 @@ public class MFMDContainer extends AbstractContainerMenu
     }
 
     public int getMaxProgress(){
-        MFMDBE tmp = (MFMDBE)be;
-        return tmp.currentRecipe == null ? 1 : tmp.currentRecipe.time;
+        return ((MFMDBE)be).maxProgress.get();
     }
 
     /**
@@ -129,6 +128,31 @@ public class MFMDContainer extends AbstractContainerMenu
                 mbe.progress.set(merge16b(mbe.progress.get(), value, false));
             }
         });
+
+        // Sync MaxProgress as well
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return get16b(getMaxProgress(), true);
+            }
+
+            @Override
+            public void set(int value) {
+                mbe.maxProgress.set(merge16b(mbe.maxProgress.get(), value, true));
+            }
+        });
+
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return get16b(getMaxProgress(), false);
+            }
+
+            @Override
+            public void set(int value) {
+                mbe.maxProgress.set(merge16b(mbe.maxProgress.get(), value, false));
+            }
+        });
     }
 
     /**
@@ -143,7 +167,8 @@ public class MFMDContainer extends AbstractContainerMenu
         return index;
     }
 
-    private int addSlotBox(IItemHandler handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy) {
+    private int addSlotBox(IItemHandler handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy)
+    {
         for (int j = 0 ; j < verAmount ; j++) {
             index = addSlotRange(handler, index, x, y, horAmount, dx);
             y += dy;

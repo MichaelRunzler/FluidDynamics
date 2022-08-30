@@ -42,35 +42,46 @@ public class MFMDBE extends MachineBlockEntityBase
     public static final int SLOT_INPUT = 1;
     public static final int SLOT_OUTPUT = 2;
 
-    // Stores all valid recipes for this machine tagged by their input item name
-    public final HashMap<String, GenericMachineRecipe> recipes = addRecipes();
-    public AtomicInteger progress;
-    public GenericMachineRecipe currentRecipe;
-    public int recipeCount;
+    public final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
+    public AtomicInteger progress; // Must be atomic since it's accessed by the client-server interface
+    public AtomicInteger maxProgress;
+    public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
+    private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
 
     public MFMDBE(BlockPos pos, BlockState state)
     {
         super(pos, state, MachineEnum.MOLECULAR_DECOMPILER);
 
         progress = new AtomicInteger(0);
+        maxProgress = new AtomicInteger(1);
         currentRecipe = null;
-        recipeCount = 0;
+        invalidOutput = false;
         optionals.add(itemOpt);
         optionals.add(energyOpt);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void load(@NotNull CompoundTag tag)
     {
         if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
         if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
         if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
+
+        // Ensure recipe states are loaded as well
+        if(itemHandler.isItemValid(SLOT_INPUT, itemHandler.getStackInSlot(SLOT_INPUT)) && itemHandler.getStackInSlot(SLOT_INPUT).getCount() > 0) {
+            currentRecipe = recipes.get(itemHandler.getStackInSlot(SLOT_INPUT).getItem().getRegistryName().getPath());
+            maxProgress.set(currentRecipe == null ? 1 : currentRecipe.time);
+        } else{
+            currentRecipe = null;
+            maxProgress.set(1);
+            progress.set(0);
+        }
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag)
+    protected void saveAdditional(@NotNull CompoundTag tag) // TODO block not dropping items when destroyed; do I-sided-ness; shift-click goes into a loop
     {
-        // TODO save recipe state?
         tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
         tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
 
@@ -111,12 +122,15 @@ public class MFMDBE extends MachineBlockEntityBase
             ItemStack output = itemHandler.getStackInSlot(SLOT_OUTPUT);
             boolean didOperation = false;
 
+            // Shortcut the output-checking logic if we already know the output is invalid
+            if(invalidOutput) return;
+
             if(output.getCount() == 0)
             {
                 // If the output is empty, add the new item
                 itemHandler.setStackInSlot(SLOT_OUTPUT, new ItemStack(currentRecipe.out[0], 1));
                 didOperation = true;
-            }else if (output.getCount() >= output.getMaxStackSize() || output.is(currentRecipe.out[0].asItem())) // TODO optimize by caching via InventoryHandler?
+            }else if (output.getCount() >= output.getMaxStackSize() || output.is(currentRecipe.out[0].asItem()))
             {
                 // If the output is not empty, check that the item in the output is the same and not a full stack, then
                 // add one to the stack
@@ -126,12 +140,15 @@ public class MFMDBE extends MachineBlockEntityBase
             }
 
             // If we successfully added an output, remove one item from the input and the recipe queue
-            if(didOperation) {
+            if(didOperation)
+            {
                 input.setCount(input.getCount() - 1);
-                recipeCount--;
                 progress.set(0);
-                if(recipeCount == 0) currentRecipe = null; // Clear the recipe if no items remain
-            }
+                if(input.getCount() == 0) {
+                    this.currentRecipe = null;
+                    maxProgress.set(1);
+                }
+            }else invalidOutput = true; // Set the invalidation flag if we failed to add an output
         }
     }
 
@@ -192,7 +209,8 @@ public class MFMDBE extends MachineBlockEntityBase
                 // Check to make sure the item is valid, and update the current recipe
                 if(slot == SLOT_INPUT && isItemValid(slot, stack)) {
                     currentRecipe = recipes.get(stack.getItem().getRegistryName().getPath());
-                    recipeCount = stack.getCount();
+                    maxProgress.set(currentRecipe == null ? 1 : currentRecipe.time);
+                    invalidOutput = false;
                 }
 
                 return super.insertItem(slot, stack, simulate);
@@ -205,16 +223,16 @@ public class MFMDBE extends MachineBlockEntityBase
                 // Update the recipe count, canceling progress if necessary
                 if(slot == SLOT_INPUT && currentRecipe != null)
                 {
-                    recipeCount -= amount;
-
-                    // Drop the current recipe if all items have been extracted, or if there is a mismatch between the recipe queue
-                    // count and the number of items in the slot
-                    if(recipeCount <= 0 || itemHandler.getStackInSlot(slot).getCount() == amount) {
-                        recipeCount = 0;
+                    // Drop the current recipe if all items have been extracted
+                    if(itemHandler.getStackInSlot(slot).getCount() == amount) {
                         progress.set(0);
                         currentRecipe = null;
+                        maxProgress.set(0);
                     }
                 }
+
+                // If the item is being extracted from the output slot, clear the invalidation flag
+                if(slot == SLOT_OUTPUT && amount > 0) invalidOutput = false;
 
                 return super.extractItem(slot, amount, simulate);
             }

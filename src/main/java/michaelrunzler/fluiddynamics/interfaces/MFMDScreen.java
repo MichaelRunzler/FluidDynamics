@@ -34,7 +34,7 @@ public class MFMDScreen extends AbstractContainerScreen<MFMDContainer>
     {
         // Draw the name of the machine in the UI
         drawCenteredString(stack, Minecraft.getInstance().font, MachineEnum.MOLECULAR_DECOMPILER.englishName,
-                this.imageWidth / 2, 5, 0x555555);
+                this.imageWidth / 2, 5, 0x888888);
 
         // Draw the energy tooltip if the cursor is within the range of the battery icon
         boolean inRangeX = (this.leftPos + 57) < x && x < (this.leftPos + 71);
@@ -52,8 +52,8 @@ public class MFMDScreen extends AbstractContainerScreen<MFMDContainer>
         this.blit(stack, ((this.width - this.imageWidth) / 2), ((this.height - this.imageHeight) / 2), 0, 0, this.imageWidth, this.imageHeight);
 
         // Render the energy icon (battery) and progress bar using their respective values from the BE
-        int energyOverlay = fpDivideMult(menu.getEnergyStored(), menu.getMaxEnergy(), 14);
-        int progressOverlay = fpDivideMult(menu.getProgress(), menu.getMaxProgress(), 22);
+        int energyOverlay = Math.min(fpDivideMult(menu.getEnergyStored(), menu.getMaxEnergy(), 14), 14);
+        int progressOverlay = Math.min(fpDivideMult(menu.getProgress(), menu.getMaxProgress(), 22), 22);
         this.blit(stack, this.leftPos + 57, this.topPos + 50 - energyOverlay, 177, 14 - energyOverlay, 14, energyOverlay);
         this.blit(stack, this.leftPos + 80, this.topPos + 35, 177, 14, progressOverlay, 16);
     }
