@@ -30,7 +30,7 @@ public class MFMDBE extends MachineBlockEntityBase
     private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
     private static final String ITEM_NBT_TAG = "Inventory";
 
-    private final FDEnergyReceiver energyHandler = createEHandler();
+    private final FDEnergyStorage energyHandler = createEHandler();
     private final LazyOptional<IEnergyStorage> energyOpt = LazyOptional.of(() -> energyHandler);
     private static final String ENERGY_NBT_TAG = "Energy";
 
@@ -44,15 +44,17 @@ public class MFMDBE extends MachineBlockEntityBase
 
     // Stores all valid recipes for this machine tagged by their input item name
     public final HashMap<String, GenericMachineRecipe> recipes = addRecipes();
-    public int progress;
+    public AtomicInteger progress;
     public GenericMachineRecipe currentRecipe;
+    public int recipeCount;
 
     public MFMDBE(BlockPos pos, BlockState state)
     {
         super(pos, state, MachineEnum.MOLECULAR_DECOMPILER);
 
-        progress = 0;
+        progress = new AtomicInteger(0);
         currentRecipe = null;
+        recipeCount = 0;
         optionals.add(itemOpt);
         optionals.add(energyOpt);
     }
@@ -61,25 +63,27 @@ public class MFMDBE extends MachineBlockEntityBase
     public void load(@NotNull CompoundTag tag)
     {
         if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
-        if(tag.contains(ENERGY_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ENERGY_NBT_TAG));
-        if(tag.contains(INFO_NBT_TAG)) progress = tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG);
+        if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
+        if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag)
     {
+        // TODO save recipe state?
         tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
         tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
 
         CompoundTag iTag = new CompoundTag();
-        iTag.putInt(PROGRESS_NBT_TAG, progress);
+        iTag.putInt(PROGRESS_NBT_TAG, progress.get());
         tag.put(INFO_NBT_TAG, iTag);
     }
 
     @SuppressWarnings("unchecked")
     @NotNull
     @Override
-    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
+    {
         if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return (LazyOptional<T>)itemOpt;
         if(cap == CapabilityEnergy.ENERGY) return (LazyOptional<T>)energyOpt;
         return super.getCapability(cap, side);
@@ -94,31 +98,40 @@ public class MFMDBE extends MachineBlockEntityBase
         acceptPower();
         if(currentRecipe == null) return;
 
-        if(progress < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
+        if(progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
         {
             // The current recipe is still in progress; try to consume some energy and advance the recipe
-            energyHandler.extractEnergy(type.powerConsumption, false);
-            progress++;
+            energyHandler.setEnergy(energyHandler.getEnergyStored() - type.powerConsumption);
+            progress.incrementAndGet();
             setChanged();
-        }else if(progress > currentRecipe.time)
+        }else if(progress.get() >= currentRecipe.time)
         {
             // The current recipe is done; try to "transfer" item to output
             ItemStack input = itemHandler.getStackInSlot(SLOT_INPUT);
             ItemStack output = itemHandler.getStackInSlot(SLOT_OUTPUT);
             boolean didOperation = false;
 
-            if(output.getCount() == 0) { // If the output is empty, add the new item
+            if(output.getCount() == 0)
+            {
+                // If the output is empty, add the new item
                 itemHandler.setStackInSlot(SLOT_OUTPUT, new ItemStack(currentRecipe.out[0], 1));
                 didOperation = true;
-            } else { // If the output is not empty, check if the item in the output is the same. If it is, add one; if not, stop
-                if(output.is(currentRecipe.out[0].asItem())) {
-                    output.setCount(output.getCount() + 1);
-                    input.setCount(input.getCount() - 1);
-                }
+            }else if (output.getCount() >= output.getMaxStackSize() || output.is(currentRecipe.out[0].asItem())) // TODO optimize by caching via InventoryHandler?
+            {
+                // If the output is not empty, check that the item in the output is the same and not a full stack, then
+                // add one to the stack
+                output.setCount(output.getCount() + 1);
+                input.setCount(input.getCount() - 1);
+                didOperation = true;
             }
 
-            // If we successfully added an output, remove the input
-            if(didOperation) input.setCount(input.getCount() - 1);
+            // If we successfully added an output, remove one item from the input and the recipe queue
+            if(didOperation) {
+                input.setCount(input.getCount() - 1);
+                recipeCount--;
+                progress.set(0);
+                if(recipeCount == 0) currentRecipe = null; // Clear the recipe if no items remain
+            }
         }
     }
 
@@ -177,8 +190,10 @@ public class MFMDBE extends MachineBlockEntityBase
             public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate)
             {
                 // Check to make sure the item is valid, and update the current recipe
-                if(slot == SLOT_INPUT && isItemValid(slot, stack))
+                if(slot == SLOT_INPUT && isItemValid(slot, stack)) {
                     currentRecipe = recipes.get(stack.getItem().getRegistryName().getPath());
+                    recipeCount = stack.getCount();
+                }
 
                 return super.insertItem(slot, stack, simulate);
             }
@@ -187,10 +202,18 @@ public class MFMDBE extends MachineBlockEntityBase
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate)
             {
-                // If there is a recipe in progress, drop the current recipe and cancel progress
-                if(slot == SLOT_INPUT && progress > 0){
-                    progress = 0;
-                    currentRecipe = null;
+                // Update the recipe count, canceling progress if necessary
+                if(slot == SLOT_INPUT && currentRecipe != null)
+                {
+                    recipeCount -= amount;
+
+                    // Drop the current recipe if all items have been extracted, or if there is a mismatch between the recipe queue
+                    // count and the number of items in the slot
+                    if(recipeCount <= 0 || itemHandler.getStackInSlot(slot).getCount() == amount) {
+                        recipeCount = 0;
+                        progress.set(0);
+                        currentRecipe = null;
+                    }
                 }
 
                 return super.extractItem(slot, amount, simulate);
@@ -214,8 +237,8 @@ public class MFMDBE extends MachineBlockEntityBase
         };
     }
 
-    private FDEnergyReceiver createEHandler(){
-        return new FDEnergyReceiver(type.powerCapacity, type.powerConsumption);
+    private FDEnergyStorage createEHandler(){
+        return new FDEnergyStorage(type.powerCapacity, type.powerConsumption, 0);
     }
 
     private static HashMap<String, GenericMachineRecipe> addRecipes()

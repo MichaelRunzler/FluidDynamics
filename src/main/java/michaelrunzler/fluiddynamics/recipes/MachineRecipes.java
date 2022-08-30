@@ -23,7 +23,7 @@ public class MachineRecipes
                 .pattern("fef")
                 .define('p', ModItems.registeredItems.get("power_converter").get())
                 .define('s', ModItems.registeredItems.get("actuator").get())
-                .define('u', ModItems.registeredItems.get("machine_frame").get())
+                .define('u', ModBlockItems.registeredBItems.get("machine_frame").get())
                 .define('d', ModItems.registeredItems.get("redstone_dynamo").get())
                 .define('e', ModItems.registeredItems.get("beam_emitter").get())
                 .define('g', Items.GLOWSTONE)

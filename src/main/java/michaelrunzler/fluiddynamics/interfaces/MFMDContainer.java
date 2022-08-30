@@ -2,7 +2,7 @@ package michaelrunzler.fluiddynamics.interfaces;
 
 import michaelrunzler.fluiddynamics.block.ModBlocks;
 import michaelrunzler.fluiddynamics.blockentity.MFMDBE;
-import michaelrunzler.fluiddynamics.types.FDEnergyReceiver;
+import michaelrunzler.fluiddynamics.types.FDEnergyStorage;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 public class MFMDContainer extends AbstractContainerMenu
 {
     private final BlockEntity be;
-    private final Player player;
     private final IItemHandler playerInventory;
 
     public MFMDContainer(int windowID, BlockPos pos, Inventory inventory, Player player)
@@ -30,7 +29,6 @@ public class MFMDContainer extends AbstractContainerMenu
         super(ModContainers.CONTAINER_MFMD.get(), windowID);
 
         be = player.getCommandSenderWorld().getBlockEntity(pos);
-        this.player = player;
         this.playerInventory = new InvWrapper(inventory);
 
         if(be != null)
@@ -42,6 +40,7 @@ public class MFMDContainer extends AbstractContainerMenu
 
         layoutPlayerInventory(8, 84);
         syncPower();
+        syncProgress();
     }
 
     @Override
@@ -58,7 +57,7 @@ public class MFMDContainer extends AbstractContainerMenu
     }
 
     public int getProgress(){
-        return ((MFMDBE) be).progress;
+        return ((MFMDBE) be).progress.get();
     }
 
     public int getMaxProgress(){
@@ -80,7 +79,7 @@ public class MFMDContainer extends AbstractContainerMenu
 
             @Override
             public void set(int value) {
-                be.getCapability(CapabilityEnergy.ENERGY).ifPresent(c -> ((FDEnergyReceiver)c).setEnergy(merge16b(c.getEnergyStored(), value, true)));
+                be.getCapability(CapabilityEnergy.ENERGY).ifPresent(c -> ((FDEnergyStorage)c).setEnergy(merge16b(c.getEnergyStored(), value, true)));
             }
         });
 
@@ -93,7 +92,41 @@ public class MFMDContainer extends AbstractContainerMenu
 
             @Override
             public void set(int value) {
-                be.getCapability(CapabilityEnergy.ENERGY).ifPresent(c -> ((FDEnergyReceiver)c).setEnergy(merge16b(c.getEnergyStored(), value, true)));
+                be.getCapability(CapabilityEnergy.ENERGY).ifPresent(c -> ((FDEnergyStorage)c).setEnergy(merge16b(c.getEnergyStored(), value, false)));
+            }
+        });
+    }
+
+    /**
+     * Synchronizes progress data between the server and client by splitting it into two data slots.
+     */
+    private void syncProgress()
+    {
+        MFMDBE mbe = (MFMDBE)be;
+
+        // Upper 16 bits of the value
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return get16b(getProgress(), true);
+            }
+
+            @Override
+            public void set(int value) {
+                mbe.progress.set(merge16b(mbe.progress.get(), value, true));
+            }
+        });
+
+        // Lower 16 bits of the value
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return get16b(getProgress(), false);
+            }
+
+            @Override
+            public void set(int value) {
+                mbe.progress.set(merge16b(mbe.progress.get(), value, false));
             }
         });
     }
@@ -127,11 +160,11 @@ public class MFMDContainer extends AbstractContainerMenu
 
     // Gets a 16-bit value from a 32-bit value in either the upper or lower range
     private int get16b(int value, boolean upper) {
-        return (upper ? (value >> 16) : value) & 0xffff;
+        return (upper ? (value >> 16) : value) & 0x0000ffff;
     }
 
     // Merges a 16-bit value into a 32-bit value in either the upper or lower range, replacing any existing data
     private int merge16b(int value, int merge, boolean upper) {
-        return (upper ? value & 0xffff0000 : value & 0x0000ffff) | (upper ? (merge << 16) : merge);
+        return (upper ? value & 0x0000ffff : value & 0xffff0000) | (upper ? (merge << 16) : merge);
     }
 }

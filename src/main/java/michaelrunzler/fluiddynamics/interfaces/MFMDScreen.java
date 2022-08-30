@@ -30,19 +30,38 @@ public class MFMDScreen extends AbstractContainerScreen<MFMDContainer>
     }
 
     @Override
-    protected void renderLabels(@NotNull PoseStack stack, int x, int y) {
-        drawString(stack, Minecraft.getInstance().font, "Energy: " + menu.getEnergyStored(), 64, 64, 0xffffff);
+    protected void renderLabels(@NotNull PoseStack stack, int x, int y)
+    {
+        // Draw the name of the machine in the UI
+        drawCenteredString(stack, Minecraft.getInstance().font, MachineEnum.MOLECULAR_DECOMPILER.englishName,
+                this.imageWidth / 2, 5, 0x555555);
+
+        // Draw the energy tooltip if the cursor is within the range of the battery icon
+        boolean inRangeX = (this.leftPos + 57) < x && x < (this.leftPos + 71);
+        boolean inRangeY = (this.topPos + 36) < y && y < (this.topPos + 50);
+        if(inRangeX && inRangeY)
+            drawString(stack, Minecraft.getInstance().font, menu.getEnergyStored() + "/" + menu.getMaxEnergy() + " RBe",
+                    x - this.leftPos, y - this.topPos - 8, 0xffffff);
     }
 
     @Override
     protected void renderBg(@NotNull PoseStack stack, float ticks, int x, int y)
     {
+        // Render the background image
         RenderSystem.setShaderTexture(0, UI);
         this.blit(stack, ((this.width - this.imageWidth) / 2), ((this.height - this.imageHeight) / 2), 0, 0, this.imageWidth, this.imageHeight);
 
-        int energyOverlay = (int)((float)14 * (menu.getEnergyStored() / menu.getMaxEnergy())); // TODO getEnergy way too high?
-        int progressOverlay = (int)((float)22 * (menu.getProgress() / menu.getMaxProgress()));
-        this.blit(stack, this.leftPos + 57, this.topPos + 36, 177, 0, 14, energyOverlay);
+        // Render the energy icon (battery) and progress bar using their respective values from the BE
+        int energyOverlay = fpDivideMult(menu.getEnergyStored(), menu.getMaxEnergy(), 14);
+        int progressOverlay = fpDivideMult(menu.getProgress(), menu.getMaxProgress(), 22);
+        this.blit(stack, this.leftPos + 57, this.topPos + 50 - energyOverlay, 177, 14 - energyOverlay, 14, energyOverlay);
         this.blit(stack, this.leftPos + 80, this.topPos + 35, 177, 14, progressOverlay, 16);
+    }
+
+    /**
+     * Does a floating-point division and multiplication operation on the input ints, then returns the result cast to an int.
+     */
+    private int fpDivideMult(int num, int denom, int mult){
+        return (int)(((float)num) / ((float)denom) * ((float)mult));
     }
 }
