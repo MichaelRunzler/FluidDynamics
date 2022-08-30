@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -60,7 +59,6 @@ public class MFMDBE extends MachineBlockEntityBase
         optionals.add(energyOpt);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void load(@NotNull CompoundTag tag)
     {
@@ -69,18 +67,11 @@ public class MFMDBE extends MachineBlockEntityBase
         if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
 
         // Ensure recipe states are loaded as well
-        if(itemHandler.isItemValid(SLOT_INPUT, itemHandler.getStackInSlot(SLOT_INPUT)) && itemHandler.getStackInSlot(SLOT_INPUT).getCount() > 0) {
-            currentRecipe = recipes.get(itemHandler.getStackInSlot(SLOT_INPUT).getItem().getRegistryName().getPath());
-            maxProgress.set(currentRecipe == null ? 1 : currentRecipe.time);
-        } else{
-            currentRecipe = null;
-            maxProgress.set(1);
-            progress.set(0);
-        }
+        updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) // TODO block not dropping items when destroyed; do I-sided-ness; shift-click goes into a loop
+    protected void saveAdditional(@NotNull CompoundTag tag) // TODO do I-sided-ness; rebalance power consumption?
     {
         tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
         tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
@@ -135,50 +126,25 @@ public class MFMDBE extends MachineBlockEntityBase
                 // If the output is not empty, check that the item in the output is the same and not a full stack, then
                 // add one to the stack
                 output.setCount(output.getCount() + 1);
-                input.setCount(input.getCount() - 1);
                 didOperation = true;
             }
 
-            // If we successfully added an output, remove one item from the input and the recipe queue
+            // If we successfully added an output, remove one item from the input
             if(didOperation)
             {
                 input.setCount(input.getCount() - 1);
                 progress.set(0);
-                if(input.getCount() == 0) {
-                    this.currentRecipe = null;
-                    maxProgress.set(1);
-                }
             }else invalidOutput = true; // Set the invalidation flag if we failed to add an output
         }
     }
 
     /**
-     * Gets power from surrounding blocks if they are capable of generating it.
+     * Gets power from a cell in the battery slot if there is one.
      */
     private void acceptPower()
     {
         AtomicInteger capacity = new AtomicInteger(energyHandler.getEnergyStored());
         if(capacity.get() >= energyHandler.getMaxEnergyStored() || level == null) return;
-
-        // Check each direction for a compatible powered TileEntity
-        for(Direction d : Direction.values())
-        {
-            BlockEntity be = level.getBlockEntity(worldPosition.relative(d));
-            if(be == null) continue;
-
-            // Get the BE Energy Handler for this Direction and attempt to extract power from it if it's compatible
-            LazyOptional<IEnergyStorage> es = be.getCapability(CapabilityEnergy.ENERGY);
-            es.ifPresent(h ->
-            {
-               if(h.canExtract())
-               {
-                   int xfer = h.extractEnergy(type.powerConsumption, false);
-                   capacity.addAndGet(xfer);
-                   energyHandler.receiveEnergy(xfer, false);
-                   setChanged();
-               }
-            });
-        }
 
         // Check for an Energy Cell in the Cell slot
         ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY);
@@ -201,35 +167,11 @@ public class MFMDBE extends MachineBlockEntityBase
     {
         return new ItemStackHandler(NUM_INV_SLOTS)
         {
-            @SuppressWarnings("ConstantConditions")
-            @NotNull
-            @Override
-            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate)
-            {
-                // Check to make sure the item is valid, and update the current recipe
-                if(slot == SLOT_INPUT && isItemValid(slot, stack)) {
-                    currentRecipe = recipes.get(stack.getItem().getRegistryName().getPath());
-                    maxProgress.set(currentRecipe == null ? 1 : currentRecipe.time);
-                    invalidOutput = false;
-                }
-
-                return super.insertItem(slot, stack, simulate);
-            }
-
             @NotNull
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate)
             {
-                // Update the recipe count, canceling progress if necessary
-                if(slot == SLOT_INPUT && currentRecipe != null)
-                {
-                    // Drop the current recipe if all items have been extracted
-                    if(itemHandler.getStackInSlot(slot).getCount() == amount) {
-                        progress.set(0);
-                        currentRecipe = null;
-                        maxProgress.set(0);
-                    }
-                }
+                if(slot == SLOT_INPUT && itemHandler.getStackInSlot(slot).getCount() == amount) updateRecipe(null);
 
                 // If the item is being extracted from the output slot, clear the invalidation flag
                 if(slot == SLOT_OUTPUT && amount > 0) invalidOutput = false;
@@ -237,19 +179,17 @@ public class MFMDBE extends MachineBlockEntityBase
                 return super.extractItem(slot, amount, simulate);
             }
 
-            @SuppressWarnings("ConstantConditions")
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack)
             {
-                if(slot == SLOT_INPUT) return recipes.containsKey(stack.getItem().getRegistryName().getPath().toLowerCase());
-                else if(slot == SLOT_BATTERY) return stack.is(ModItems.registeredItems.get("energy_cell").get())
-                        || stack.is(ModItems.registeredItems.get("depleted_cell").get());
-                else if(slot == SLOT_OUTPUT) return false;
+                if(slot < NUM_INV_SLOTS) return MFMDBE.this.isItemValid(slot, stack);
                 else return super.isItemValid(slot, stack);
             }
 
             @Override
             protected void onContentsChanged(int slot) {
+                // Update recipe here, since not all changes fire insertItem or extractItem
+                if(slot == SLOT_INPUT) updateRecipe(this.getStackInSlot(slot));
                 setChanged();
             }
         };
@@ -257,6 +197,41 @@ public class MFMDBE extends MachineBlockEntityBase
 
     private FDEnergyStorage createEHandler(){
         return new FDEnergyStorage(type.powerCapacity, type.powerConsumption, 0);
+    }
+
+    /**
+     * Updates the currently-cached recipe to match the type of the given ItemStack.
+     * Also updates the output-invalidation flag and the current maximum progress.
+     */
+    @SuppressWarnings("ConstantConditions")
+    public void updateRecipe(@Nullable ItemStack stack)
+    {
+        // Don't update anything if the item type hasn't changed
+        if(currentRecipe != null && stack != null && stack.is(currentRecipe.in.asItem())) return;
+
+        if(stack == null || stack.getCount() == 0 || !isItemValid(SLOT_INPUT, stack)) {
+            currentRecipe = null;
+            maxProgress.set(1);
+        }else{
+            currentRecipe = recipes.get(stack.getItem().getRegistryName().getPath());
+            maxProgress.set(currentRecipe == null ? 1 : currentRecipe.time);
+        }
+
+        progress.set(0);
+        invalidOutput = false;
+    }
+
+    /**
+     * Checks if a given ItemStack is valid for a given slot.
+     */
+    @SuppressWarnings("ConstantConditions")
+    public boolean isItemValid(int slot, @NotNull ItemStack stack)
+    {
+        if(slot == SLOT_INPUT) return recipes.containsKey(stack.getItem().getRegistryName().getPath().toLowerCase());
+        else if(slot == SLOT_BATTERY) return stack.is(ModItems.registeredItems.get("energy_cell").get())
+                || stack.is(ModItems.registeredItems.get("depleted_cell").get());
+        else if(slot == SLOT_OUTPUT) return false;
+        else return false;
     }
 
     private static HashMap<String, GenericMachineRecipe> addRecipes()

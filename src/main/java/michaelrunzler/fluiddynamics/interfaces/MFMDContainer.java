@@ -10,6 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.DataSlot;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -19,6 +21,7 @@ import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("SameParameterValue")
 public class MFMDContainer extends AbstractContainerMenu
 {
     private final BlockEntity be;
@@ -37,6 +40,7 @@ public class MFMDContainer extends AbstractContainerMenu
                 addSlot(new SlotItemHandler(c, MFMDBE.SLOT_INPUT, 56, 17));
                 addSlot(new SlotItemHandler(c, MFMDBE.SLOT_OUTPUT, 116, 35));
             });
+        else throw new IllegalStateException("Missing BlockEntity interface for container instance!");
 
         layoutPlayerInventory(8, 84);
         syncPower();
@@ -46,6 +50,42 @@ public class MFMDContainer extends AbstractContainerMenu
     @Override
     public boolean stillValid(@NotNull Player player) {
         return stillValid(ContainerLevelAccess.create(player.getLevel(), be.getBlockPos()), player, ModBlocks.registeredBlocks.get(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase()).get());
+    }
+
+    @Override
+    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index)
+    {
+        Slot s = this.slots.get(index);
+        final int INV_START = MFMDBE.NUM_INV_SLOTS;
+        final int INV_END = INV_START + 26;
+        final int HOTBAR_START = INV_END + 1;
+        final int HOTBAR_END = HOTBAR_START + 8;
+
+        if(!s.hasItem()) return ItemStack.EMPTY;
+
+        // If the slot has an item in it, see which direction it's going in
+        ItemStack dst = s.getItem().copy();
+
+        // If the item is moving from the machine to the inventory, place it in the first available slot
+        if(index < INV_START) {
+            if(this.moveItemStackTo(s.getItem(), INV_START, HOTBAR_END + 1, false)) {
+                // If the stack is being moved out of the input slot, ensure the recipe is updated
+                if(index == MFMDBE.SLOT_INPUT) ((MFMDBE)be).updateRecipe(this.getSlot(index).getItem());
+                return dst;
+            } else return ItemStack.EMPTY;
+        }else{
+            // If the item is moving from the inventory to the machine, see which slot it should go in
+            for(int i = 0; i < INV_START; i++)
+            {
+                // If we found a good slot, try to move the item
+                if(((MFMDBE)be).isItemValid(i, s.getItem())) {
+                    if(this.moveItemStackTo(s.getItem(), i, i + 1, false)) return dst;
+                    else return ItemStack.EMPTY;
+                }
+            }
+        }
+
+        return ItemStack.EMPTY;
     }
 
     public int getEnergyStored(){
@@ -67,6 +107,7 @@ public class MFMDContainer extends AbstractContainerMenu
     /**
      * Synchronizes power data between the server and client by splitting it into two data slots.
      */
+    @SuppressWarnings("ConstantConditions")
     private void syncPower()
     {
         // Upper 16 bits of the value
@@ -167,13 +208,12 @@ public class MFMDContainer extends AbstractContainerMenu
         return index;
     }
 
-    private int addSlotBox(IItemHandler handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy)
+    private void addSlotBox(IItemHandler handler, int index, int x, int y, int horAmount, int dx, int verAmount, int dy)
     {
         for (int j = 0 ; j < verAmount ; j++) {
             index = addSlotRange(handler, index, x, y, horAmount, dx);
             y += dy;
         }
-        return index;
     }
 
     private void layoutPlayerInventory(int col, int row)

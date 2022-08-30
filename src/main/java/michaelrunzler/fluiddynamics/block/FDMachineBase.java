@@ -2,8 +2,6 @@ package michaelrunzler.fluiddynamics.block;
 
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -31,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * Represents a block which can take the properties of any {@link MachineEnum} type.
  * Must be subclassed and use a separate BE class in order to represent a functional block.
  */
-@SuppressWarnings("NullableProblems")
+@SuppressWarnings({"NullableProblems", "deprecation"})
 public abstract class FDMachineBase extends Block implements EntityBlock
 {
     protected final MachineEnum type;
@@ -126,25 +124,4 @@ public abstract class FDMachineBase extends Block implements EntityBlock
         // This just stops the block from being pushed around
         return PushReaction.BLOCK;
     }
-}
-
-/**
- * Used to get the properties of a completed Machine object without instantiating a Registry call.
- */
-class MachineBaseHelper
-{
-        MachineEnum type;
-        TagKey<Block>[] tags;
-        String name;
-        String englishName;
-
-        @SuppressWarnings("unchecked")
-        MachineBaseHelper(MachineEnum type)
-        {
-            this.type = type;
-
-            tags = new TagKey[]{BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL};
-            this.name = "block_" + type.name().toLowerCase();
-            this.englishName = type.englishName + " Block";
-        }
 }

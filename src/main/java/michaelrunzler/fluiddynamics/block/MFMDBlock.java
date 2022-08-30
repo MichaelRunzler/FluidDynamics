@@ -10,18 +10,24 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Random;
 
 /**
  * Represents the physical block associated with a machine.
@@ -73,5 +79,38 @@ public class MFMDBlock extends FDMachineBase
         NetworkHooks.openGui((ServerPlayer)player, container, be.getBlockPos());
 
         return InteractionResult.SUCCESS;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean p_60519_)
+    {
+        // Drop all inventory items from the block before it is destroyed
+        BlockEntity be = level.getBlockEntity(pos);
+        if(be != null)
+            be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c ->{
+                for(int i = 0; i < c.getSlots(); i++) spawnItem(level, pos, c.getStackInSlot(i));
+            });
+
+        super.onRemove(state, level, pos, newState, p_60519_);
+    }
+
+    /**
+     * Modified from the 1.14 version of the InventoryHelper class, now removed.
+     */
+    protected static void spawnItem(Level lvl, BlockPos pos, ItemStack stack)
+    {
+        Random rng = new Random();
+
+        double w = EntityType.ITEM.getWidth();
+        double rem = 1.0d - w;
+        double mid = w / 2.0d;
+        double dx = ((double)pos.getX()) + (rng.nextDouble() * rem) + mid;
+        double dy = ((double)pos.getY()) + (rng.nextDouble() * rem);
+        double dz = ((double)pos.getZ()) + (rng.nextDouble() * rem) + mid;
+
+        ItemEntity ent = new ItemEntity(lvl, dx, dy, dz, stack);
+        ent.setDeltaMovement(rng.nextGaussian() * 0.05d, rng.nextGaussian() * 0.25d, rng.nextGaussian() * 0.05d);
+        lvl.addFreshEntity(ent);
     }
 }
