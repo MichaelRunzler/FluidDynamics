@@ -4,6 +4,7 @@ import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.generators.FDBlockTagProvider;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
+import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
 import michaelrunzler.fluiddynamics.types.OreEnum;

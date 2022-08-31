@@ -1,6 +1,7 @@
-package michaelrunzler.fluiddynamics.interfaces;
+package michaelrunzler.fluiddynamics.machines;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
+import michaelrunzler.fluiddynamics.machines.MFMD.MFMDContainer;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;

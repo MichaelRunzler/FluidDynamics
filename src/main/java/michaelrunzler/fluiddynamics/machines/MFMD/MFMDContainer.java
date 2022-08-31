@@ -1,7 +1,7 @@
-package michaelrunzler.fluiddynamics.interfaces;
+package michaelrunzler.fluiddynamics.machines.MFMD;
 
 import michaelrunzler.fluiddynamics.block.ModBlocks;
-import michaelrunzler.fluiddynamics.blockentity.MFMDBE;
+import michaelrunzler.fluiddynamics.machines.ModContainers;
 import michaelrunzler.fluiddynamics.types.FDEnergyStorage;
 import michaelrunzler.fluiddynamics.types.FDItemHandler;
 import michaelrunzler.fluiddynamics.types.MachineEnum;

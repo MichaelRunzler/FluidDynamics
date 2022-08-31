@@ -1,4 +1,4 @@
-package michaelrunzler.fluiddynamics.interfaces;
+package michaelrunzler.fluiddynamics.machines.MFMD;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

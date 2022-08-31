@@ -1,6 +1,7 @@
-package michaelrunzler.fluiddynamics.interfaces;
+package michaelrunzler.fluiddynamics.machines;
 
 import michaelrunzler.fluiddynamics.block.ModBlocks;
+import michaelrunzler.fluiddynamics.machines.MFMD.MFMDScreen;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;

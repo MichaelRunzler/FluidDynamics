@@ -1,7 +1,6 @@
-package michaelrunzler.fluiddynamics.block;
+package michaelrunzler.fluiddynamics.machines.MFMD;
 
-import michaelrunzler.fluiddynamics.blockentity.MFMDBE;
-import michaelrunzler.fluiddynamics.interfaces.MFMDContainer;
+import michaelrunzler.fluiddynamics.machines.base.FDMachineBase;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

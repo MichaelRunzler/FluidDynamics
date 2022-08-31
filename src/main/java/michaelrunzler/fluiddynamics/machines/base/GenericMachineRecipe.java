@@ -1,4 +1,4 @@
-package michaelrunzler.fluiddynamics.recipes;
+package michaelrunzler.fluiddynamics.machines.base;
 
 import net.minecraft.world.level.ItemLike;
 

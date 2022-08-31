@@ -1,7 +1,8 @@
-package michaelrunzler.fluiddynamics.blockentity;
+package michaelrunzler.fluiddynamics.machines;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.block.ModBlocks;
+import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBE;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
@@ -14,6 +15,7 @@ import java.util.function.Supplier;
 /**
  * Tracks all registered Block Entities for the mod.
  */
+@SuppressWarnings("UnusedReturnValue")
 public class ModBlockEntities
 {
     public static DeferredRegister<BlockEntityType<?>> blockEntities = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, FluidDynamics.MODID);

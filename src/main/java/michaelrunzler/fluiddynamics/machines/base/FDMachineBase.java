@@ -1,4 +1,4 @@
-package michaelrunzler.fluiddynamics.block;
+package michaelrunzler.fluiddynamics.machines.base;
 
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;

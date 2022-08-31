@@ -1,7 +1,7 @@
 package michaelrunzler.fluiddynamics.generators;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
-import michaelrunzler.fluiddynamics.block.MFMDBlock;
+import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

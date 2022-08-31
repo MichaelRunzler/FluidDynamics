@@ -1,15 +1,18 @@
-package michaelrunzler.fluiddynamics.blockentity;
+package michaelrunzler.fluiddynamics.machines.MFMD;
 
 import michaelrunzler.fluiddynamics.block.ModBlockItems;
+import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
 import michaelrunzler.fluiddynamics.item.EnergyCell;
 import michaelrunzler.fluiddynamics.item.ModItems;
-import michaelrunzler.fluiddynamics.recipes.GenericMachineRecipe;
+import michaelrunzler.fluiddynamics.machines.base.GenericMachineRecipe;
+import michaelrunzler.fluiddynamics.types.RelativeFacing;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -45,6 +48,7 @@ public class MFMDBE extends MachineBlockEntityBase
     public static final int MAX_CHARGE_RATE = 10;
 
     public final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
+    public RelativeFacing relativeFacing;
     public AtomicInteger progress; // Must be atomic since it's accessed by the client-server interface
     public AtomicInteger maxProgress;
     public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
@@ -55,6 +59,7 @@ public class MFMDBE extends MachineBlockEntityBase
     {
         super(pos, state, MachineEnum.MOLECULAR_DECOMPILER);
 
+        relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         progress = new AtomicInteger(0);
         maxProgress = new AtomicInteger(1);
         currentRecipe = null;
@@ -98,11 +103,10 @@ public class MFMDBE extends MachineBlockEntityBase
         // Return appropriate inventory access wrappers for each side
         if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
         {
-            // TODO use relative directions instead of absolute if possible
-            if(side == null) return (LazyOptional<T>)itemOpt;
-            else if(side == Direction.UP || side == Direction.WEST) return (LazyOptional<T>)slotHandlers[SLOT_INPUT];
-            else if(side == Direction.EAST || side == Direction.DOWN) return (LazyOptional<T>)slotHandlers[SLOT_OUTPUT];
-            else return (LazyOptional<T>) slotHandlers[SLOT_BATTERY];
+            if(side == relativeFacing.TOP || side == relativeFacing.LEFT) return (LazyOptional<T>)slotHandlers[SLOT_INPUT];
+            else if(side == relativeFacing.BOTTOM || side == relativeFacing.RIGHT) return (LazyOptional<T>)slotHandlers[SLOT_OUTPUT];
+            else if(side == relativeFacing.FRONT || side == relativeFacing.BACK) return (LazyOptional<T>) slotHandlers[SLOT_BATTERY];
+            else return (LazyOptional<T>) itemOpt;
         }
 
         if(cap == CapabilityEnergy.ENERGY) return (LazyOptional<T>)energyOpt;

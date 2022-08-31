@@ -1,5 +1,6 @@
-package michaelrunzler.fluiddynamics.blockentity;
+package michaelrunzler.fluiddynamics.machines.base;
 
+import michaelrunzler.fluiddynamics.machines.ModBlockEntities;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
