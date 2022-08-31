@@ -30,18 +30,16 @@ public class MFMDScreen extends AbstractContainerScreen<MFMDContainer>
     }
 
     @Override
-    protected void renderLabels(@NotNull PoseStack stack, int x, int y)
+    protected void renderTooltip(@NotNull PoseStack stack, int x, int y)
     {
-        // Draw the name of the machine in the UI
-        drawCenteredString(stack, Minecraft.getInstance().font, MachineEnum.MOLECULAR_DECOMPILER.englishName,
-                this.imageWidth / 2, 5, 0x888888);
-
         // Draw the energy tooltip if the cursor is within the range of the battery icon
         boolean inRangeX = (this.leftPos + 57) < x && x < (this.leftPos + 71);
         boolean inRangeY = (this.topPos + 36) < y && y < (this.topPos + 50);
         if(inRangeX && inRangeY)
             drawString(stack, Minecraft.getInstance().font, menu.getEnergyStored() + "/" + menu.getMaxEnergy() + " RBe",
-                    x - this.leftPos, y - this.topPos - 8, 0xffffff);
+                    x, y - 8, 0xaaaaaa);
+
+        super.renderTooltip(stack, x, y);
     }
 
     @Override

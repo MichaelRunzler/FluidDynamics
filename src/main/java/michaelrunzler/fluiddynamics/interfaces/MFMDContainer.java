@@ -26,6 +26,7 @@ public class MFMDContainer extends AbstractContainerMenu
 {
     private final BlockEntity be;
     private final IItemHandler playerInventory;
+    private boolean recheckRecipe;
 
     public MFMDContainer(int windowID, BlockPos pos, Inventory inventory, Player player)
     {
@@ -33,6 +34,7 @@ public class MFMDContainer extends AbstractContainerMenu
 
         be = player.getCommandSenderWorld().getBlockEntity(pos);
         this.playerInventory = new InvWrapper(inventory);
+        recheckRecipe = false;
 
         if(be != null)
             be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c -> {
@@ -70,7 +72,7 @@ public class MFMDContainer extends AbstractContainerMenu
         if(index < INV_START) {
             if(this.moveItemStackTo(s.getItem(), INV_START, HOTBAR_END + 1, false)) {
                 // If the stack is being moved out of the input slot, ensure the recipe is updated
-                if(index == MFMDBE.SLOT_INPUT) ((MFMDBE)be).updateRecipe(this.getSlot(index).getItem());
+                recheckRecipe = true;
                 return dst;
             } else return ItemStack.EMPTY;
         }else{
@@ -192,6 +194,19 @@ public class MFMDContainer extends AbstractContainerMenu
             @Override
             public void set(int value) {
                 mbe.maxProgress.set(merge16b(mbe.maxProgress.get(), value, false));
+            }
+        });
+
+        // Finally, sync the recheck flag
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return recheckRecipe ? 1 : 0;
+            }
+
+            @Override
+            public void set(int value) {
+                mbe.recheckRecipe.set(value != 0);
             }
         });
     }

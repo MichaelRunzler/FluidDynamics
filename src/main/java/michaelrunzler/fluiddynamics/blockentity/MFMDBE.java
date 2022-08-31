@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MFMDBE extends MachineBlockEntityBase
@@ -28,6 +29,8 @@ public class MFMDBE extends MachineBlockEntityBase
     private final ItemStackHandler itemHandler = createIHandler();
     private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
     private static final String ITEM_NBT_TAG = "Inventory";
+    private final LazyOptional<IItemHandler>[] slotHandlers;
+    private final IItemHandler[] rawHandlers;
 
     private final FDEnergyStorage energyHandler = createEHandler();
     private final LazyOptional<IEnergyStorage> energyOpt = LazyOptional.of(() -> energyHandler);
@@ -40,23 +43,35 @@ public class MFMDBE extends MachineBlockEntityBase
     public static final int SLOT_BATTERY = 0;
     public static final int SLOT_INPUT = 1;
     public static final int SLOT_OUTPUT = 2;
+    public static final int MAX_CHARGE_RATE = 10;
 
     public final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
     public AtomicInteger progress; // Must be atomic since it's accessed by the client-server interface
     public AtomicInteger maxProgress;
+    public AtomicBoolean recheckRecipe;
     public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
     private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
 
+    @SuppressWarnings("unchecked")
     public MFMDBE(BlockPos pos, BlockState state)
     {
         super(pos, state, MachineEnum.MOLECULAR_DECOMPILER);
 
         progress = new AtomicInteger(0);
         maxProgress = new AtomicInteger(1);
+        recheckRecipe = new AtomicBoolean(false);
         currentRecipe = null;
         invalidOutput = false;
         optionals.add(itemOpt);
         optionals.add(energyOpt);
+        slotHandlers = new LazyOptional[NUM_INV_SLOTS];
+        rawHandlers = new IItemHandler[NUM_INV_SLOTS];
+
+        for(int i = 0; i < NUM_INV_SLOTS; i++) {
+            final int k = i;
+            rawHandlers[k] = createStackSpecificIHandler(k);
+            slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
+        }
     }
 
     @Override
@@ -65,13 +80,11 @@ public class MFMDBE extends MachineBlockEntityBase
         if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
         if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
         if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
-
-        // Ensure recipe states are loaded as well
-        updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
+        recheckRecipe.set(true);
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) // TODO do I-sided-ness; rebalance power consumption?
+    protected void saveAdditional(@NotNull CompoundTag tag)
     {
         tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
         tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
@@ -86,7 +99,16 @@ public class MFMDBE extends MachineBlockEntityBase
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
     {
-        if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return (LazyOptional<T>)itemOpt;
+        // Return appropriate inventory access wrappers for each side
+        if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+        {
+            // TODO use relative directions instead of absolute if possible
+            if(side == null) return (LazyOptional<T>)itemOpt;
+            else if(side == Direction.UP || side == Direction.WEST) return (LazyOptional<T>)slotHandlers[SLOT_INPUT];
+            else if(side == Direction.EAST || side == Direction.DOWN) return (LazyOptional<T>)slotHandlers[SLOT_OUTPUT];
+            else return (LazyOptional<T>) slotHandlers[SLOT_BATTERY];
+        }
+
         if(cap == CapabilityEnergy.ENERGY) return (LazyOptional<T>)energyOpt;
         return super.getCapability(cap, side);
     }
@@ -97,7 +119,15 @@ public class MFMDBE extends MachineBlockEntityBase
 
     public void tickServer()
     {
+        // TODO not stopping processing when items are shift-clicked out
         acceptPower();
+
+        // Update recipe manually if flagged to do so by the client container
+        if(recheckRecipe.get()) {
+            updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
+            recheckRecipe.set(false);
+        }
+
         if(currentRecipe == null) return;
 
         if(progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
@@ -134,6 +164,7 @@ public class MFMDBE extends MachineBlockEntityBase
             {
                 input.setCount(input.getCount() - 1);
                 progress.set(0);
+                recheckRecipe.set(true);
             }else invalidOutput = true; // Set the invalidation flag if we failed to add an output
         }
     }
@@ -171,10 +202,10 @@ public class MFMDBE extends MachineBlockEntityBase
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate)
             {
-                if(slot == SLOT_INPUT && itemHandler.getStackInSlot(slot).getCount() == amount) updateRecipe(null);
-
-                // If the item is being extracted from the output slot, clear the invalidation flag
-                if(slot == SLOT_OUTPUT && amount > 0) invalidOutput = false;
+                if(!simulate){
+                    if(slot == SLOT_INPUT && itemHandler.getStackInSlot(slot).getCount() == amount) recheckRecipe.set(true);
+                    if(slot == SLOT_OUTPUT && amount > 0) invalidOutput = false;
+                }
 
                 return super.extractItem(slot, amount, simulate);
             }
@@ -189,14 +220,53 @@ public class MFMDBE extends MachineBlockEntityBase
             @Override
             protected void onContentsChanged(int slot) {
                 // Update recipe here, since not all changes fire insertItem or extractItem
-                if(slot == SLOT_INPUT) updateRecipe(this.getStackInSlot(slot));
+                recheckRecipe.set(true);
                 setChanged();
             }
         };
     }
 
+    private ItemStackHandler createStackSpecificIHandler(int slotID)
+    {
+        // This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
+        return new ItemStackHandler(1)
+        {
+            @Override
+            public void setStackInSlot(int slot, @NotNull ItemStack stack) {
+                // Refuse to extract the item if it isn't a depleted cell
+                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(ModItems.registeredItems.get("energy_cell").get())) return;
+                itemHandler.setStackInSlot(slotID, stack);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack getStackInSlot(int slot) {
+                return itemHandler.getStackInSlot(slotID);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+                return itemHandler.insertItem(slotID, stack, simulate);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(ModItems.registeredItems.get("energy_cell").get()))
+                    return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
+                return itemHandler.extractItem(slotID, amount, simulate);
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                return itemHandler.isItemValid(slotID, stack);
+            }
+        };
+    }
+
     private FDEnergyStorage createEHandler(){
-        return new FDEnergyStorage(type.powerCapacity, type.powerConsumption, 0);
+        return new FDEnergyStorage(type.powerCapacity, MAX_CHARGE_RATE, 0);
     }
 
     /**
@@ -248,7 +318,7 @@ public class MFMDBE extends MachineBlockEntityBase
         // Add ore grinding recipes
         for(OreEnum type : OreEnum.values()) {
             String name = type.name().toLowerCase();
-            rv.put("ore_" + name, new GenericMachineRecipe((int)(type.hardness * 30.0f), ModBlockItems.registeredBItems.get("ore_" + name).get(),
+            rv.put("ore_" + name, new GenericMachineRecipe((int)(type.hardness * 15.0f), ModBlockItems.registeredBItems.get("ore_" + name).get(),
                     ModItems.registeredItems.get("crushed_" + name).get()));
         }
 

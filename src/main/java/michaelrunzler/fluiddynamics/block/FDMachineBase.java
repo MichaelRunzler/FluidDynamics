@@ -40,8 +40,7 @@ public abstract class FDMachineBase extends Block implements EntityBlock
         super(Properties.of(Material.METAL)
                 .requiresCorrectToolForDrops()
                 .sound(SoundType.METAL)
-                .strength(type.strength)
-                .lightLevel((state) -> state.getValue(BlockStateProperties.POWERED) ? 12 : 0));
+                .strength(type.strength));
 
         this.type = type;
     }
@@ -83,15 +82,17 @@ public abstract class FDMachineBase extends Block implements EntityBlock
     public abstract <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type);
 
     /**
-     * Gets the default BlockState when a block is first placed. This defaults to POWERED = false, but additional states
-     * can be added by overriding this method and modifying the State returned by super(ctx).
+     * Gets the default BlockState when a block is first placed. Defaults to orienting the block to the player facing.
      * @return the completed BlockState
      */
-    @SuppressWarnings("ConstantConditions")
     @Nullable
     @Override
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext ctx) {
-        return super.getStateForPlacement(ctx).setValue(BlockStateProperties.POWERED, false);
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        BlockState blockstate = super.getStateForPlacement(context);
+        if (blockstate != null) {
+            blockstate = blockstate.setValue(BlockStateProperties.FACING, context.getNearestLookingDirection());
+        }
+        return blockstate;
     }
 
     /**
@@ -101,7 +102,7 @@ public abstract class FDMachineBase extends Block implements EntityBlock
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         // Override as above for more properties
         super.createBlockStateDefinition(builder);
-        builder.add(BlockStateProperties.POWERED);
+        builder.add(BlockStateProperties.FACING);
     }
 
     /**
