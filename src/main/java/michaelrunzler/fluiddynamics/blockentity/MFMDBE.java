@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MFMDBE extends MachineBlockEntityBase
@@ -48,7 +47,6 @@ public class MFMDBE extends MachineBlockEntityBase
     public final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
     public AtomicInteger progress; // Must be atomic since it's accessed by the client-server interface
     public AtomicInteger maxProgress;
-    public AtomicBoolean recheckRecipe;
     public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
     private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
 
@@ -59,7 +57,6 @@ public class MFMDBE extends MachineBlockEntityBase
 
         progress = new AtomicInteger(0);
         maxProgress = new AtomicInteger(1);
-        recheckRecipe = new AtomicBoolean(false);
         currentRecipe = null;
         invalidOutput = false;
         optionals.add(itemOpt);
@@ -80,7 +77,6 @@ public class MFMDBE extends MachineBlockEntityBase
         if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
         if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
         if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
-        recheckRecipe.set(true);
     }
 
     @Override
@@ -113,21 +109,9 @@ public class MFMDBE extends MachineBlockEntityBase
         return super.getCapability(cap, side);
     }
 
-    //
-    // Handlers and Lambdas
-    //
-
     public void tickServer()
     {
-        // TODO not stopping processing when items are shift-clicked out
         acceptPower();
-
-        // Update recipe manually if flagged to do so by the client container
-        if(recheckRecipe.get()) {
-            updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
-            recheckRecipe.set(false);
-        }
-
         if(currentRecipe == null) return;
 
         if(progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
@@ -138,13 +122,13 @@ public class MFMDBE extends MachineBlockEntityBase
             setChanged();
         }else if(progress.get() >= currentRecipe.time)
         {
+            // Shortcut the output-checking logic if we already know the output is invalid
+            if(invalidOutput) return;
+
             // The current recipe is done; try to "transfer" item to output
             ItemStack input = itemHandler.getStackInSlot(SLOT_INPUT);
             ItemStack output = itemHandler.getStackInSlot(SLOT_OUTPUT);
             boolean didOperation = false;
-
-            // Shortcut the output-checking logic if we already know the output is invalid
-            if(invalidOutput) return;
 
             if(output.getCount() == 0)
             {
@@ -155,17 +139,15 @@ public class MFMDBE extends MachineBlockEntityBase
             {
                 // If the output is not empty, check that the item in the output is the same and not a full stack, then
                 // add one to the stack
-                output.setCount(output.getCount() + 1);
+                itemHandler.setStackInSlot(SLOT_OUTPUT, new ItemStack(output.getItem(), output.getCount() + 1));
                 didOperation = true;
             }
 
             // If we successfully added an output, remove one item from the input
-            if(didOperation)
-            {
-                input.setCount(input.getCount() - 1);
+            if(didOperation) {
+                itemHandler.setStackInSlot(SLOT_INPUT, new ItemStack(input.getItem(), input.getCount() - 1));
                 progress.set(0);
-                recheckRecipe.set(true);
-            }else invalidOutput = true; // Set the invalidation flag if we failed to add an output
+            }else invalidOutput = true;
         }
     }
 
@@ -175,7 +157,7 @@ public class MFMDBE extends MachineBlockEntityBase
     private void acceptPower()
     {
         AtomicInteger capacity = new AtomicInteger(energyHandler.getEnergyStored());
-        if(capacity.get() >= energyHandler.getMaxEnergyStored() || level == null) return;
+        if(capacity.get() >= energyHandler.getMaxEnergyStored()) return;
 
         // Check for an Energy Cell in the Cell slot
         ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY);
@@ -196,20 +178,8 @@ public class MFMDBE extends MachineBlockEntityBase
 
     private ItemStackHandler createIHandler()
     {
-        return new ItemStackHandler(NUM_INV_SLOTS)
+        return new FDItemHandler(NUM_INV_SLOTS)
         {
-            @NotNull
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate)
-            {
-                if(!simulate){
-                    if(slot == SLOT_INPUT && itemHandler.getStackInSlot(slot).getCount() == amount) recheckRecipe.set(true);
-                    if(slot == SLOT_OUTPUT && amount > 0) invalidOutput = false;
-                }
-
-                return super.extractItem(slot, amount, simulate);
-            }
-
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack)
             {
@@ -219,9 +189,9 @@ public class MFMDBE extends MachineBlockEntityBase
 
             @Override
             protected void onContentsChanged(int slot) {
-                // Update recipe here, since not all changes fire insertItem or extractItem
-                recheckRecipe.set(true);
                 setChanged();
+                if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
+                else if(slot == SLOT_OUTPUT) invalidOutput = false;
             }
         };
     }

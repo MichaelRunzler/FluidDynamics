@@ -3,6 +3,7 @@ package michaelrunzler.fluiddynamics.interfaces;
 import michaelrunzler.fluiddynamics.block.ModBlocks;
 import michaelrunzler.fluiddynamics.blockentity.MFMDBE;
 import michaelrunzler.fluiddynamics.types.FDEnergyStorage;
+import michaelrunzler.fluiddynamics.types.FDItemHandler;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
@@ -26,7 +27,6 @@ public class MFMDContainer extends AbstractContainerMenu
 {
     private final BlockEntity be;
     private final IItemHandler playerInventory;
-    private boolean recheckRecipe;
 
     public MFMDContainer(int windowID, BlockPos pos, Inventory inventory, Player player)
     {
@@ -34,7 +34,6 @@ public class MFMDContainer extends AbstractContainerMenu
 
         be = player.getCommandSenderWorld().getBlockEntity(pos);
         this.playerInventory = new InvWrapper(inventory);
-        recheckRecipe = false;
 
         if(be != null)
             be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c -> {
@@ -70,9 +69,9 @@ public class MFMDContainer extends AbstractContainerMenu
 
         // If the item is moving from the machine to the inventory, place it in the first available slot
         if(index < INV_START) {
-            if(this.moveItemStackTo(s.getItem(), INV_START, HOTBAR_END + 1, false)) {
-                // If the stack is being moved out of the input slot, ensure the recipe is updated
-                recheckRecipe = true;
+            if(this.moveItemStackTo(s.getItem(), INV_START, HOTBAR_END + 1, false)) { // TODO test
+                // Propagate the change back to the BE's item handler, since this doesn't trigger onContentsChanged by default
+                be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c -> ((FDItemHandler)c).notifyExternalChange(index));
                 return dst;
             } else return ItemStack.EMPTY;
         }else{
@@ -194,19 +193,6 @@ public class MFMDContainer extends AbstractContainerMenu
             @Override
             public void set(int value) {
                 mbe.maxProgress.set(merge16b(mbe.maxProgress.get(), value, false));
-            }
-        });
-
-        // Finally, sync the recheck flag
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return recheckRecipe ? 1 : 0;
-            }
-
-            @Override
-            public void set(int value) {
-                mbe.recheckRecipe.set(value != 0);
             }
         });
     }
