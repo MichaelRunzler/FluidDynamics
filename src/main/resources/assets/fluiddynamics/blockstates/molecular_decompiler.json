@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "fluiddynamics:block/molecular_decompiler" },
+    "facing=south": { "model": "fluiddynamics:block/molecular_decompiler", "y": 180 },
+    "facing=west": { "model": "fluiddynamics:block/molecular_decompiler", "y": 270 },
+    "facing=east": { "model": "fluiddynamics:block/molecular_decompiler", "y": 90 },
+    "facing=up": { "model": "fluiddynamics:block/molecular_decompiler", "x": 90 },
+    "facing=down": { "model": "fluiddynamics:block/molecular_decompiler", "x": 270 }
+  }
+}

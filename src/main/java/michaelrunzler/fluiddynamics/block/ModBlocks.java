@@ -1,6 +1,7 @@
 package michaelrunzler.fluiddynamics.block;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
+import michaelrunzler.fluiddynamics.generators.FDBlockStateProvider;
 import michaelrunzler.fluiddynamics.generators.FDBlockTagProvider;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
@@ -69,6 +70,9 @@ public class ModBlocks
 
         RegistryObject<Block> mfmd = registerBlock(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase(), MFMDBlock::new);
         FDEnLangProvider.addBlockLangMapping(mfmd, MachineEnum.MOLECULAR_DECOMPILER.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, mfmd.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, mfmd.getKey());
 
         //
         // Special Non-Machine Blocks

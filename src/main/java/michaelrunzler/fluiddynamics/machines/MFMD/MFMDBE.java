@@ -53,6 +53,7 @@ public class MFMDBE extends MachineBlockEntityBase
     public AtomicInteger maxProgress;
     public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
     private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
+    private boolean lastPowerState; // Used to minimize state updates
 
     @SuppressWarnings("unchecked")
     public MFMDBE(BlockPos pos, BlockState state)
@@ -64,6 +65,7 @@ public class MFMDBE extends MachineBlockEntityBase
         maxProgress = new AtomicInteger(1);
         currentRecipe = null;
         invalidOutput = false;
+        lastPowerState = false;
         optionals.add(itemOpt);
         optionals.add(energyOpt);
 
@@ -115,18 +117,20 @@ public class MFMDBE extends MachineBlockEntityBase
         return super.getCapability(cap, side);
     }
 
+    @SuppressWarnings("deprecation")
     public void tickServer()
     {
         // Just run power handling if no recipe is in progress
         acceptPower();
         if(currentRecipe == null) return;
+        boolean powered = false;
 
         if(progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
         {
             // If the current recipe is still in progress, try to consume some energy and advance the recipe
             energyHandler.setEnergy(energyHandler.getEnergyStored() - type.powerConsumption);
             progress.incrementAndGet();
-            setChanged();
+            powered = true;
         }else if(progress.get() >= currentRecipe.time) // If the current recipe is done, try to transfer the input to the output
         {
             // Shortcut the output-checking logic if we already know the output is blocking the recipe from finishing
@@ -153,7 +157,18 @@ public class MFMDBE extends MachineBlockEntityBase
             if(didOperation) {
                 itemHandler.setStackInSlot(SLOT_INPUT, new ItemStack(input.getItem(), input.getCount() - 1));
                 progress.set(0);
-            }else invalidOutput = true; // Otherwise, mark the output as invalid until we see an item change
+                setChanged();
+            }else {
+                invalidOutput = true; // Otherwise, mark the output as invalid until we see an item change
+                powered = true;
+            }
+        }
+
+        if(powered != lastPowerState){
+            BlockState prev = this.getBlockState();
+            this.setBlockState(prev.setValue(BlockStateProperties.POWERED, powered)); // TODO not updating world light levels
+            setChanged();
+            lastPowerState = powered;
         }
     }
 

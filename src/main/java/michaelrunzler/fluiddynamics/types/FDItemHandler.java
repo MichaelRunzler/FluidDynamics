@@ -5,7 +5,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 
 /**
- * A variant of the {@link ItemStackHandler} which supports external notification of item updates (for example, from
+ * A variant of the {@link ItemStackHandler} which supports external notification of item update, for example, from
  * code which uses {@link net.minecraft.world.inventory.AbstractContainerMenu}'s moveItemStackTo(), which doesn't obey
  * the API spec for ItemHandler access and thus doesn't call {@link ItemStackHandler#onContentsChanged(int)} when
  * stacks are changed.

@@ -24,12 +24,12 @@ public class MachineRecipes
                 .define('p', ModItems.registeredItems.get("power_converter").get())
                 .define('s', ModItems.registeredItems.get("actuator").get())
                 .define('u', ModBlockItems.registeredBItems.get("machine_frame").get())
-                .define('d', ModItems.registeredItems.get("redstone_dynamo").get())
+                .define('d', ModItems.registeredItems.get("actuator").get())
                 .define('e', ModItems.registeredItems.get("beam_emitter").get())
                 .define('g', Items.GLOWSTONE)
                 .define('f', Items.IRON_INGOT)
                 .group("fluid_dynamics_machine_mfmd")
-                .unlockedBy("machine_mfmd_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("beam_emitter").get()))
+                .unlockedBy("machine_mfmd_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
                 .save(c, "machine_mfmd");
     }
 }

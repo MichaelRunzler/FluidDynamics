@@ -40,7 +40,8 @@ public abstract class FDMachineBase extends Block implements EntityBlock
         super(Properties.of(Material.METAL)
                 .requiresCorrectToolForDrops()
                 .sound(SoundType.METAL)
-                .strength(type.strength));
+                .strength(type.strength)
+                .lightLevel((state) -> state.getValue(BlockStateProperties.POWERED) ? 12 : 0));
 
         this.type = type;
     }
@@ -87,11 +88,14 @@ public abstract class FDMachineBase extends Block implements EntityBlock
      */
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context)
+    {
         BlockState blockstate = super.getStateForPlacement(context);
         if (blockstate != null) {
             blockstate = blockstate.setValue(BlockStateProperties.FACING, context.getHorizontalDirection());
+            blockstate = blockstate.setValue(BlockStateProperties.POWERED, false);
         }
+
         return blockstate;
     }
 
@@ -103,6 +107,7 @@ public abstract class FDMachineBase extends Block implements EntityBlock
         // Override as above for more properties
         super.createBlockStateDefinition(builder);
         builder.add(BlockStateProperties.FACING);
+        builder.add(BlockStateProperties.POWERED);
     }
 
     /**
