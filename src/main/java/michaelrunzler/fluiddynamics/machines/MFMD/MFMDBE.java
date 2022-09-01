@@ -5,7 +5,6 @@ import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
 import michaelrunzler.fluiddynamics.item.EnergyCell;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.machines.base.GenericMachineRecipe;
-import michaelrunzler.fluiddynamics.types.RelativeFacing;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,14 +29,15 @@ public class MFMDBE extends MachineBlockEntityBase
 {
     private final ItemStackHandler itemHandler = createIHandler();
     private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-    private static final String ITEM_NBT_TAG = "Inventory";
-    private final LazyOptional<IItemHandler>[] slotHandlers;
-    private final IItemHandler[] rawHandlers;
 
     private final FDEnergyStorage energyHandler = createEHandler();
     private final LazyOptional<IEnergyStorage> energyOpt = LazyOptional.of(() -> energyHandler);
-    private static final String ENERGY_NBT_TAG = "Energy";
 
+    private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
+    private final IItemHandler[] rawHandlers;
+
+    private static final String ITEM_NBT_TAG = "Inventory";
+    private static final String ENERGY_NBT_TAG = "Energy";
     private static final String INFO_NBT_TAG = "Info";
     private static final String PROGRESS_NBT_TAG = "Progress";
 
@@ -49,7 +49,7 @@ public class MFMDBE extends MachineBlockEntityBase
 
     public final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
-    public AtomicInteger progress; // Must be atomic since it's accessed by the client-server interface
+    public AtomicInteger progress;
     public AtomicInteger maxProgress;
     public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
     private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
@@ -66,9 +66,10 @@ public class MFMDBE extends MachineBlockEntityBase
         invalidOutput = false;
         optionals.add(itemOpt);
         optionals.add(energyOpt);
+
+        // Initialize handlers for each slot
         slotHandlers = new LazyOptional[NUM_INV_SLOTS];
         rawHandlers = new IItemHandler[NUM_INV_SLOTS];
-
         for(int i = 0; i < NUM_INV_SLOTS; i++) {
             final int k = i;
             rawHandlers[k] = createStackSpecificIHandler(k);
@@ -109,27 +110,28 @@ public class MFMDBE extends MachineBlockEntityBase
             else return (LazyOptional<T>) itemOpt;
         }
 
+        // Energy is accessible from all sides, so we don't need sided logic for this
         if(cap == CapabilityEnergy.ENERGY) return (LazyOptional<T>)energyOpt;
         return super.getCapability(cap, side);
     }
 
     public void tickServer()
     {
+        // Just run power handling if no recipe is in progress
         acceptPower();
         if(currentRecipe == null) return;
 
         if(progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
         {
-            // The current recipe is still in progress; try to consume some energy and advance the recipe
+            // If the current recipe is still in progress, try to consume some energy and advance the recipe
             energyHandler.setEnergy(energyHandler.getEnergyStored() - type.powerConsumption);
             progress.incrementAndGet();
             setChanged();
-        }else if(progress.get() >= currentRecipe.time)
+        }else if(progress.get() >= currentRecipe.time) // If the current recipe is done, try to transfer the input to the output
         {
-            // Shortcut the output-checking logic if we already know the output is invalid
+            // Shortcut the output-checking logic if we already know the output is blocking the recipe from finishing
             if(invalidOutput) return;
 
-            // The current recipe is done; try to "transfer" item to output
             ItemStack input = itemHandler.getStackInSlot(SLOT_INPUT);
             ItemStack output = itemHandler.getStackInSlot(SLOT_OUTPUT);
             boolean didOperation = false;
@@ -151,7 +153,7 @@ public class MFMDBE extends MachineBlockEntityBase
             if(didOperation) {
                 itemHandler.setStackInSlot(SLOT_INPUT, new ItemStack(input.getItem(), input.getCount() - 1));
                 progress.set(0);
-            }else invalidOutput = true;
+            }else invalidOutput = true; // Otherwise, mark the output as invalid until we see an item change
         }
     }
 
@@ -163,13 +165,14 @@ public class MFMDBE extends MachineBlockEntityBase
         AtomicInteger capacity = new AtomicInteger(energyHandler.getEnergyStored());
         if(capacity.get() >= energyHandler.getMaxEnergyStored()) return;
 
-        // Check for an Energy Cell in the Cell slot
+        // Check for an Energy Cell in the cell slot
         ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY);
         if(batt.is(ModItems.registeredItems.get("energy_cell").get()) && batt.getCount() > 0)
         {
             // If there is a valid cell in the slot, check to see if we need energy, and if so, extract some from the cell
             if(energyHandler.getEnergyStored() < energyHandler.getMaxEnergyStored() && batt.getDamageValue() < batt.getMaxDamage())
             {
+                // Transfer the lowest out of: remaining cell capacity, remaining storage space, or maximum charge rate
                 int rcvd = energyHandler.receiveEnergy(Math.min((batt.getMaxDamage() - batt.getDamageValue()),
                         (energyHandler.getMaxEnergyStored() - energyHandler.getEnergyStored())), false);
                 ItemStack tmp = ((EnergyCell)batt.getItem()).chargeDischarge(batt, rcvd, false);
@@ -194,15 +197,18 @@ public class MFMDBE extends MachineBlockEntityBase
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
+                // Update recipe and invalidation data if relevant
                 if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
                 else if(slot == SLOT_OUTPUT) invalidOutput = false;
             }
         };
     }
 
+    /**
+     * This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
+     */
     private ItemStackHandler createStackSpecificIHandler(int slotID)
     {
-        // This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
         return new ItemStackHandler(1)
         {
             @Override
@@ -253,10 +259,12 @@ public class MFMDBE extends MachineBlockEntityBase
         // Don't update anything if the item type hasn't changed
         if(currentRecipe != null && stack != null && stack.is(currentRecipe.in.asItem())) return;
 
+        // If the stack is empty or invalid, clear the recipe
         if(stack == null || stack.getCount() == 0 || !isItemValid(SLOT_INPUT, stack)) {
             currentRecipe = null;
             maxProgress.set(1);
         }else{
+            // Otherwise, look up the item in the recipe list
             currentRecipe = recipes.get(stack.getItem().getRegistryName().getPath());
             maxProgress.set(currentRecipe == null ? 1 : currentRecipe.time);
         }
@@ -278,6 +286,9 @@ public class MFMDBE extends MachineBlockEntityBase
         else return false;
     }
 
+    /**
+     * Adds all registered recipes for ores and ingots to the internal recipe list.
+     */
     private static HashMap<String, GenericMachineRecipe> addRecipes()
     {
         HashMap<String, GenericMachineRecipe> rv = new HashMap<>();

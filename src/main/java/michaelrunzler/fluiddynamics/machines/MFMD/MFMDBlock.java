@@ -28,9 +28,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-/**
- * Represents the physical block associated with a machine.
- */
 public class MFMDBlock extends FDMachineBase
 {
     public static final String SCREEN_TITLE = "screen.fd.mfmd";
@@ -45,7 +42,9 @@ public class MFMDBlock extends FDMachineBase
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type)
+    {
+        // Gets the ticker instance from the BE
         if(!level.isClientSide()) {
             return (lvl, pos, bstate, tile) -> {
                 if(tile instanceof MFMDBE) ((MFMDBE) tile).tickServer();
@@ -75,6 +74,7 @@ public class MFMDBlock extends FDMachineBase
                 return new MFMDContainer(id, pos, inv, player);
             }
         };
+
         NetworkHooks.openGui((ServerPlayer)player, container, be.getBlockPos());
 
         return InteractionResult.SUCCESS;
@@ -101,6 +101,7 @@ public class MFMDBlock extends FDMachineBase
     {
         Random rng = new Random();
 
+        // Give the exiting item a random velocity and direction
         double w = EntityType.ITEM.getWidth();
         double rem = 1.0d - w;
         double mid = w / 2.0d;

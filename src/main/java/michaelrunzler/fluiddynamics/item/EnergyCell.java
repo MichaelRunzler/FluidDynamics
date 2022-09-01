@@ -41,9 +41,4 @@ public class EnergyCell extends Item
 
         return stack;
     }
-
-    @Override
-    public boolean canBeDepleted() {
-        return super.canBeDepleted();
-    }
 }

@@ -35,6 +35,7 @@ public class MFMDContainer extends AbstractContainerMenu
         be = player.getCommandSenderWorld().getBlockEntity(pos);
         this.playerInventory = new InvWrapper(inventory);
 
+        // Register and add block inventory slots
         if(be != null)
             be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c -> {
                 addSlot(new SlotItemHandler(c, MFMDBE.SLOT_BATTERY, 56, 53));
@@ -56,12 +57,14 @@ public class MFMDContainer extends AbstractContainerMenu
     @Override
     public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index)
     {
+        // Set convenient numeric bounds for the various parts of the inventory
         Slot s = this.slots.get(index);
         final int INV_START = MFMDBE.NUM_INV_SLOTS;
         final int INV_END = INV_START + 26;
         final int HOTBAR_START = INV_END + 1;
         final int HOTBAR_END = HOTBAR_START + 8;
 
+        // Shortcut if the requested transfer is empty
         if(!s.hasItem()) return ItemStack.EMPTY;
 
         // If the slot has an item in it, see which direction it's going in
@@ -69,7 +72,7 @@ public class MFMDContainer extends AbstractContainerMenu
 
         // If the item is moving from the machine to the inventory, place it in the first available slot
         if(index < INV_START) {
-            if(this.moveItemStackTo(s.getItem(), INV_START, HOTBAR_END + 1, false)) { // TODO test
+            if(this.moveItemStackTo(s.getItem(), INV_START, HOTBAR_END + 1, false)) {
                 // Propagate the change back to the BE's item handler, since this doesn't trigger onContentsChanged by default
                 be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c -> ((FDItemHandler)c).notifyExternalChange(index));
                 return dst;
@@ -87,22 +90,6 @@ public class MFMDContainer extends AbstractContainerMenu
         }
 
         return ItemStack.EMPTY;
-    }
-
-    public int getEnergyStored(){
-        return be.getCapability(CapabilityEnergy.ENERGY).map(IEnergyStorage::getEnergyStored).orElse(0);
-    }
-
-    public int getMaxEnergy(){
-        return be.getCapability(CapabilityEnergy.ENERGY).map(IEnergyStorage::getMaxEnergyStored).orElse(1);
-    }
-
-    public int getProgress(){
-        return ((MFMDBE) be).progress.get();
-    }
-
-    public int getMaxProgress(){
-        return ((MFMDBE)be).maxProgress.get();
     }
 
     /**
@@ -197,6 +184,37 @@ public class MFMDContainer extends AbstractContainerMenu
         });
     }
 
+    //
+    // Accessors for the BE's properties
+    //
+
+    public int getEnergyStored(){
+        return be.getCapability(CapabilityEnergy.ENERGY).map(IEnergyStorage::getEnergyStored).orElse(0);
+    }
+
+    public int getMaxEnergy(){
+        return be.getCapability(CapabilityEnergy.ENERGY).map(IEnergyStorage::getMaxEnergyStored).orElse(1);
+    }
+
+    public int getProgress(){
+        return ((MFMDBE) be).progress.get();
+    }
+
+    public int getMaxProgress(){
+        return ((MFMDBE)be).maxProgress.get();
+    }
+
+    //
+    // Inventory layout utilities
+    //
+
+    private void layoutPlayerInventory(int col, int row)
+    {
+        addSlotBox(playerInventory, 9, col, row, 9, 18, 3, 18);
+        row += 58;
+        addSlotRange(playerInventory, 0, col, row, 9, 18);
+    }
+
     /**
      * This and addSlotBox copied from McJty's 1.18 modding tutorial series.
      */
@@ -217,12 +235,9 @@ public class MFMDContainer extends AbstractContainerMenu
         }
     }
 
-    private void layoutPlayerInventory(int col, int row)
-    {
-        addSlotBox(playerInventory, 9, col, row, 9, 18, 3, 18);
-        row += 58;
-        addSlotRange(playerInventory, 0, col, row, 9, 18);
-    }
+    //
+    // Bitwise utilities
+    //
 
     // Gets a 16-bit value from a 32-bit value in either the upper or lower range
     private int get16b(int value, boolean upper) {

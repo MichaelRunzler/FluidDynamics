@@ -28,6 +28,7 @@ public class FDOre extends Block
 /**
  * Used to get the properties of a completed Ore object without instantiating a Registry call.
  */
+@SuppressWarnings("unchecked")
 class FDOreHelper
 {
     OreEnum type;

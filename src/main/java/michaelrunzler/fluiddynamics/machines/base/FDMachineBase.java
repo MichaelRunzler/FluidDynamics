@@ -90,7 +90,7 @@ public abstract class FDMachineBase extends Block implements EntityBlock
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState blockstate = super.getStateForPlacement(context);
         if (blockstate != null) {
-            blockstate = blockstate.setValue(BlockStateProperties.FACING, context.getNearestLookingDirection());
+            blockstate = blockstate.setValue(BlockStateProperties.FACING, context.getHorizontalDirection());
         }
         return blockstate;
     }

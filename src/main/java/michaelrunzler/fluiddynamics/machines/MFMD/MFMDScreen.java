@@ -11,9 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents the rendered GUI component of a machine's container interface.
- */
 public class MFMDScreen extends AbstractContainerScreen<MFMDContainer>
 {
     private final ResourceLocation UI = new ResourceLocation(FluidDynamics.MODID, "textures/gui/" + MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase() + ".png");

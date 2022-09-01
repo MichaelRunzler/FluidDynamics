@@ -28,6 +28,7 @@ public class FDMaterialBlock extends Block
 /**
  * Used to get the properties of a completed Material Block object without instantiating a Registry call.
  */
+@SuppressWarnings("unchecked")
 class FDMaterialBlockHelper
 {
     MaterialEnum type;

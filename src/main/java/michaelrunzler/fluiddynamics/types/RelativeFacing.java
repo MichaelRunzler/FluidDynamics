@@ -16,6 +16,8 @@ public class RelativeFacing
 
     public RelativeFacing(Direction facing)
     {
+        if(facing == Direction.UP || facing == Direction.DOWN) throw new IllegalArgumentException("Unable to transform vertical direction to relative: " + facing.getName());
+
         this.FRONT = facing;
         this.BACK = facing.getOpposite();
         this.LEFT = facing.getCounterClockWise();

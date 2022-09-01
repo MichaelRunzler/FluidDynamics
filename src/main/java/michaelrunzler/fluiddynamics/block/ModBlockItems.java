@@ -1,8 +1,6 @@
 package michaelrunzler.fluiddynamics.block;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
-import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -14,6 +12,7 @@ import java.util.function.Supplier;
 /**
  * Used by the Block Registry to register item forms of all blocks.
  */
+@SuppressWarnings("UnusedReturnValue")
 public class ModBlockItems
 {
     public static final DeferredRegister<Item> blockitems = DeferredRegister.create(ForgeRegistries.ITEMS, FluidDynamics.MODID);
