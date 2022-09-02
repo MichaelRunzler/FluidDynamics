@@ -85,6 +85,7 @@ public class MFMDBE extends MachineBlockEntityBase
         if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
         if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
         if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
+        updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
     }
 
     @Override
@@ -117,12 +118,16 @@ public class MFMDBE extends MachineBlockEntityBase
         return super.getCapability(cap, side);
     }
 
-    @SuppressWarnings("deprecation")
     public void tickServer()
     {
         // Just run power handling if no recipe is in progress
         acceptPower();
-        if(currentRecipe == null) return;
+        if(currentRecipe == null) {
+            // Forcibly update power state to ensure that it remains synced
+            updatePowerState(false);
+            return;
+        }
+
         boolean powered = false;
 
         if(progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
@@ -157,19 +162,12 @@ public class MFMDBE extends MachineBlockEntityBase
             if(didOperation) {
                 itemHandler.setStackInSlot(SLOT_INPUT, new ItemStack(input.getItem(), input.getCount() - 1));
                 progress.set(0);
-                setChanged();
-            }else {
-                invalidOutput = true; // Otherwise, mark the output as invalid until we see an item change
                 powered = true;
-            }
+                setChanged();
+            }else invalidOutput = true; // Otherwise, mark the output as invalid until we see an item change
         }
 
-        if(powered != lastPowerState){
-            BlockState prev = this.getBlockState();
-            this.setBlockState(prev.setValue(BlockStateProperties.POWERED, powered)); // TODO not updating world light levels
-            setChanged();
-            lastPowerState = powered;
-        }
+        updatePowerState(powered);
     }
 
     /**
@@ -286,6 +284,18 @@ public class MFMDBE extends MachineBlockEntityBase
 
         progress.set(0);
         invalidOutput = false;
+    }
+
+    /**
+     * Updates the visual power state of the block. Only actually changes the blockstate if the given power state differs
+     * from the current power state.
+     */
+    private void updatePowerState(boolean state)
+    {
+        if(state != lastPowerState){
+            if(level != null) level.setBlockAndUpdate(worldPosition, this.getBlockState().setValue(BlockStateProperties.POWERED, state));
+            lastPowerState = state;
+        }
     }
 
     /**

@@ -84,12 +84,16 @@ public class MFMDBlock extends FDMachineBase
     @Override
     public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean p_60519_)
     {
-        // Drop all inventory items from the block before it is destroyed
-        BlockEntity be = level.getBlockEntity(pos);
-        if(be != null)
-            be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c ->{
-                for(int i = 0; i < c.getSlots(); i++) spawnItem(level, pos, c.getStackInSlot(i));
-            });
+        // If this is a removal as a consequence of a state change, don't do anything and just delegate to super
+        if(!newState.is(this))
+        {
+            // Drop all inventory items from the block before it is destroyed
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be != null)
+                be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c -> {
+                    for (int i = 0; i < c.getSlots(); i++) spawnItem(level, pos, c.getStackInSlot(i));
+                });
+        }
 
         super.onRemove(state, level, pos, newState, p_60519_);
     }
