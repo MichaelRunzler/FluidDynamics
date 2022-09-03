@@ -31,5 +31,20 @@ public class MachineRecipes
                 .group("fluid_dynamics_machine_mfmd")
                 .unlockedBy("machine_mfmd_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
                 .save(c, "machine_mfmd");
+
+        ShapedRecipeBuilder.shaped(ModBlockItems.registeredBItems.get(MachineEnum.PURIFIER.name().toLowerCase()).get())
+                .pattern("bub")
+                .pattern("sfs")
+                .pattern("epe")
+                .define('b', Items.IRON_BARS)
+                .define('u', Items.BUCKET)
+                .define('s', ModItems.registeredItems.get("actuator").get())
+                .define('f', ModBlockItems.registeredBItems.get("machine_frame").get())
+                .define('e', ModItems.registeredItems.get("electromagnet").get())
+                .define('p', ModItems.registeredItems.get("power_converter").get())
+                .group("fluid_dynamics_machine_purifier")
+                .unlockedBy("machine_purifier_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_nickel").get()))
+                .save(c, "machine_purifier");
+
     }
 }

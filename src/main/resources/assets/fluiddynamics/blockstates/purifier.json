@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=north": { "model": "fluiddynamics:block/purifier" },
+    "facing=south": { "model": "fluiddynamics:block/purifier", "y": 180 },
+    "facing=west": { "model": "fluiddynamics:block/purifier", "y": 270 },
+    "facing=east": { "model": "fluiddynamics:block/purifier", "y": 90 },
+    "facing=up": { "model": "fluiddynamics:block/purifier", "x": 90 },
+    "facing=down": { "model": "fluiddynamics:block/purifier", "x": 270 }
+  }
+}

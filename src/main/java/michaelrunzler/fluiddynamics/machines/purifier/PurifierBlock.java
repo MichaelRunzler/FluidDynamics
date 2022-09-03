@@ -1,4 +1,4 @@
-package michaelrunzler.fluiddynamics.machines.MFMD;
+package michaelrunzler.fluiddynamics.machines.purifier;
 
 import michaelrunzler.fluiddynamics.machines.base.FDMachineBase;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
@@ -22,17 +22,17 @@ import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MFMDBlock extends FDMachineBase
+public class PurifierBlock extends FDMachineBase
 {
-    public static final String SCREEN_TITLE = "screen.fd.mfmd";
+    public static final String SCREEN_TITLE = "screen.fd.purifier";
 
-    public MFMDBlock() {
-        super(MachineEnum.MOLECULAR_DECOMPILER);
+    public PurifierBlock() {
+        super(MachineEnum.PURIFIER);
     }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new MFMDBE(pos, state);
+        return new PurifierBE(pos, state);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class MFMDBlock extends FDMachineBase
         // Gets the ticker instance from the BE
         if(!level.isClientSide()) {
             return (lvl, pos, bstate, tile) -> {
-                if(tile instanceof MFMDBE) ((MFMDBE) tile).tickServer();
+                if(tile instanceof PurifierBE) ((PurifierBE) tile).tickServer();
             };
         }else return null;
     }
@@ -54,7 +54,7 @@ public class MFMDBlock extends FDMachineBase
 
         // Ensure BE is of proper type (i.e. not corrupt)
         BlockEntity be = level.getBlockEntity(pos);
-        if(!(be instanceof MFMDBE)) throw new IllegalStateException("Invalid Block Entity state for MFMD block!");
+        if(!(be instanceof PurifierBE)) throw new IllegalStateException("Invalid Block Entity state for Purifier block!");
 
         // Create menu provider interface and call the server-side openGui utility method to automatically handle client-server interactions
         MenuProvider container = new MenuProvider() {
@@ -65,7 +65,7 @@ public class MFMDBlock extends FDMachineBase
 
             @Override
             public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player player) {
-                return new MFMDContainer(id, pos, inv, player);
+                return new PurifierContainer(id, pos, inv, player);
             }
         };
 

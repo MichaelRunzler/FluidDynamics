@@ -1,4 +1,4 @@
-package michaelrunzler.fluiddynamics.machines.base;
+package michaelrunzler.fluiddynamics.types;
 
 import net.minecraft.world.level.ItemLike;
 
@@ -9,12 +9,13 @@ public class GenericMachineRecipe
 {
     public int time;
     public ItemLike in;
-    public ItemLike[] out;
+    public RecipeComponent[] out;
 
-    public GenericMachineRecipe(int time, ItemLike in, ItemLike... out)
+    public GenericMachineRecipe(int time, ItemLike in, RecipeComponent... out)
     {
         this.time = time;
         this.in = in;
         this.out = out;
     }
 }
+

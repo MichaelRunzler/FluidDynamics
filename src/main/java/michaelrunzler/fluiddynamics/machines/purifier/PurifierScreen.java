@@ -1,4 +1,4 @@
-package michaelrunzler.fluiddynamics.machines.MFMD;
+package michaelrunzler.fluiddynamics.machines.purifier;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -11,11 +11,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-public class MFMDScreen extends AbstractContainerScreen<MFMDContainer>
+public class PurifierScreen extends AbstractContainerScreen<PurifierContainer>
 {
-    private final ResourceLocation UI = new ResourceLocation(FluidDynamics.MODID, "textures/gui/" + MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase() + ".png");
+    private final ResourceLocation UI = new ResourceLocation(FluidDynamics.MODID, "textures/gui/" + MachineEnum.PURIFIER.name().toLowerCase() + ".png");
 
-    public MFMDScreen(MFMDContainer container, Inventory inventory, Component name) {
+    public PurifierScreen(PurifierContainer container, Inventory inventory, Component name) {
         super(container, inventory, name);
     }
 
@@ -34,6 +34,11 @@ public class MFMDScreen extends AbstractContainerScreen<MFMDContainer>
             drawString(stack, Minecraft.getInstance().font, menu.getEnergyStored() + "/" + menu.getMaxEnergy() + " RBe",
                     x, y - 8, 0xaaaaaa);
 
+        // Draw fluid tooltip as well
+        if(checkBounds(x, y, 8, 24, 16, 68))
+            drawString(stack, Minecraft.getInstance().font, menu.getFluidLevel() + "/" + menu.getMaxFluidLevel() + "mB",
+                    x, y - 8, 0xaaaaaa);
+
         super.renderTooltip(stack, x, y);
     }
 
@@ -46,9 +51,13 @@ public class MFMDScreen extends AbstractContainerScreen<MFMDContainer>
 
         // Render the energy icon (battery) and progress bar using their respective values from the BE
         int energyOverlay = Math.min(fpDivideMult(menu.getEnergyStored(), menu.getMaxEnergy(), 14), 14);
-        int progressOverlay = Math.min(fpDivideMult(menu.getProgress(), menu.getMaxProgress(), 22), 22);
+        int progressOverlay = Math.min(fpDivideMult(menu.getProgress(), menu.getMaxProgress(), 28), 28);
         this.blit(stack, this.leftPos + 57, this.topPos + 50 - energyOverlay, 177, 14 - energyOverlay, 14, energyOverlay);
-        this.blit(stack, this.leftPos + 80, this.topPos + 35, 177, 14, progressOverlay, 16);
+        this.blit(stack, this.leftPos + 80, this.topPos + 27, 177, 14, progressOverlay, 31);
+
+        // Render the fluid gauge
+        int fluidOverlay = Math.min(fpDivideMult(menu.getFluidLevel(), menu.getMaxFluidLevel(), 52), 52);
+        this.blit(stack, this.leftPos + 9, this.topPos + 69 - fluidOverlay, 177, 97 - fluidOverlay, 16, fluidOverlay);
     }
 
     /**
@@ -58,7 +67,6 @@ public class MFMDScreen extends AbstractContainerScreen<MFMDContainer>
         return (int)(((float)num) / ((float)denom) * ((float)mult));
     }
 
-    @SuppressWarnings("SameParameterValue")
     private boolean checkBounds(int x, int y, int lbX, int rbX, int tbY, int bbY) {
         return ((this.leftPos + lbX < x) && (x < this.leftPos + rbX)) && ((this.topPos + tbY < y) && (y < this.topPos + bbY));
     }

@@ -4,7 +4,10 @@ import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -22,8 +25,11 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.items.CapabilityItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Random;
 
 /**
  * Represents a block which can take the properties of any {@link MachineEnum} type.
@@ -129,5 +135,43 @@ public abstract class FDMachineBase extends Block implements EntityBlock
     public PushReaction getPistonPushReaction(@NotNull BlockState state) {
         // This just stops the block from being pushed around
         return PushReaction.BLOCK;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean p_60519_)
+    {
+        // If this is a removal as a consequence of a state change, don't do anything and just delegate to super
+        if(!newState.is(this))
+        {
+            // Drop all inventory items from the block before it is destroyed
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be != null)
+                be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c -> {
+                    for (int i = 0; i < c.getSlots(); i++) spawnItem(level, pos, c.getStackInSlot(i));
+                });
+        }
+
+        super.onRemove(state, level, pos, newState, p_60519_);
+    }
+
+    /**
+     * Modified from the 1.14 version of the InventoryHelper class, now removed.
+     */
+    protected static void spawnItem(Level lvl, BlockPos pos, ItemStack stack)
+    {
+        Random rng = new Random();
+
+        // Give the exiting item a random velocity and direction
+        double w = EntityType.ITEM.getWidth();
+        double rem = 1.0d - w;
+        double mid = w / 2.0d;
+        double dx = ((double)pos.getX()) + (rng.nextDouble() * rem) + mid;
+        double dy = ((double)pos.getY()) + (rng.nextDouble() * rem);
+        double dz = ((double)pos.getZ()) + (rng.nextDouble() * rem) + mid;
+
+        ItemEntity ent = new ItemEntity(lvl, dx, dy, dz, stack);
+        ent.setDeltaMovement(rng.nextGaussian() * 0.05d, rng.nextGaussian() * 0.25d, rng.nextGaussian() * 0.05d);
+        lvl.addFreshEntity(ent);
     }
 }

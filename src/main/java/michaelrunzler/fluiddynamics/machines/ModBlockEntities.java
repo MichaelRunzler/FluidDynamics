@@ -3,6 +3,7 @@ package michaelrunzler.fluiddynamics.machines;
 import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.block.ModBlocks;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBE;
+import michaelrunzler.fluiddynamics.machines.purifier.PurifierBE;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
@@ -26,6 +27,9 @@ public class ModBlockEntities
     {
         registerBE(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase(), () -> BlockEntityType.Builder.of(MFMDBE::new,
                 ModBlocks.registeredBlocks.get(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase()).get()).build(null));
+
+        registerBE(MachineEnum.PURIFIER.name().toLowerCase(), () -> BlockEntityType.Builder.of(PurifierBE::new,
+                ModBlocks.registeredBlocks.get(MachineEnum.PURIFIER.name().toLowerCase()).get()).build(null));
     }
 
     /**

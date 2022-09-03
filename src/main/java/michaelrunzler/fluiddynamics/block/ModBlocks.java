@@ -6,6 +6,7 @@ import michaelrunzler.fluiddynamics.generators.FDBlockTagProvider;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
+import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
 import michaelrunzler.fluiddynamics.types.OreEnum;
@@ -73,6 +74,12 @@ public class ModBlocks
         FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, mfmd.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, mfmd.getKey());
+
+        RegistryObject<Block> purifier = registerBlock(MachineEnum.PURIFIER.name().toLowerCase(), PurifierBlock::new);
+        FDEnLangProvider.addBlockLangMapping(purifier, MachineEnum.PURIFIER.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.PURIFIER.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, purifier.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, purifier.getKey());
 
         //
         // Special Non-Machine Blocks
