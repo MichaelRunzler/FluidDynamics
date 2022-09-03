@@ -1,10 +1,8 @@
 package michaelrunzler.fluiddynamics.machines.purifier;
 
 import com.mojang.authlib.GameProfile;
-import michaelrunzler.fluiddynamics.block.ModBlockItems;
 import michaelrunzler.fluiddynamics.item.EnergyCell;
 import michaelrunzler.fluiddynamics.item.ModItems;
-import michaelrunzler.fluiddynamics.types.GenericMachineRecipe;
 import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
@@ -137,8 +135,7 @@ public class PurifierBE extends MachineBlockEntityBase
             else if(side == relativeFacing.LEFT) return (LazyOptional<T>) slotHandlers[SLOT_BUCKET];
             else if(side == relativeFacing.RIGHT) return (LazyOptional<T>) slotHandlers[SLOT_EMPTY_BUCKET];
             else if(side == relativeFacing.BOTTOM) return (LazyOptional<T>) slotHandlers[SLOT_OUTPUT];
-            else if(side == relativeFacing.FRONT) return (LazyOptional<T>) slotHandlers[SLOT_BATTERY];
-            else if(side == relativeFacing.BACK) return (LazyOptional<T>) fluidOpt;
+            else if(side == relativeFacing.FRONT || side == relativeFacing.BACK) return (LazyOptional<T>) slotHandlers[SLOT_BATTERY];
             else return (LazyOptional<T>) itemOpt;
         }
 
@@ -409,9 +406,14 @@ public class PurifierBE extends MachineBlockEntityBase
         // Add ore washing recipes
         for(OreEnum type : OreEnum.values()) {
             String name = type.name().toLowerCase();
-            rv.put("crushed_" + name, new GenericMachineRecipe((int)(type.hardness * 10.0f), ModItems.registeredItems.get("crushed_" + name).get(),
+            // The purifier doesn't depend on material hardness, so we just use Copper's hardness as the base value
+            rv.put("crushed_" + name, new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 15.0f), ModItems.registeredItems.get("crushed_" + name).get(),
                     new RecipeComponent(ModItems.registeredItems.get("purified_" + name).get(), 2)));
         }
+
+        // Add vanilla ore washing recipes
+        rv.put("crushed_gold_ore", new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 15.0f), ModItems.registeredItems.get("crushed_gold_ore").get(),
+                new RecipeComponent(ModItems.registeredItems.get("purified_gold_ore").get(), 2)));
 
         return rv;
     }

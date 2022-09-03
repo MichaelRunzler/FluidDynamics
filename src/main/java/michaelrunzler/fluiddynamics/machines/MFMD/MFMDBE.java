@@ -4,12 +4,12 @@ import michaelrunzler.fluiddynamics.block.ModBlockItems;
 import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
 import michaelrunzler.fluiddynamics.item.EnergyCell;
 import michaelrunzler.fluiddynamics.item.ModItems;
-import michaelrunzler.fluiddynamics.types.GenericMachineRecipe;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.Capability;
@@ -332,6 +332,10 @@ public class MFMDBE extends MachineBlockEntityBase
             rv.put("ore_" + name, new GenericMachineRecipe((int)(type.hardness * 15.0f), ModBlockItems.registeredBItems.get("ore_" + name).get(),
                     new RecipeComponent(ModItems.registeredItems.get("crushed_" + name).get(), 1)));
         }
+
+        // Add vanilla grinding recipes
+        rv.put("gold_ore", new GenericMachineRecipe(45, Blocks.GOLD_ORE, new RecipeComponent(ModItems.registeredItems.get("crushed_gold_ore").get(), 1)));
+        rv.put("endstone", new GenericMachineRecipe(45, Blocks.END_STONE, new RecipeComponent(ModItems.registeredItems.get("crushed_endstone").get(), 1)));
 
         return rv;
     }
