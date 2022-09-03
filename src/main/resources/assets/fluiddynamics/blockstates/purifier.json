@@ -1,10 +1,51 @@
 {
-  "variants": {
-    "facing=north": { "model": "fluiddynamics:block/purifier" },
-    "facing=south": { "model": "fluiddynamics:block/purifier", "y": 180 },
-    "facing=west": { "model": "fluiddynamics:block/purifier", "y": 270 },
-    "facing=east": { "model": "fluiddynamics:block/purifier", "y": 90 },
-    "facing=up": { "model": "fluiddynamics:block/purifier", "x": 90 },
-    "facing=down": { "model": "fluiddynamics:block/purifier", "x": 270 }
+  "variants":
+  {
+    "facing=north,powered=false": {
+      "model": "fluiddynamics:block/purifier"
+    },
+    "facing=north,powered=true": {
+      "model": "fluiddynamics:block/purifier_p"
+    },
+    "facing=south,powered=false": {
+      "model": "fluiddynamics:block/purifier",
+      "y": 180
+    },
+    "facing=south,powered=true": {
+      "model": "fluiddynamics:block/purifier_p",
+      "y": 180
+    },
+    "facing=east,powered=false": {
+      "model": "fluiddynamics:block/purifier",
+      "y": 90
+    },
+    "facing=east,powered=true": {
+      "model": "fluiddynamics:block/purifier_p",
+      "y": 90
+    },
+    "facing=west,powered=false": {
+      "model": "fluiddynamics:block/purifier",
+      "y": 270
+    },
+    "facing=west,powered=true": {
+      "model": "fluiddynamics:block/purifier_p",
+      "y": 270
+    },
+    "facing=up,powered=false": {
+      "model": "fluiddynamics:block/purifier",
+      "x": 90
+    },
+    "facing=up,powered=true": {
+      "model": "fluiddynamics:block/purifier_p",
+      "x": 90
+    },
+    "facing=down,powered=false": {
+      "model": "fluiddynamics:block/purifier",
+      "x": 270
+    },
+    "facing=down,powered=true": {
+      "model": "fluiddynamics:block/purifier_p",
+      "x": 270
+    }
   }
 }
