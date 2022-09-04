@@ -6,12 +6,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -54,7 +57,19 @@ public class PurifierBlock extends FDMachineBase
 
         // Ensure BE is of proper type (i.e. not corrupt)
         BlockEntity be = level.getBlockEntity(pos);
-        if(!(be instanceof PurifierBE)) throw new IllegalStateException("Invalid Block Entity state for Purifier block!");
+        if(!(be instanceof PurifierBE pbe)) throw new IllegalStateException("Invalid Block Entity state for Purifier block!");
+
+        // If the item is a valid item for the fluid input slot in the BE's inventory, try to add some fluid to the internal storage
+        ItemStack item = player.getItemInHand(hand);
+        if(pbe.isItemValid(PurifierBE.SLOT_BUCKET, item))
+        {
+            ItemStack empty = pbe.tryAddFluid(item, player);
+            if(empty != ItemStack.EMPTY) {
+                player.setItemInHand(hand, empty);
+                level.playSound(player, pos, ((BucketItem)item.getItem()).getFluid().getAttributes().getEmptySound(), SoundSource.BLOCKS, 1.0f, 1.0f);
+                return InteractionResult.SUCCESS;
+            }
+        }
 
         // Create menu provider interface and call the server-side openGui utility method to automatically handle client-server interactions
         MenuProvider container = new MenuProvider() {

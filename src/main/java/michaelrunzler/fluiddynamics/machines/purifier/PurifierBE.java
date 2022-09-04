@@ -95,6 +95,7 @@ public class PurifierBE extends MachineBlockEntityBase
             final int k = i;
             rawHandlers[k] = createStackSpecificIHandler(k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
+            optionals.add(slotHandlers[k]);
         }
     }
 
@@ -259,7 +260,7 @@ public class PurifierBE extends MachineBlockEntityBase
             if(output.isEmpty() || (output.is(result.getItem()) && output.getCount() < output.getMaxStackSize()))
             {
                 // Empty the container into the tank
-                fluidHandler.fill(new FluidStack(Fluids.WATER, 1000), IFluidHandler.FluidAction.EXECUTE);
+                fluidHandler.fill(new FluidStack(b.getFluid(), 1000), IFluidHandler.FluidAction.EXECUTE);
 
                 // Remove one item from the input and add its resultant container to the output
                 itemHandler.setStackInSlot(SLOT_BUCKET, new ItemStack(bucket.getItem(), bucket.getCount() - 1));
@@ -267,6 +268,23 @@ public class PurifierBE extends MachineBlockEntityBase
                 else itemHandler.setStackInSlot(SLOT_EMPTY_BUCKET, new ItemStack(output.getItem(), output.getCount() + result.getCount()));
             }
         }
+    }
+
+    /**
+     * Attempts to add fluid from the given ItemStack to the internal reservoir as a result of a right-click interaction
+     * from a player holding the ItemStack. Returns the resultant empty container as an ItemStack, or ItemStack.EMPTY
+     * if the interaction failed (i.e. if the tank is full or the fluid is of the wrong type).
+     */
+    public ItemStack tryAddFluid(ItemStack incoming, Player player)
+    {
+        ItemStack result = ItemStack.EMPTY;
+        if(fluidHandler.getSpace() >= 1000 && incoming.getItem() instanceof BucketItem b && fluidHandler.isFluidValid(new FluidStack(b.getFluid(), 1000))) {
+            result = BucketItem.getEmptySuccessItem(incoming, player);
+            fluidHandler.fill(new FluidStack(b.getFluid(), 1000), IFluidHandler.FluidAction.EXECUTE);
+            setChanged();
+        }
+
+        return result;
     }
 
     private ItemStackHandler createIHandler()

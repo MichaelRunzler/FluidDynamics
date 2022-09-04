@@ -76,6 +76,7 @@ public class MFMDBE extends MachineBlockEntityBase
             final int k = i;
             rawHandlers[k] = createStackSpecificIHandler(k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
+            optionals.add(slotHandlers[k]);
         }
     }
 
