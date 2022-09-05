@@ -42,4 +42,11 @@ public class CreativeTabs
             return new ItemStack(ModItems.registeredItems.get("pickaxe_copper").get());
         }
     };
+
+    public static final CreativeModeTab TAB_MACHINES = new CreativeModeTab("tab_machines") {
+        @Override
+        public @NotNull ItemStack makeIcon() {
+            return new ItemStack(ModBlockItems.registeredBItems.get("molecular_decompiler").get());
+        }
+    };
 }

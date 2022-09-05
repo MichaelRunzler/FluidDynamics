@@ -64,7 +64,7 @@ public class PurifierBE extends MachineBlockEntityBase
     public static final int FLUID_CONSUMPTION_RATE = 5;
     public static final int FLUID_CAPACITY = 10000;
 
-    public final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
+    public static final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
     public AtomicInteger progress;
     public AtomicInteger maxProgress;
@@ -432,6 +432,8 @@ public class PurifierBE extends MachineBlockEntityBase
         // Add vanilla ore washing recipes
         rv.put("crushed_gold_ore", new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 15.0f), ModItems.registeredItems.get("crushed_gold_ore").get(),
                 new RecipeComponent(ModItems.registeredItems.get("purified_gold_ore").get(), 2)));
+        rv.put("crushed_iron_ore", new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 15.0f), ModItems.registeredItems.get("crushed_iron_ore").get(),
+                new RecipeComponent(ModItems.registeredItems.get("purified_iron_ore").get(), 2)));
 
         return rv;
     }

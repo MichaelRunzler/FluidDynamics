@@ -2,6 +2,7 @@ package michaelrunzler.fluiddynamics.generators;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
+import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBlock;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
@@ -35,6 +36,7 @@ public class FDEnLangProvider extends LanguageProvider
 
         // Add manual mappings
         add("itemGroup.tab_blocks", "Fluid Dynamics: Blocks");
+        add("itemGroup.tab_machines", "Fluid Dynamics: Machines");
         add("itemGroup.tab_resources", "Fluid Dynamics: Resources");
         add("itemGroup.tab_armor", "Fluid Dynamics: Armor");
         add("itemGroup.tab_tools", "Fluid Dynamics: Tools and Weapons");
@@ -42,6 +44,7 @@ public class FDEnLangProvider extends LanguageProvider
 
         add(MFMDBlock.SCREEN_TITLE, "Molecular Decompiler");
         add(PurifierBlock.SCREEN_TITLE, "Electrogravitic Purifier");
+        add(CentrifugeBlock.SCREEN_TITLE, "Fractionating Centrifuge");
     }
 
     /**

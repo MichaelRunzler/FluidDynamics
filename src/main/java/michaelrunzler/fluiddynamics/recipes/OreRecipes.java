@@ -21,28 +21,28 @@ import java.util.function.Consumer;
  */
 public class OreRecipes 
 {
-    private static final float BASE_SMELT_MULTIPLIER = 0.1f;
-    private static final float ACCELERATED_SMELT_MULTIPLIER = 0.2f;
+    private static final float BASE_SMELT_MULTIPLIER = 0.2f;
+    private static final float ACCELERATED_SMELT_MULTIPLIER = 0.1f;
     
     public static void generateOreSmeltingRecipes(Consumer<FinishedRecipe> c)
     {
         // Raw ore can be smelted, and yields 1 at the standard speed
-        rawOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
-        rawOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
-        rawOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
-        rawOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
-        rawOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
-        rawOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
-        rawOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint * BASE_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint * BASE_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint * BASE_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint * BASE_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * BASE_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint * BASE_SMELT_MULTIPLIER));
+        rawOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * BASE_SMELT_MULTIPLIER));
 
         // Crushed ore yields 1 at double speed
-        crushedOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint * BASE_SMELT_MULTIPLIER));
-        crushedOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint * BASE_SMELT_MULTIPLIER));
-        crushedOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint * BASE_SMELT_MULTIPLIER));
-        crushedOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint * BASE_SMELT_MULTIPLIER));
-        crushedOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * BASE_SMELT_MULTIPLIER));
-        crushedOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint * BASE_SMELT_MULTIPLIER));
-        crushedOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * BASE_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "native_copper", "copper", (int)(MaterialEnum.COPPER.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "bertrandite", "beryllium", (int)(MaterialEnum.BERYLLIUM.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "spherocobaltite", "cobalt", (int)(MaterialEnum.COBALT.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "tetrataenite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "bauxite", "aluminium", (int)(MaterialEnum.ALUMINIUM.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+        crushedOreSmeltingRecipe(c, "pentlandite", "nickel", (int)(MaterialEnum.NICKEL.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
 
         // Purified ore yields 1 at double speed, but you get 2 for every crushed ore
         purifiedOreSmeltingRecipe(c, "native_tin", "tin", (int)(MaterialEnum.TIN.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
@@ -62,9 +62,37 @@ public class OreRecipes
         portableGrinderOreRecipe(c, "bauxite");
         portableGrinderOreRecipe(c, "pentlandite");
 
-        // Add recipes for vanilla gold ore and endstone
+        // Add recipes for vanilla gold/iron ores, coal, and endstone
         portableGrinderRecipe(c, Items.GOLD_ORE, ModItems.registeredItems.get("crushed_gold_ore").get());
+        portableGrinderRecipe(c, Items.IRON_ORE, ModItems.registeredItems.get("crushed_iron_ore").get());
+        portableGrinderRecipe(c, Items.CHARCOAL, ModItems.registeredItems.get("dust_coal").get());
         portableGrinderRecipe(c, Items.END_STONE, ModItems.registeredItems.get("crushed_endstone").get());
+        portableGrinderRecipe(c, Items.GOLD_INGOT, ModItems.registeredItems.get("dust_gold").get());
+        portableGrinderRecipe(c, Items.IRON_INGOT, ModItems.registeredItems.get("dust_iron").get());
+        
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModItems.registeredItems.get("crushed_gold_ore").get()),
+                        Items.GOLD_INGOT, 0.5f, (int)(1337.0f * ACCELERATED_SMELT_MULTIPLIER))
+                .group("fluid_dynamics_gold_ore_smelting")
+                .unlockedBy("crushed_gold_ore_smelting_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("crushed_gold_ore").get()))
+                .save(c, "crushed_gold_ore_smelting");
+
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModItems.registeredItems.get("purified_gold_ore").get()),
+                        Items.GOLD_INGOT, 0.5f, (int)(1337.0f * ACCELERATED_SMELT_MULTIPLIER))
+                .group("fluid_dynamics_gold_ore_smelting")
+                .unlockedBy("purified_gold_ore_smelting_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("purified_gold_ore").get()))
+                .save(c, "purified_gold_ore_smelting");
+
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModItems.registeredItems.get("crushed_iron_ore").get()),
+                        Items.IRON_INGOT, 0.5f, (int)(1798.0f * ACCELERATED_SMELT_MULTIPLIER))
+                .group("fluid_dynamics_iron_ore_smelting")
+                .unlockedBy("crushed_iron_ore_smelting_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("crushed_iron_ore").get()))
+                .save(c, "crushed_iron_ore_smelting");
+
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModItems.registeredItems.get("purified_iron_ore").get()),
+                        Items.IRON_INGOT, 0.5f, (int)(1798.0f * ACCELERATED_SMELT_MULTIPLIER))
+                .group("fluid_dynamics_iron_ore_smelting")
+                .unlockedBy("purified_iron_ore_smelting_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("purified_iron_ore").get()))
+                .save(c, "purified_iron_ore_smelting");
     }
 
     public static void rawOreSmeltingRecipe(Consumer<FinishedRecipe> c, String oreName, String matName, int time) {
@@ -88,7 +116,7 @@ public class OreRecipes
         Item input = tmp.get();
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(input), ModItems.registeredItems.get("ingot_" + matName).get(), 0.5f, time)
                 .group("fluid_dynamics_" + type + "_smelting")
-                .unlockedBy(name + "_smelting", InventoryChangeTrigger.TriggerInstance.hasItems(input))
+                .unlockedBy(name + "_smelting_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(input))
                 .save(c, name + "_smelting");
     }
 

@@ -46,7 +46,14 @@ public class ModItems
             RegistryObject<Item> ingot = registerItem("ingot_" + name, itemSupplier);
             RegistryObject<Item> nugget = registerItem("nugget_" + name, itemSupplier);
             RegistryObject<Item> dust = registerItem("dust_" + name, itemSupplier);
-            
+            RegistryObject<Item> smallDust = registerItem("dust_small_" + name, itemSupplier);
+
+            // Register language mappings
+            FDEnLangProvider.addItemLangMapping(ingot, type.englishName + " Ingot");
+            FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget");
+            FDEnLangProvider.addItemLangMapping(dust, "Powdered " + type.englishName);
+            FDEnLangProvider.addItemLangMapping(smallDust, "Small Powdered " + type.englishName);
+
             // Generate armor pieces for this type
             RegistryObject<Item> armorHead = registerItem("armor_head_" + name, () -> new FDArmorItem(type, EquipmentSlot.HEAD));
             RegistryObject<Item> armorChest = registerItem("armor_chest_" + name, () -> new FDArmorItem(type, EquipmentSlot.CHEST));
@@ -70,11 +77,6 @@ public class ModItems
             FDEnLangProvider.addItemLangMapping(toolSpade, type.englishName + " Shovel");
             FDEnLangProvider.addItemLangMapping(toolHoe, type.englishName + " Hoe");
             FDEnLangProvider.addItemLangMapping(toolSword, type.englishName + " Sword");
-
-            // Register language mappings
-            FDEnLangProvider.addItemLangMapping(ingot, type.englishName + " Ingot");
-            FDEnLangProvider.addItemLangMapping(nugget, type.englishName + " Nugget");
-            FDEnLangProvider.addItemLangMapping(dust, "Powdered " + type.englishName);
 
             // Add beacon tags for ingots
             FDItemTagProvider.addTagMapping(ItemTags.BEACON_PAYMENT_ITEMS, ingot.getKey());
@@ -110,11 +112,29 @@ public class ModItems
         RegistryObject<Item> goldDust = registerItem("dust_gold", vanillaSupplier);
         FDEnLangProvider.addItemLangMapping(goldDust, "Powdered Gold");
 
+        RegistryObject<Item> smallGoldDust = registerItem("dust_small_gold", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(smallGoldDust, "Small Powdered Gold");
+
+        RegistryObject<Item> ironOreDust = registerItem("crushed_iron_ore", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(ironOreDust, "Decomposed Iron Ore");
+
+        RegistryObject<Item> pureIronOre = registerItem("purified_iron_ore", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(pureIronOre, "Purified Iron Ore");
+
+        RegistryObject<Item> ironDust = registerItem("dust_iron", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(ironDust, "Powdered Iron");
+
+        RegistryObject<Item> smallIronDust = registerItem("dust_small_iron", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(smallIronDust, "Small Powdered Iron");
+
         RegistryObject<Item> endstoneDust = registerItem("crushed_endstone", vanillaSupplier);
         FDEnLangProvider.addItemLangMapping(endstoneDust, "Decomposed End Stone");
 
         RegistryObject<Item> rareEarthNugget = registerItem("nugget_rare_earth", vanillaSupplier);
         FDEnLangProvider.addItemLangMapping(rareEarthNugget, "Rare-Earth Metal Deposit");
+
+        RegistryObject<Item> coalDust = registerItem("dust_coal", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(coalDust, "Powdered Carbon");
 
         //
         // Component Items

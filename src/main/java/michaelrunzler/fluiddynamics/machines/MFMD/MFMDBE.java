@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -47,7 +48,7 @@ public class MFMDBE extends MachineBlockEntityBase
     public static final int SLOT_OUTPUT = 2;
     public static final int MAX_CHARGE_RATE = 10;
 
-    public final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
+    public static final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
     public AtomicInteger progress;
     public AtomicInteger maxProgress;
@@ -334,9 +335,13 @@ public class MFMDBE extends MachineBlockEntityBase
                     new RecipeComponent(ModItems.registeredItems.get("crushed_" + name).get(), 1)));
         }
 
-        // Add vanilla grinding recipes
+        // Add vanilla grinding recipes for ore and ingots
         rv.put("gold_ore", new GenericMachineRecipe(45, Blocks.GOLD_ORE, new RecipeComponent(ModItems.registeredItems.get("crushed_gold_ore").get(), 1)));
+        rv.put("iron_ore", new GenericMachineRecipe(45, Blocks.IRON_ORE, new RecipeComponent(ModItems.registeredItems.get("crushed_iron_ore").get(), 1)));
         rv.put("endstone", new GenericMachineRecipe(45, Blocks.END_STONE, new RecipeComponent(ModItems.registeredItems.get("crushed_endstone").get(), 1)));
+        rv.put("charcoal", new GenericMachineRecipe(30, Items.CHARCOAL, new RecipeComponent(ModItems.registeredItems.get("dust_coal").get(), 1)));
+        rv.put("gold_ingot", new GenericMachineRecipe(30, Items.GOLD_INGOT, new RecipeComponent(ModItems.registeredItems.get("dust_gold").get(), 1)));
+        rv.put("iron_ingot", new GenericMachineRecipe(30, Items.IRON_INGOT, new RecipeComponent(ModItems.registeredItems.get("dust_iron").get(), 1)));
 
         return rv;
     }

@@ -66,10 +66,10 @@ public class CentrifugeBE extends MachineBlockEntityBase
     public static final int SLOT_OUTPUT_2 = 5;
     public static final int SLOT_OUTPUT_3 = 6;
     public static final int MAX_CHARGE_RATE = 15;
-    public static final int FLUID_CONSUMPTION_RATE = 5;
+    public static final int FLUID_CONSUMPTION_RATE = 1;
     public static final int FLUID_CAPACITY = 4000;
 
-    public final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
+    public static final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
     public AtomicInteger progress;
     public AtomicInteger maxProgress;
@@ -80,7 +80,7 @@ public class CentrifugeBE extends MachineBlockEntityBase
     @SuppressWarnings("unchecked")
     public CentrifugeBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.PURIFIER);
+        super(pos, state, MachineEnum.CENTRIFUGE);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         progress = new AtomicInteger(0);
@@ -188,9 +188,13 @@ public class CentrifugeBE extends MachineBlockEntityBase
             boolean allValid = true;
             for(int i = SLOT_OUTPUT_1; i <= SLOT_OUTPUT_3; i++)
             {
-                ItemStack output = itemHandler.getStackInSlot(i);
-                RecipeComponent out = currentRecipe.out[k];
-                if(output.getCount() >= output.getMaxStackSize() || !output.is(out.ingredient().asItem())) allValid = false;
+                if(k < currentRecipe.out.length)
+                {
+                    ItemStack output = itemHandler.getStackInSlot(i);
+                    RecipeComponent out = currentRecipe.out[k];
+                    if (!output.isEmpty() && (output.getCount() >= output.getMaxStackSize() || !output.is(out.ingredient().asItem()))) allValid = false;
+                }
+
                 k++;
             }
 
@@ -201,10 +205,15 @@ public class CentrifugeBE extends MachineBlockEntityBase
                 k = 0;
                 for(int i = SLOT_OUTPUT_1; i <= SLOT_OUTPUT_3; i++)
                 {
-                    ItemStack output = itemHandler.getStackInSlot(i);
-                    RecipeComponent out = currentRecipe.out[k];
-                    if(output.getCount() == 0) itemHandler.setStackInSlot(i, new ItemStack(out.ingredient(), out.count()));
-                    else itemHandler.setStackInSlot(i, new ItemStack(output.getItem(), output.getCount() + out.count()));
+                    if(k < currentRecipe.out.length)
+                    {
+                        ItemStack output = itemHandler.getStackInSlot(i);
+                        RecipeComponent out = currentRecipe.out[k];
+                        if (output.isEmpty()) itemHandler.setStackInSlot(i, new ItemStack(out.ingredient(), out.count()));
+                        else itemHandler.setStackInSlot(i, new ItemStack(output.getItem(), output.getCount() + out.count()));
+                    }
+
+                    k++;
                 }
 
                 didOperation = true;
@@ -422,7 +431,7 @@ public class CentrifugeBE extends MachineBlockEntityBase
         return new FDFluidStorage(FLUID_CAPACITY){
             @Override
             public boolean isFluidValid(FluidStack fluid){
-                return fluid.getFluid().isSame(Fluids.WATER);
+                return fluid.getFluid().isSame(Fluids.LAVA);
             }
         };
     }
@@ -484,19 +493,46 @@ public class CentrifugeBE extends MachineBlockEntityBase
     {
         HashMap<String, GenericMachineRecipe> rv = new HashMap<>();
 
-        // TODO stopped here
+        // Add ore processing recipes
+        rv.put("purified_native_copper", new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 20.0f), ModItems.registeredItems.get("purified_native_copper").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_copper").get(), 1)));
+        rv.put("purified_native_tin", new GenericMachineRecipe((int)(OreEnum.NATIVE_TIN.hardness * 20.0f), ModItems.registeredItems.get("purified_native_tin").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_tin").get(), 1)));
+        rv.put("purified_bertrandite", new GenericMachineRecipe((int)(OreEnum.BERTRANDITE.hardness * 20.0f), ModItems.registeredItems.get("purified_bertrandite").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_beryllium").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_small_silicon").get(), 1)));
+        rv.put("purified_spherocobaltite", new GenericMachineRecipe((int)(OreEnum.SPHEROCOBALTITE.hardness * 20.0f), ModItems.registeredItems.get("purified_spherocobaltite").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_cobalt").get(), 1)));
+        rv.put("purified_tetrataenite", new GenericMachineRecipe((int)(OreEnum.TETRATAENITE.hardness * 20.0f), ModItems.registeredItems.get("purified_tetrataenite").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_nickel").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_small_iridium").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_small_osmium").get(), 1)));
+        rv.put("purified_bauxite", new GenericMachineRecipe((int)(OreEnum.BAUXITE.hardness * 20.0f), ModItems.registeredItems.get("purified_bauxite").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_aluminium").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_small_titanium").get(), 1)));
+        rv.put("purified_wolframite", new GenericMachineRecipe((int)(OreEnum.WOLFRAMITE.hardness * 20.0f), ModItems.registeredItems.get("purified_wolframite").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_tungsten").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_iron").get(), 1)));
+        rv.put("purified_pentlandite", new GenericMachineRecipe((int)(OreEnum.PENTLANDITE.hardness * 20.0f), ModItems.registeredItems.get("purified_pentlandite").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_nickel").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_iron").get(), 1)));
+        rv.put("purified_gold_ore", new GenericMachineRecipe(80, ModItems.registeredItems.get("purified_gold_ore").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_gold").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_small_palladium").get(), 1)));
+        rv.put("purified_iron_ore", new GenericMachineRecipe(80, ModItems.registeredItems.get("purified_iron_ore").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_iron").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_small_nickel").get(), 1)));
+        rv.put("crushed_endstone", new GenericMachineRecipe(100, ModItems.registeredItems.get("crushed_endstone").get(),
+                new RecipeComponent(ModItems.registeredItems.get("nugget_rare_earth").get(), 1)));
 
-        // Add ore washing recipes
-        for(OreEnum type : OreEnum.values()) {
-            String name = type.name().toLowerCase();
-            // The purifier doesn't depend on material hardness, so we just use Copper's hardness as the base value
-            rv.put("crushed_" + name, new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 15.0f), ModItems.registeredItems.get("crushed_" + name).get(),
-                    new RecipeComponent(ModItems.registeredItems.get("purified_" + name).get(), 2)));
-        }
+        // Add alloy processing recipes
+        rv.put("dust_bronze", new GenericMachineRecipe((int)(MaterialEnum.BRONZE.hardness * 20.0f), ModItems.registeredItems.get("dust_bronze").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_copper").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_small_tin").get(), 1)));
 
-        // Add vanilla ore washing recipes
-        rv.put("crushed_gold_ore", new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 15.0f), ModItems.registeredItems.get("crushed_gold_ore").get(),
-                new RecipeComponent(ModItems.registeredItems.get("purified_gold_ore").get(), 2)));
+        rv.put("dust_invar", new GenericMachineRecipe((int)(MaterialEnum.INVAR.hardness * 20.0f), ModItems.registeredItems.get("dust_invar").get(),
+                new RecipeComponent(ModItems.registeredItems.get("dust_iron").get(), 1),
+                new RecipeComponent(ModItems.registeredItems.get("dust_small_nickel").get(), 1)));
 
         return rv;
     }

@@ -8,7 +8,8 @@ import michaelrunzler.fluiddynamics.item.EnergyCell;
 public enum MachineEnum
 {
     MOLECULAR_DECOMPILER("Molecular Decompiler", 3.0f, 2 * EnergyCell.DURABILITY, 2),
-    PURIFIER("Electrogravitic Purifier", 3.0f, 2 * EnergyCell.DURABILITY, 2);
+    PURIFIER("Electrogravitic Purifier", 3.0f, 2 * EnergyCell.DURABILITY, 2),
+    CENTRIFUGE("Fractionating Centrifuge", 5.0f, 4 * EnergyCell.DURABILITY, 4);
 
     public final String englishName;
     public final float strength;

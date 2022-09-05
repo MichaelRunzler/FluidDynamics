@@ -3,7 +3,6 @@ package michaelrunzler.fluiddynamics.machines.centrifuge;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import michaelrunzler.fluiddynamics.FluidDynamics;
-import michaelrunzler.fluiddynamics.machines.purifier.PurifierContainer;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -12,11 +11,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-public class CentrifugeScreen extends AbstractContainerScreen<PurifierContainer>
+public class CentrifugeScreen extends AbstractContainerScreen<CentrifugeContainer>
 {
-    private final ResourceLocation UI = new ResourceLocation(FluidDynamics.MODID, "textures/gui/" + MachineEnum.PURIFIER.name().toLowerCase() + ".png");
+    private final ResourceLocation UI = new ResourceLocation(FluidDynamics.MODID, "textures/gui/" + MachineEnum.CENTRIFUGE.name().toLowerCase() + ".png");
 
-    public CentrifugeScreen(PurifierContainer container, Inventory inventory, Component name) {
+    public CentrifugeScreen(CentrifugeContainer container, Inventory inventory, Component name) {
         super(container, inventory, name);
     }
 
@@ -52,13 +51,13 @@ public class CentrifugeScreen extends AbstractContainerScreen<PurifierContainer>
 
         // Render the energy icon (battery) and progress bar using their respective values from the BE
         int energyOverlay = Math.min(fpDivideMult(menu.getEnergyStored(), menu.getMaxEnergy(), 14), 14);
-        int progressOverlay = Math.min(fpDivideMult(menu.getProgress(), menu.getMaxProgress(), 28), 28);
+        int progressOverlay = Math.min(fpDivideMult(menu.getProgress(), menu.getMaxProgress(), 61), 61);
         this.blit(stack, this.leftPos + 57, this.topPos + 50 - energyOverlay, 177, 14 - energyOverlay, 14, energyOverlay);
-        this.blit(stack, this.leftPos + 80, this.topPos + 27, 177, 14, progressOverlay, 31);
+        this.blit(stack, this.leftPos + 80, this.topPos + 35, 177, 14, progressOverlay, 15);
 
         // Render the fluid gauge
         int fluidOverlay = Math.min(fpDivideMult(menu.getFluidLevel(), menu.getMaxFluidLevel(), 52), 52);
-        this.blit(stack, this.leftPos + 9, this.topPos + 69 - fluidOverlay, 177, 97 - fluidOverlay, 16, fluidOverlay);
+        this.blit(stack, this.leftPos + 9, this.topPos + 69 - fluidOverlay, 177, 81 - fluidOverlay, 16, fluidOverlay);
     }
 
     /**

@@ -6,6 +6,7 @@ import michaelrunzler.fluiddynamics.generators.FDBlockTagProvider;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
+import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBlock;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
@@ -69,17 +70,26 @@ public class ModBlocks
         // Machine Blocks
         //
 
-        RegistryObject<Block> mfmd = registerBlock(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase(), MFMDBlock::new);
+        RegistryObject<Block> mfmd = specialRegisterBlock(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase(), MFMDBlock::new,
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
         FDEnLangProvider.addBlockLangMapping(mfmd, MachineEnum.MOLECULAR_DECOMPILER.englishName);
         FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, mfmd.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, mfmd.getKey());
 
-        RegistryObject<Block> purifier = registerBlock(MachineEnum.PURIFIER.name().toLowerCase(), PurifierBlock::new);
+        RegistryObject<Block> purifier = specialRegisterBlock(MachineEnum.PURIFIER.name().toLowerCase(), PurifierBlock::new,
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
         FDEnLangProvider.addBlockLangMapping(purifier, MachineEnum.PURIFIER.englishName);
         FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.PURIFIER.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, purifier.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, purifier.getKey());
+
+        RegistryObject<Block> centrifuge = specialRegisterBlock(MachineEnum.CENTRIFUGE.name().toLowerCase(), CentrifugeBlock::new,
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
+        FDEnLangProvider.addBlockLangMapping(centrifuge, MachineEnum.CENTRIFUGE.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.CENTRIFUGE.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, centrifuge.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_IRON_TOOL, centrifuge.getKey());
 
         //
         // Special Non-Machine Blocks

@@ -1,8 +1,6 @@
 package michaelrunzler.fluiddynamics.machines.centrifuge;
 
 import michaelrunzler.fluiddynamics.machines.base.FDMachineBase;
-import michaelrunzler.fluiddynamics.machines.purifier.PurifierBE;
-import michaelrunzler.fluiddynamics.machines.purifier.PurifierContainer;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -29,10 +27,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class CentrifugeBlock extends FDMachineBase
 {
-    public static final String SCREEN_TITLE = "screen.fd.purifier";
+    public static final String SCREEN_TITLE = "screen.fd.centrifuge";
 
     public CentrifugeBlock() {
-        super(MachineEnum.PURIFIER);
+        super(MachineEnum.CENTRIFUGE);
     }
 
     @Override
@@ -46,7 +44,7 @@ public class CentrifugeBlock extends FDMachineBase
         // Gets the ticker instance from the BE
         if(!level.isClientSide()) {
             return (lvl, pos, bstate, tile) -> {
-                if(tile instanceof PurifierBE) ((PurifierBE) tile).tickServer();
+                if(tile instanceof CentrifugeBE) ((CentrifugeBE) tile).tickServer();
             };
         }else return null;
     }
@@ -59,11 +57,11 @@ public class CentrifugeBlock extends FDMachineBase
 
         // Ensure BE is of proper type (i.e. not corrupt)
         BlockEntity be = level.getBlockEntity(pos);
-        if(!(be instanceof CentrifugeBE pbe)) throw new IllegalStateException("Invalid Block Entity state for Purifier block!");
+        if(!(be instanceof CentrifugeBE pbe)) throw new IllegalStateException("Invalid Block Entity state for Centrifuge block!");
 
         // If the item is a valid item for the fluid input slot in the BE's inventory, try to add some fluid to the internal storage
         ItemStack item = player.getItemInHand(hand);
-        if(pbe.isItemValid(PurifierBE.SLOT_BUCKET, item))
+        if(pbe.isItemValid(CentrifugeBE.SLOT_BUCKET, item))
         {
             ItemStack empty = pbe.tryAddFluid(item, player);
             if(empty != ItemStack.EMPTY) {
@@ -82,7 +80,7 @@ public class CentrifugeBlock extends FDMachineBase
 
             @Override
             public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player player) {
-                return new PurifierContainer(id, pos, inv, player);
+                return new CentrifugeContainer(id, pos, inv, player);
             }
         };
 

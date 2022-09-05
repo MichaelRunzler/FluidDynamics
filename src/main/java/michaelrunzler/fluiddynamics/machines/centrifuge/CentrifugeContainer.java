@@ -2,7 +2,6 @@ package michaelrunzler.fluiddynamics.machines.centrifuge;
 
 import michaelrunzler.fluiddynamics.machines.ModContainers;
 import michaelrunzler.fluiddynamics.machines.base.MachineContainerBase;
-import michaelrunzler.fluiddynamics.machines.purifier.PurifierBE;
 import michaelrunzler.fluiddynamics.types.FDFluidStorage;
 import michaelrunzler.fluiddynamics.types.FDItemHandler;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
@@ -23,16 +22,18 @@ public class CentrifugeContainer extends MachineContainerBase
 {
     public CentrifugeContainer(int windowID, BlockPos pos, Inventory inventory, Player player)
     {
-        super(MachineEnum.PURIFIER, ModContainers.CONTAINER_PURIFIER.get(), windowID, pos, inventory, player);
+        super(MachineEnum.CENTRIFUGE, ModContainers.CONTAINER_CENTRIFUGE.get(), windowID, pos, inventory, player);
 
         // Register and add block inventory slots
         if(be != null)
             be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c -> {
-                addSlot(new SlotItemHandler(c, PurifierBE.SLOT_BATTERY, 56, 53));
-                addSlot(new SlotItemHandler(c, PurifierBE.SLOT_INPUT, 56, 17));
-                addSlot(new SlotItemHandler(c, PurifierBE.SLOT_OUTPUT, 116, 35));
-                addSlot(new SlotItemHandler(c, PurifierBE.SLOT_BUCKET, 29, 17));
-                addSlot(new SlotItemHandler(c, PurifierBE.SLOT_EMPTY_BUCKET, 29, 53));
+                addSlot(new SlotItemHandler(c, CentrifugeBE.SLOT_BATTERY, 56, 53));
+                addSlot(new SlotItemHandler(c, CentrifugeBE.SLOT_INPUT, 56, 17));
+                addSlot(new SlotItemHandler(c, CentrifugeBE.SLOT_BUCKET, 29, 17));
+                addSlot(new SlotItemHandler(c, CentrifugeBE.SLOT_EMPTY_BUCKET, 29, 53));
+                addSlot(new SlotItemHandler(c, CentrifugeBE.SLOT_OUTPUT_1, 116, 17));
+                addSlot(new SlotItemHandler(c, CentrifugeBE.SLOT_OUTPUT_2, 116, 52));
+                addSlot(new SlotItemHandler(c, CentrifugeBE.SLOT_OUTPUT_3, 143, 35));
             });
         else throw new IllegalStateException("Missing BlockEntity interface for container instance!");
 
@@ -47,7 +48,7 @@ public class CentrifugeContainer extends MachineContainerBase
     {
         // Set convenient numeric bounds for the various parts of the inventory
         Slot s = this.slots.get(index);
-        final int INV_START = PurifierBE.NUM_INV_SLOTS;
+        final int INV_START = CentrifugeBE.NUM_INV_SLOTS;
         final int INV_END = INV_START + 26;
         final int HOTBAR_START = INV_END + 1;
         final int HOTBAR_END = HOTBAR_START + 8;
@@ -70,7 +71,7 @@ public class CentrifugeContainer extends MachineContainerBase
             for(int i = 0; i < INV_START; i++)
             {
                 // If we found a good slot, try to move the item
-                if(((PurifierBE)be).isItemValid(i, s.getItem())) {
+                if(((CentrifugeBE)be).isItemValid(i, s.getItem())) {
                     if(this.moveItemStackTo(s.getItem(), i, i + 1, false)) return dst;
                     else return ItemStack.EMPTY;
                 }
@@ -120,7 +121,7 @@ public class CentrifugeContainer extends MachineContainerBase
      */
     private void syncProgress()
     {
-        PurifierBE mbe = (PurifierBE)be;
+        CentrifugeBE mbe = (CentrifugeBE) be;
 
         // Upper 16 bits of the value
         addDataSlot(new DataSlot() {
@@ -179,11 +180,11 @@ public class CentrifugeContainer extends MachineContainerBase
     //
 
     public int getProgress(){
-        return ((PurifierBE)be).progress.get();
+        return ((CentrifugeBE)be).progress.get();
     }
 
     public int getMaxProgress(){
-        return ((PurifierBE)be).maxProgress.get();
+        return ((CentrifugeBE)be).maxProgress.get();
     }
 
     public int getFluidLevel(){
