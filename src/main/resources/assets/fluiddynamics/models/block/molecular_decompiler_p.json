@@ -9,13 +9,13 @@
 		"copper": "fluiddynamics:model/copper",
 		"diamond": "fluiddynamics:model/diamond",
 		"redstone": "fluiddynamics:model/redstone",
-		"particle": "fluiddynamics:model/glowstone"
+		"particle": "fluiddynamics:model/beryllium"
 	},
 	"elements": [
 		{
 			"name": "frame_bs",
-			"from": [0, 0, 1],
-			"to": [16, 1, 2],
+			"from": [0, 0, 0],
+			"to": [16, 1, 1],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 16, 1], "texture": "#beryllium"},
@@ -28,8 +28,8 @@
 		},
 		{
 			"name": "frame_bn",
-			"from": [0, 0, 16],
-			"to": [16, 1, 17],
+			"from": [0, 0, 15],
+			"to": [16, 1, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 16, 1], "texture": "#beryllium"},
@@ -42,8 +42,8 @@
 		},
 		{
 			"name": "frame_bw",
-			"from": [15, 0, 2],
-			"to": [16, 1, 16],
+			"from": [15, 0, 1],
+			"to": [16, 1, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 1, 1], "texture": "#beryllium"},
@@ -56,8 +56,8 @@
 		},
 		{
 			"name": "frame_be",
-			"from": [0, 0, 2],
-			"to": [1, 1, 16],
+			"from": [0, 0, 1],
+			"to": [1, 1, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 1, 1], "texture": "#beryllium"},
@@ -70,8 +70,8 @@
 		},
 		{
 			"name": "frame_bs",
-			"from": [0, 15, 1],
-			"to": [16, 16, 2],
+			"from": [0, 15, 0],
+			"to": [16, 16, 1],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 16, 1], "texture": "#beryllium"},
@@ -84,8 +84,8 @@
 		},
 		{
 			"name": "frame_bn",
-			"from": [0, 15, 16],
-			"to": [16, 16, 17],
+			"from": [0, 15, 15],
+			"to": [16, 16, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 16, 1], "texture": "#beryllium"},
@@ -98,8 +98,8 @@
 		},
 		{
 			"name": "frame_bw",
-			"from": [15, 15, 2],
-			"to": [16, 16, 16],
+			"from": [15, 15, 1],
+			"to": [16, 16, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 1, 1], "texture": "#beryllium"},
@@ -112,8 +112,8 @@
 		},
 		{
 			"name": "frame_be",
-			"from": [0, 15, 2],
-			"to": [1, 16, 16],
+			"from": [0, 15, 1],
+			"to": [1, 16, 15],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 1, 1], "texture": "#beryllium"},
@@ -126,8 +126,8 @@
 		},
 		{
 			"name": "frame_vnw",
-			"from": [14, 1, 16],
-			"to": [16, 15, 17],
+			"from": [14, 1, 15],
+			"to": [16, 15, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 2, 14], "texture": "#beryllium"},
@@ -140,8 +140,8 @@
 		},
 		{
 			"name": "frame_vne",
-			"from": [0, 1, 16],
-			"to": [2, 15, 17],
+			"from": [0, 1, 15],
+			"to": [2, 15, 16],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 2, 14], "texture": "#beryllium"},
@@ -154,8 +154,8 @@
 		},
 		{
 			"name": "frame_vse",
-			"from": [0, 1, 1],
-			"to": [2, 15, 2],
+			"from": [0, 1, 0],
+			"to": [2, 15, 1],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 2, 14], "texture": "#beryllium"},
@@ -168,8 +168,8 @@
 		},
 		{
 			"name": "frame_vsw",
-			"from": [14, 1, 1],
-			"to": [16, 15, 2],
+			"from": [14, 1, 0],
+			"to": [16, 15, 1],
 			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 16]},
 			"faces": {
 				"north": {"uv": [0, 0, 2, 14], "texture": "#beryllium"},

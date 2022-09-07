@@ -136,6 +136,9 @@ public class ModItems
         RegistryObject<Item> coalDust = registerItem("dust_coal", vanillaSupplier);
         FDEnLangProvider.addItemLangMapping(coalDust, "Powdered Carbon");
 
+        RegistryObject<Item> smallCoalDust = registerItem("dust_small_coal", vanillaSupplier);
+        FDEnLangProvider.addItemLangMapping(smallCoalDust, "Small Powdered Carbon");
+
         //
         // Component Items
         //

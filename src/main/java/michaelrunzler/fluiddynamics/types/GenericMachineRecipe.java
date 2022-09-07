@@ -9,9 +9,9 @@ public class GenericMachineRecipe
 {
     public int time;
     public ItemLike in;
-    public RecipeComponent[] out;
+    public RecipeIngredient[] out;
 
-    public GenericMachineRecipe(int time, ItemLike in, RecipeComponent... out)
+    public GenericMachineRecipe(int time, ItemLike in, RecipeIngredient... out)
     {
         this.time = time;
         this.in = in;

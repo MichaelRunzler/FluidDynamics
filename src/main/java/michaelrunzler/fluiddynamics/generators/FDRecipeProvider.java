@@ -25,8 +25,7 @@ public class FDRecipeProvider extends RecipeProvider
     @Override
     protected void buildCraftingRecipes(@NonNull Consumer<FinishedRecipe> consumer)
     {
-        MaterialRecipes.generateMaterialRecipes(consumer);
-        OreRecipes.generateOreSmeltingRecipes(consumer);
+        RecipeIndex.generateAllRecipes(consumer);
         ToolArmorRecipes.generateArmor(consumer);
         ToolArmorRecipes.generateTools(consumer);
         ComponentRecipes.generateComponentRecipes(consumer);

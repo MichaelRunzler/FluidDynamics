@@ -7,6 +7,7 @@ import michaelrunzler.fluiddynamics.machines.ModBlockEntities;
 import michaelrunzler.fluiddynamics.machines.ModContainers;
 import michaelrunzler.fluiddynamics.machines.ModScreens;
 import michaelrunzler.fluiddynamics.item.ModItems;
+import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
 import michaelrunzler.fluiddynamics.worldgen.OreGen;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -24,6 +25,7 @@ import org.slf4j.event.Level;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
+@SuppressWarnings("unused")
 @Mod(FluidDynamics.MODID)
 public class FluidDynamics
 {
@@ -69,6 +71,7 @@ public class FluidDynamics
     {
         event.enqueueWork(OreGen::registerGeneratedFeatures);
         event.enqueueWork(ModScreens::registerAllScreens);
+        event.enqueueWork(() -> RecipeIndex.generateAllRecipes(RecipeIndex.getDefaultConsumer()));
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event)

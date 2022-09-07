@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import michaelrunzler.fluiddynamics.item.EnergyCell;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
+import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,7 +29,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -64,7 +65,7 @@ public class PurifierBE extends MachineBlockEntityBase
     public static final int FLUID_CONSUMPTION_RATE = 5;
     public static final int FLUID_CAPACITY = 10000;
 
-    public static final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
+    public static final Map<String, GenericMachineRecipe> recipes = RecipeIndex.PurifierRecipes; // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
     public AtomicInteger progress;
     public AtomicInteger maxProgress;
@@ -174,7 +175,7 @@ public class PurifierBE extends MachineBlockEntityBase
 
             ItemStack input = itemHandler.getStackInSlot(SLOT_INPUT);
             ItemStack output = itemHandler.getStackInSlot(SLOT_OUTPUT);
-            RecipeComponent out = currentRecipe.out[0];
+            RecipeIngredient out = currentRecipe.out[0];
             boolean didOperation = false;
 
             if(output.getCount() == 0)
@@ -412,29 +413,5 @@ public class PurifierBE extends MachineBlockEntityBase
         else if(slot == SLOT_BUCKET) return stack.getItem() instanceof BucketItem;
         else if(slot == SLOT_EMPTY_BUCKET) return stack.getItem() instanceof DispensibleContainerItem;
         else return false;
-    }
-
-    /**
-     * Adds all registered recipes for ores and ingots to the internal recipe list.
-     */
-    private static HashMap<String, GenericMachineRecipe> addRecipes()
-    {
-        HashMap<String, GenericMachineRecipe> rv = new HashMap<>();
-
-        // Add ore washing recipes
-        for(OreEnum type : OreEnum.values()) {
-            String name = type.name().toLowerCase();
-            // The purifier doesn't depend on material hardness, so we just use Copper's hardness as the base value
-            rv.put("crushed_" + name, new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 15.0f), ModItems.registeredItems.get("crushed_" + name).get(),
-                    new RecipeComponent(ModItems.registeredItems.get("purified_" + name).get(), 2)));
-        }
-
-        // Add vanilla ore washing recipes
-        rv.put("crushed_gold_ore", new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 15.0f), ModItems.registeredItems.get("crushed_gold_ore").get(),
-                new RecipeComponent(ModItems.registeredItems.get("purified_gold_ore").get(), 2)));
-        rv.put("crushed_iron_ore", new GenericMachineRecipe((int)(OreEnum.NATIVE_COPPER.hardness * 15.0f), ModItems.registeredItems.get("crushed_iron_ore").get(),
-                new RecipeComponent(ModItems.registeredItems.get("purified_iron_ore").get(), 2)));
-
-        return rv;
     }
 }

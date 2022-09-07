@@ -1,16 +1,14 @@
 package michaelrunzler.fluiddynamics.machines.MFMD;
 
-import michaelrunzler.fluiddynamics.block.ModBlockItems;
 import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
 import michaelrunzler.fluiddynamics.item.EnergyCell;
 import michaelrunzler.fluiddynamics.item.ModItems;
+import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.Capability;
@@ -23,7 +21,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MFMDBE extends MachineBlockEntityBase
@@ -48,7 +46,7 @@ public class MFMDBE extends MachineBlockEntityBase
     public static final int SLOT_OUTPUT = 2;
     public static final int MAX_CHARGE_RATE = 10;
 
-    public static final HashMap<String, GenericMachineRecipe> recipes = addRecipes(); // Stores all valid recipes for this machine tagged by their input item name
+    public static final Map<String, GenericMachineRecipe> recipes = RecipeIndex.MFMDRecipes; // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
     public AtomicInteger progress;
     public AtomicInteger maxProgress;
@@ -145,7 +143,7 @@ public class MFMDBE extends MachineBlockEntityBase
 
             ItemStack input = itemHandler.getStackInSlot(SLOT_INPUT);
             ItemStack output = itemHandler.getStackInSlot(SLOT_OUTPUT);
-            RecipeComponent out = currentRecipe.out[0];
+            RecipeIngredient out = currentRecipe.out[0];
             boolean didOperation = false;
 
             if(output.getCount() == 0)
@@ -312,37 +310,5 @@ public class MFMDBE extends MachineBlockEntityBase
                 || stack.is(ModItems.registeredItems.get("depleted_cell").get());
         else if(slot == SLOT_OUTPUT) return false;
         else return false;
-    }
-
-    /**
-     * Adds all registered recipes for ores and ingots to the internal recipe list.
-     */
-    private static HashMap<String, GenericMachineRecipe> addRecipes()
-    {
-        HashMap<String, GenericMachineRecipe> rv = new HashMap<>();
-
-        // Add ingot grinding recipes
-        for(MaterialEnum mat : MaterialEnum.values()) {
-            String name = mat.name().toLowerCase();
-            rv.put("ingot_" + name, new GenericMachineRecipe((int)(mat.hardness * 30.0f), ModItems.registeredItems.get("ingot_" + name).get(),
-                    new RecipeComponent(ModItems.registeredItems.get("dust_" + name).get(), 1)));
-        }
-
-        // Add ore grinding recipes
-        for(OreEnum type : OreEnum.values()) {
-            String name = type.name().toLowerCase();
-            rv.put("ore_" + name, new GenericMachineRecipe((int)(type.hardness * 15.0f), ModBlockItems.registeredBItems.get("ore_" + name).get(),
-                    new RecipeComponent(ModItems.registeredItems.get("crushed_" + name).get(), 1)));
-        }
-
-        // Add vanilla grinding recipes for ore and ingots
-        rv.put("gold_ore", new GenericMachineRecipe(45, Blocks.GOLD_ORE, new RecipeComponent(ModItems.registeredItems.get("crushed_gold_ore").get(), 1)));
-        rv.put("iron_ore", new GenericMachineRecipe(45, Blocks.IRON_ORE, new RecipeComponent(ModItems.registeredItems.get("crushed_iron_ore").get(), 1)));
-        rv.put("endstone", new GenericMachineRecipe(45, Blocks.END_STONE, new RecipeComponent(ModItems.registeredItems.get("crushed_endstone").get(), 1)));
-        rv.put("charcoal", new GenericMachineRecipe(30, Items.CHARCOAL, new RecipeComponent(ModItems.registeredItems.get("dust_coal").get(), 1)));
-        rv.put("gold_ingot", new GenericMachineRecipe(30, Items.GOLD_INGOT, new RecipeComponent(ModItems.registeredItems.get("dust_gold").get(), 1)));
-        rv.put("iron_ingot", new GenericMachineRecipe(30, Items.IRON_INGOT, new RecipeComponent(ModItems.registeredItems.get("dust_iron").get(), 1)));
-
-        return rv;
     }
 }

@@ -7,5 +7,5 @@ import net.minecraft.world.level.ItemLike;
  * @param ingredient
  * @param count
  */
-public record RecipeComponent(ItemLike ingredient, int count) {
+public record RecipeIngredient(ItemLike ingredient, int count) {
 }
