@@ -19,7 +19,7 @@ public class RecipeIndex
     public static Map<String, GenericMachineRecipe> MFMDRecipes = new HashMap<>();
     public static Map<String, GenericMachineRecipe> PurifierRecipes = new HashMap<>();
     public static Map<String, GenericMachineRecipe> CentrifugeRecipes = new HashMap<>();
-    public static Map<String, GenericMachineRecipe> SmelterRecipes = new HashMap<>();
+    public static Map<String, GenericMachineRecipe> EFurnaceRecipes = new HashMap<>();
     private static RecipeGenerator gen = null;
 
     private static final float BASE_SMELT_MULTIPLIER = 0.2f;
@@ -70,8 +70,8 @@ public class RecipeIndex
             MFMDRecipes.put(RecipeGenerator.getName(ore), gen.ingotToDustMachine(ore, crushed, type.hardness * CRUSHING_MULTIPLIER));
             PurifierRecipes.put(RecipeGenerator.getName(crushed), gen.crushedToPurified(crushed, purified, OreEnum.NATIVE_COPPER.hardness * PURIFICATION_MULTIPLIER));
             CentrifugeRecipes.put(RecipeGenerator.getName(purified), gen.purifiedToDust(purified, type.hardness * SEPARATION_MULTIPLIER, OreProductIndex.CentrifugeProducts.get(ore)));
-            SmelterRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
-            SmelterRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+            EFurnaceRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+            EFurnaceRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
         }
         
         // Generate recipes for vanilla ores
@@ -109,7 +109,7 @@ public class RecipeIndex
 
             // Generate modded recipes (machines)
             MFMDRecipes.put(RecipeGenerator.getName(ingot), gen.ingotToDustMachine(ingot, dust, type.hardness * CRUSHING_MULTIPLIER * 2.0f));
-            SmelterRecipes.put(RecipeGenerator.getName(dust), gen.dustToIngotESmelting(dust, ingot, type.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
+            EFurnaceRecipes.put(RecipeGenerator.getName(dust), gen.dustToIngotESmelting(dust, ingot, type.meltPoint * ACCELERATED_SMELT_MULTIPLIER));
         }
 
         // Generate recipes for vanilla-derived materials
@@ -120,6 +120,11 @@ public class RecipeIndex
         // Generate alloying recipes
         generateAlloyRecipes("bronze", 2, MaterialEnum.BRONZE.hardness, "copper", "copper", "tin");
         generateAlloyRecipes("invar", 2, MaterialEnum.INVAR.hardness, "iron", "iron", "nickel");
+    }
+
+    public static void generateVanillaEFurnaceRecipes()
+    {
+        // TODO add vanilla blast furnace recipes to E-furnace
     }
 
     /**
@@ -152,8 +157,8 @@ public class RecipeIndex
         if(deepslate != null) MFMDRecipes.put(RecipeGenerator.getName(deepslate), gen.ingotToDustMachine(deepslate, crushed, hardness * CRUSHING_MULTIPLIER));
         PurifierRecipes.put(RecipeGenerator.getName(crushed), gen.crushedToPurified(crushed, purified, OreEnum.NATIVE_COPPER.hardness * PURIFICATION_MULTIPLIER));
         CentrifugeRecipes.put(RecipeGenerator.getName(purified), gen.purifiedToDust(purified, hardness * SEPARATION_MULTIPLIER, OreProductIndex.CentrifugeProducts.get(ore)));
-        SmelterRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, temp * ACCELERATED_SMELT_MULTIPLIER));
-        SmelterRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, temp * ACCELERATED_SMELT_MULTIPLIER));
+        EFurnaceRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, temp * ACCELERATED_SMELT_MULTIPLIER));
+        EFurnaceRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, temp * ACCELERATED_SMELT_MULTIPLIER));
     }
 
     /**
@@ -171,7 +176,7 @@ public class RecipeIndex
 
         if(isSmeltable) {
             gen.dustToIngotSmelting(dust, ingot, temp * ACCELERATED_SMELT_MULTIPLIER, INGOT_SMELT_XP);
-            SmelterRecipes.put(RecipeGenerator.getName(dust), gen.dustToIngotESmelting(dust, ingot, temp * ACCELERATED_SMELT_MULTIPLIER));
+            EFurnaceRecipes.put(RecipeGenerator.getName(dust), gen.dustToIngotESmelting(dust, ingot, temp * ACCELERATED_SMELT_MULTIPLIER));
         }
     }
 

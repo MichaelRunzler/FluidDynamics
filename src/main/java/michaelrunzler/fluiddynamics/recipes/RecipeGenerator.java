@@ -107,7 +107,7 @@ public class RecipeGenerator
     }
 
     public GenericMachineRecipe dustToIngotESmelting(Item dust, Item ingot, float time){
-        return new GenericMachineRecipe((int)time, ingot, new RecipeIngredient(dust, 1));
+        return new GenericMachineRecipe((int)time, dust, new RecipeIngredient(ingot, 1));
     }
 
     public void largeToSmallDust(Item lDust, Item sDust)

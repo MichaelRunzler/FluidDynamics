@@ -4,6 +4,7 @@ import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.block.ModBlocks;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBE;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBE;
+import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBE;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBE;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -34,6 +35,9 @@ public class ModBlockEntities
 
         registerBE(MachineEnum.CENTRIFUGE.name().toLowerCase(), () -> BlockEntityType.Builder.of(CentrifugeBE::new,
                 ModBlocks.registeredBlocks.get(MachineEnum.CENTRIFUGE.name().toLowerCase()).get()).build(null));
+
+        registerBE(MachineEnum.E_FURNACE.name().toLowerCase(), () -> BlockEntityType.Builder.of(EFurnaceBE::new,
+                ModBlocks.registeredBlocks.get(MachineEnum.E_FURNACE.name().toLowerCase()).get()).build(null));
     }
 
     /**
