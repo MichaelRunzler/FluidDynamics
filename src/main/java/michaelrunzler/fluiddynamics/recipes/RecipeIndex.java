@@ -67,6 +67,7 @@ public class RecipeIndex
             MFMDRecipes.put(RecipeGenerator.getName(ore), gen.ingotToDustMachine(ore, crushed, type.hardness * CRUSHING_MULTIPLIER));
             PurifierRecipes.put(RecipeGenerator.getName(crushed), gen.crushedToPurified(crushed, purified, OreEnum.NATIVE_COPPER.hardness * PURIFICATION_MULTIPLIER));
             CentrifugeRecipes.put(RecipeGenerator.getName(purified), gen.purifiedToDust(purified, type.hardness * SEPARATION_MULTIPLIER, OreProductIndex.CentrifugeProducts.get(ore)));
+            EFurnaceRecipes.put(RecipeGenerator.getName(ore), gen.dustToIngotESmelting(ore, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP));
             EFurnaceRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
             EFurnaceRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
         }
