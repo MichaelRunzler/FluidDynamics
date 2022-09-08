@@ -5,6 +5,7 @@ import michaelrunzler.fluiddynamics.block.ModBlocks;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.types.GenericMachineRecipe;
 import michaelrunzler.fluiddynamics.types.RecipeIngredient;
+import michaelrunzler.fluiddynamics.types.XPGeneratingMachineRecipe;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -106,8 +107,8 @@ public class RecipeGenerator
                 .save(c, "ore_smelting_" + getName(ore));
     }
 
-    public GenericMachineRecipe dustToIngotESmelting(Item dust, Item ingot, float time){
-        return new GenericMachineRecipe((int)time, dust, new RecipeIngredient(ingot, 1));
+    public XPGeneratingMachineRecipe dustToIngotESmelting(Item dust, Item ingot, float time, float xp){
+        return new XPGeneratingMachineRecipe((int)time, xp, dust, new RecipeIngredient(ingot, 1));
     }
 
     public void largeToSmallDust(Item lDust, Item sDust)

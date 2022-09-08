@@ -3,12 +3,15 @@ package michaelrunzler.fluiddynamics.machines.e_furnace;
 import michaelrunzler.fluiddynamics.item.EnergyCell;
 import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.BlastingRecipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.Capability;
@@ -21,6 +24,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -46,13 +50,14 @@ public class EFurnaceBE extends MachineBlockEntityBase
     public static final int SLOT_OUTPUT = 2;
     public static final int MAX_CHARGE_RATE = 10;
 
-    public static final Map<String, GenericMachineRecipe> recipes = RecipeIndex.EFurnaceRecipes; // Stores all valid recipes for this machine tagged by their input item name
+    public static final Map<String, XPGeneratingMachineRecipe> recipes = RecipeIndex.EFurnaceRecipes; // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
     public AtomicInteger progress;
     public AtomicInteger maxProgress;
     public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
     private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
     private boolean lastPowerState; // Used to minimize state updates
+    private boolean tryTickRecipeCB; // Used to determine if the BE should attempt to re-query recipes on tick instead of on load
 
     @SuppressWarnings("unchecked")
     public EFurnaceBE(BlockPos pos, BlockState state)
@@ -65,6 +70,7 @@ public class EFurnaceBE extends MachineBlockEntityBase
         currentRecipe = null;
         invalidOutput = false;
         lastPowerState = false;
+        tryTickRecipeCB = false;
         optionals.add(itemOpt);
         optionals.add(energyOpt);
 
@@ -77,6 +83,9 @@ public class EFurnaceBE extends MachineBlockEntityBase
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }
+
+        // Get vanilla recipes
+        addVanillaRecipes();
     }
 
     @Override
@@ -120,6 +129,9 @@ public class EFurnaceBE extends MachineBlockEntityBase
 
     public void tickServer()
     {
+        // If needed, try re-querying the recipe index
+        if(tryTickRecipeCB) addVanillaRecipes();
+
         // Just run power handling if no recipe is in progress
         acceptPower();
         if(currentRecipe == null) {
@@ -160,7 +172,9 @@ public class EFurnaceBE extends MachineBlockEntityBase
             }
 
             // If we successfully added an output, remove one item from the input
-            if(didOperation) {
+            if(didOperation)
+            {
+                // TODO add XP drop
                 itemHandler.setStackInSlot(SLOT_INPUT, new ItemStack(input.getItem(), input.getCount() - 1));
                 progress.set(0);
                 powered = true;
@@ -310,5 +324,27 @@ public class EFurnaceBE extends MachineBlockEntityBase
                 || stack.is(ModItems.registeredItems.get("depleted_cell").get());
         else if(slot == SLOT_OUTPUT) return false;
         else return false;
+    }
+
+    /**
+     * Adds all Vanilla recipes for the Blast Furnace recipe type.
+     */
+    private void addVanillaRecipes()
+    {
+        // If the level isn't loaded yet, try to re-query when the first tick happens
+        if(level == null){
+            tryTickRecipeCB = true;
+            return;
+        }
+
+        // Grab the vanilla recipe list from the RecipeHandler and add all of its recipes to the internal registry
+        List<BlastingRecipe> vanillaRecipes = level.getRecipeManager().getAllRecipesFor(RecipeType.BLASTING);
+        for(BlastingRecipe r : vanillaRecipes) // I know this is long but this is ONE LINE believe it or not, Vanilla recipe handler accesses are a PITA
+            recipes.put(RecipeGenerator.getName(r.getIngredients().get(0).getItems()[0].getItem()),
+                    new XPGeneratingMachineRecipe(r.getCookingTime(), r.getExperience(), r.getIngredients().get(0).getItems()[0].getItem(),
+                            new RecipeIngredient(r.getResultItem().getItem(), r.getResultItem().getCount())));
+
+        // Clear the re-query flag if it was set
+        tryTickRecipeCB = false;
     }
 }
