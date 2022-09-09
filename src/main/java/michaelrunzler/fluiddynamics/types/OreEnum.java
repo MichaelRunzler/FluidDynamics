@@ -16,15 +16,15 @@ public enum OreEnum
     // 3: Iron/Gold
     // 4: Diamond/Netherite
     // Iron Ore has the following properties:
-    // (3.0, 2, 2, 16, 1.0, 0, 64, OVERWORLD, STANDARD)
-    NATIVE_COPPER(  3.0f, 2, 1.0f, 0.8f, 0, 64, BlockTags.STONE_ORE_REPLACEABLES, "Native Copper Ore"),
-    NATIVE_TIN(     2.5f, 1, 1.0f, 0.9f, 0, 80, BlockTags.STONE_ORE_REPLACEABLES, "Native Tin Ore"),
-    BERTRANDITE(    3.5f, 2, 1.0f, 1.0f, 0, 48, BlockTags.STONE_ORE_REPLACEABLES, "Bertrandite"),
-    SPHEROCOBALTITE(5.0f, 3, 1.0f, 0.4f, 0, 32, BlockTags.STONE_ORE_REPLACEABLES, "Spherocobaltite"),
-    TETRATAENITE(   50.0f,4, 1.0f, 0.2f, -128,192, BlockTags.DIRT, "Tetrataenite"),
-    BAUXITE(        2.8f, 3, 2.0f, 0.4f, 0, 32, BlockTags.STONE_ORE_REPLACEABLES, "Bauxite"),
-    WOLFRAMITE(     7.0f, 4, 1.0f, 0.3f, 0, 24, BlockTags.STONE_ORE_REPLACEABLES, "Wolframite"),
-    PENTLANDITE(    4.5f, 2, 1.0f, 0.5f, 0, 48, BlockTags.STONE_ORE_REPLACEABLES, "Pentlandite");
+    // (3.0, 2, 2, 16, 1.0, -64, 64, OVERWORLD, STANDARD)
+    NATIVE_COPPER(  3.0f, 2, 1.0f, 0.8f, -16, 64, BlockTags.STONE_ORE_REPLACEABLES, true, "Native Copper Ore"),
+    NATIVE_TIN(     2.5f, 1, 1.0f, 0.9f, -32, 80, BlockTags.STONE_ORE_REPLACEABLES, true, "Native Tin Ore"),
+    BERTRANDITE(    3.5f, 2, 1.0f, 1.0f, -16, 48, BlockTags.STONE_ORE_REPLACEABLES, true, "Bertrandite"),
+    SPHEROCOBALTITE(5.0f, 3, 1.0f, 0.4f, -64, 32, BlockTags.STONE_ORE_REPLACEABLES, true, "Spherocobaltite"),
+    TETRATAENITE(   50.0f,4, 1.0f, 0.1f, -64,128, BlockTags.DIRT, false, "Tetrataenite"),
+    BAUXITE(        2.8f, 3, 2.0f, 0.4f, -64, 16, BlockTags.STONE_ORE_REPLACEABLES, true, "Bauxite"),
+    WOLFRAMITE(     7.0f, 4, 1.0f, 0.3f, -64, 8, BlockTags.STONE_ORE_REPLACEABLES, true, "Wolframite"),
+    PENTLANDITE(    4.5f, 2, 1.0f, 0.5f, -16, 32, BlockTags.STONE_ORE_REPLACEABLES, true, "Pentlandite");
 
     public final float hardness;
     public final int miningLevel;
@@ -34,9 +34,10 @@ public enum OreEnum
     public final int maxY;
     public final TagKey<Block> canReplace;
     public final String englishName;
+    public final boolean hasDeepslateVariant;
 
     OreEnum(float hardness, int miningLevel, float sizeModifier, float rarity, int minY, int maxY,
-            TagKey<Block> canReplace, String englishName)
+            TagKey<Block> canReplace, boolean hasDeepslateVariant, String englishName)
     {
         this.hardness = hardness;
         this.miningLevel = miningLevel;
@@ -45,6 +46,7 @@ public enum OreEnum
         this.minY = minY;
         this.maxY = maxY;
         this.canReplace = canReplace;
+        this.hasDeepslateVariant = hasDeepslateVariant;
         this.englishName = englishName;
     }
 }

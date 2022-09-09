@@ -5,6 +5,7 @@ import michaelrunzler.fluiddynamics.block.ModBlocks;
 import michaelrunzler.fluiddynamics.types.OreEnum;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
@@ -32,8 +33,10 @@ public class OreGen
     {
         FluidDynamics.logModEvent(Level.DEBUG, "Started generating oregen config...");
 
-        for(OreEnum type : OreEnum.values())
-            features.add(generateOreConfig(type));
+        for(OreEnum type : OreEnum.values()) {
+            if(type.maxY > 0) features.add(generateOreConfig(type));
+            if(type.minY < 0) features.add(generateDeepOreConfig(type, type.hasDeepslateVariant));
+        }
 
         FluidDynamics.logModEvent(Level.DEBUG, "...done.");
     }
@@ -42,11 +45,26 @@ public class OreGen
     {
         String oreName = "ore_" + type.name().toLowerCase();
 
+        // Limit placement of this ore to the "top half" of the underground area (not deepslate)
         OreConfiguration overworldConfig = new OreConfiguration(new TagMatchTest(type.canReplace), ModBlocks.registeredBlocks.get(oreName).get().defaultBlockState(), (int)(BASE_VEIN_SIZE * type.sizeModifier));
         return registerPlacedFeature("oregen_" + oreName, new ConfiguredFeature<>(Feature.ORE, overworldConfig),
                 CountPlacement.of((int)(BASE_PLACEMENT_COUNT * type.rarity)),
                 InSquarePlacement.spread(),
-                HeightRangePlacement.uniform(VerticalAnchor.absolute(type.minY), VerticalAnchor.absolute(type.maxY)));
+                HeightRangePlacement.uniform(VerticalAnchor.absolute(Math.max(0, type.minY)), VerticalAnchor.absolute(Math.max(0, type.maxY))));
+    }
+
+    private static Holder<PlacedFeature> generateDeepOreConfig(OreEnum type, boolean hasDeepVariant)
+    {
+        String oreName = (hasDeepVariant ? "deepslate_ore_" : "ore_") + type.name().toLowerCase();
+
+        // Limit placement of this ore to the "bottom half" of the underground area (deepslate)
+        OreConfiguration deepslateConfig = new OreConfiguration(new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES),
+                ModBlocks.registeredBlocks.get(oreName).get().defaultBlockState(), (int)(BASE_VEIN_SIZE * type.sizeModifier));
+        return registerPlacedFeature("oregen_" + (hasDeepVariant ? oreName : ("deepslate_" + oreName)),
+                new ConfiguredFeature<>(Feature.ORE, deepslateConfig),
+                CountPlacement.of((int)(BASE_PLACEMENT_COUNT * type.rarity)),
+                InSquarePlacement.spread(),
+                HeightRangePlacement.uniform(VerticalAnchor.absolute(Math.min(0, type.minY)), VerticalAnchor.absolute(Math.min(0, type.maxY))));
     }
 
     private static <C extends FeatureConfiguration, F extends Feature<C>> Holder<PlacedFeature> registerPlacedFeature(String registryName, ConfiguredFeature<C, F> feature, PlacementModifier... placementModifiers) {

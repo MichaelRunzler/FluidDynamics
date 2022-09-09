@@ -49,9 +49,21 @@ public class ModBlocks
         {
             FDOreHelper ore = new FDOreHelper(type);
             RegistryObject<Block> block = registerBlock(ore.name, () -> new FDOre(type));
-            for(TagKey<Block> k : ore.tags) if(k != null) FDBlockTagProvider.addTagMapping(k, block.getKey());
-
             FDEnLangProvider.addBlockLangMapping(block, ore.englishName);
+
+            RegistryObject<Block> deepBlock = null;
+            if(type.hasDeepslateVariant) {
+                deepBlock = registerBlock("deepslate_" + ore.name, () -> new FDOre(type));
+                FDEnLangProvider.addBlockLangMapping(deepBlock, "Deepslate " + ore.englishName);
+            }
+
+            for(TagKey<Block> k : ore.tags)
+            {
+                if(k != null) {
+                    FDBlockTagProvider.addTagMapping(k, block.getKey());
+                    if(type.hasDeepslateVariant) FDBlockTagProvider.addTagMapping(k, deepBlock.getKey());
+                }
+            }
         }
 
         //

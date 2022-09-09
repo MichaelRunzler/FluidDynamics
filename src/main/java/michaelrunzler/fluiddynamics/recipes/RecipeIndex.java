@@ -70,6 +70,16 @@ public class RecipeIndex
             EFurnaceRecipes.put(RecipeGenerator.getName(ore), gen.dustToIngotESmelting(ore, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP));
             EFurnaceRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
             EFurnaceRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
+
+            // Generate deepslate ore recipes
+            if(type.hasDeepslateVariant)
+            {
+                Item deepOre = RecipeGenerator.registryToItem("deepslate_ore_" + name);
+                gen.oreToIngotSmelting(deepOre, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP);
+                gen.ingotToDustPortable(deepOre, crushed);
+                MFMDRecipes.put(RecipeGenerator.getName(deepOre), gen.ingotToDustMachine(deepOre, crushed, type.hardness * CRUSHING_MULTIPLIER));
+                EFurnaceRecipes.put(RecipeGenerator.getName(deepOre), gen.dustToIngotESmelting(deepOre, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP));
+            }
         }
         
         // Generate recipes for vanilla ores
