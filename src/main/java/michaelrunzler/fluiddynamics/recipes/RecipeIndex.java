@@ -29,7 +29,7 @@ public class RecipeIndex
     public static final float INGOT_SMELT_XP = 0.1f;
 
     public static final float VANILLA_FURNACE_TEMP = 1800.0f;
-    public static final float HT_FURNACE_TEMP = 3000.0f;
+    public static final float HT_FURNACE_TEMP = 4000.0f;
 
     /**
      * Generates ALL recipes that this index is capable of providing.
@@ -132,13 +132,18 @@ public class RecipeIndex
             gen.ingotToNugget(ingot, nugget);
             gen.nuggetToIngot(nugget, ingot);
             gen.ingotToDustPortable(ingot, dust);
-            gen.dustToIngotSmelting(dust, ingot, type.meltPoint * ACCELERATED_SMELT_MULTIPLIER, INGOT_SMELT_XP);
             gen.largeToSmallDust(dust, sDust);
             gen.smallToLargeDust(sDust, dust);
 
             // Generate modded recipes (machines)
             MFMDRecipes.put(RecipeGenerator.getName(ingot), gen.ingotToDustMachine(ingot, dust, type.hardness * CRUSHING_MULTIPLIER * 2.0f));
-            EFurnaceRecipes.put(RecipeGenerator.getName(dust), gen.dustToIngotESmelting(dust, ingot, type.meltPoint * ACCELERATED_SMELT_MULTIPLIER, INGOT_SMELT_XP));
+
+            if(type.meltPoint < VANILLA_FURNACE_TEMP) {
+                gen.dustToIngotSmelting(dust, ingot, type.meltPoint * ACCELERATED_SMELT_MULTIPLIER, INGOT_SMELT_XP);
+                EFurnaceRecipes.put(RecipeGenerator.getName(dust), gen.dustToIngotESmelting(dust, ingot, type.meltPoint * ACCELERATED_SMELT_MULTIPLIER, INGOT_SMELT_XP));
+            }else if(type.meltPoint < HT_FURNACE_TEMP){
+                HTFurnaceRecipes.put(RecipeGenerator.getName(dust), gen.dustToIngotESmelting(dust, ingot, type.meltPoint * ACCELERATED_SMELT_MULTIPLIER, INGOT_SMELT_XP));
+            }
         }
 
         // Generate recipes for vanilla-derived materials

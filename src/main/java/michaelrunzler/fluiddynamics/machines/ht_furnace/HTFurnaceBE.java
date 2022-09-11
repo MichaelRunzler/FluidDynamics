@@ -132,12 +132,10 @@ public class HTFurnaceBE extends MachineBlockEntityBase
         if(tryTickRecipeCB) addVanillaRecipes();
 
         // Just run fuel handling if no recipe is in progress
-        addFuel();
+        handleFuel();
         if(currentRecipe == null) {
             // Forcibly update power state to ensure that it remains synced
             updatePowerState(false);
-            fuel.set(0);
-            maxFuel.set(1);
             return;
         }
 
@@ -145,8 +143,7 @@ public class HTFurnaceBE extends MachineBlockEntityBase
 
         if(progress.get() < currentRecipe.time && fuel.get() > 0)
         {
-            // If the current recipe is still in progress, try to consume some fuel and advance the recipe
-            fuel.set(fuel.get() - 4); // This furnace uses 2x the fuel that the vanilla one does (like a less efficient blast furnace)
+            // If the current recipe is still in progress, try advance the recipe
             progress.incrementAndGet();
             powered = true;
         }else if(progress.get() >= currentRecipe.time) // If the current recipe is done, try to transfer the input to the output
@@ -194,19 +191,22 @@ public class HTFurnaceBE extends MachineBlockEntityBase
     /**
      * Runs fuel item updates - refueling, validity, etc.
      */
-    private void addFuel()
+    private void handleFuel()
     {
         ItemStack fuelStack = itemHandler.getStackInSlot(SLOT_FUEL);
-        if(currentRecipe == null || fuelStack.isEmpty() || fuel.get() > 0) return;
-
-        // Ensure the item in the fuel slot is valid, then attempt to consume it and add to the burn time
-        int burnTime = ForgeHooks.getBurnTime(fuelStack, RecipeType.BLASTING);
-        if(burnTime > 0)
+        if(currentRecipe != null && !fuelStack.isEmpty() && fuel.get() <= 0)
         {
-            fuel.set(burnTime);
-            maxFuel.set(burnTime);
-            itemHandler.setStackInSlot(SLOT_FUEL, new ItemStack(fuelStack.getItem(), fuelStack.getCount() - 1));
+            // Ensure the item in the fuel slot is valid, then attempt to consume it and add to the burn time
+            int burnTime = ForgeHooks.getBurnTime(fuelStack, RecipeType.BLASTING);
+            if (burnTime > 0) {
+                fuel.set(burnTime);
+                maxFuel.set(burnTime);
+                itemHandler.setStackInSlot(SLOT_FUEL, new ItemStack(fuelStack.getItem(), fuelStack.getCount() - 1));
+            }
         }
+
+        // Drain one fuel if there is any to drain
+        if(fuel.get() > 0) fuel.set(fuel.get() - 4); // This furnace uses 2x the fuel that the vanilla one does (like a less efficient blast furnace)
     }
 
     private ItemStackHandler createIHandler()
