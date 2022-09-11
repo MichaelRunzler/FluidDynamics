@@ -1,6 +1,7 @@
 package michaelrunzler.fluiddynamics.item;
 
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
@@ -37,7 +38,7 @@ public class EnergyCell extends Item
 
         // Convert this item to a Depleted Cell if it is out of energy
         if(this.getDamage(stack) == stack.getMaxDamage())
-            return new ItemStack(ModItems.registeredItems.get("depleted_cell").get(), stack.getCount());
+            return new ItemStack(RecipeGenerator.registryToItem("depleted_cell"), stack.getCount());
 
         return stack;
     }

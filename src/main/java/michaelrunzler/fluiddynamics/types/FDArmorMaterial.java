@@ -1,6 +1,6 @@
 package michaelrunzler.fluiddynamics.types;
 
-import michaelrunzler.fluiddynamics.item.ModItems;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorMaterial;
@@ -61,7 +61,7 @@ public class FDArmorMaterial implements ArmorMaterial
 
     @Override
     public @NotNull Ingredient getRepairIngredient() {
-        return Ingredient.of(ModItems.registeredItems.get("ingot_" + mat.name().toLowerCase()).get());
+        return Ingredient.of(RecipeGenerator.registryToItem("ingot_" + mat.name().toLowerCase()));
     }
 
     @Override

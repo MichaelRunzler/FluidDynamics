@@ -31,7 +31,7 @@ public class HTFurnaceScreen extends AbstractContainerScreen<HTFurnaceContainer>
     {
         // Draw the energy tooltip if the cursor is within the range of the battery icon
         if(checkBounds(x, y, 57, 71, 36, 50))
-            drawString(stack, Minecraft.getInstance().font, "Fuel: " + menu.getFuel() + "/" + menu.getMaxFuel(),
+            drawString(stack, Minecraft.getInstance().font, "Fuel: " + menu.getFuel(),
                     x, y - 8, 0xaaaaaa);
 
         super.renderTooltip(stack, x, y);

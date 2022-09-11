@@ -1,7 +1,7 @@
 package michaelrunzler.fluiddynamics.worldgen;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
-import michaelrunzler.fluiddynamics.block.ModBlocks;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.OreEnum;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -46,7 +46,7 @@ public class OreGen
         String oreName = "ore_" + type.name().toLowerCase();
 
         // Limit placement of this ore to the "top half" of the underground area (not deepslate)
-        OreConfiguration overworldConfig = new OreConfiguration(new TagMatchTest(type.canReplace), ModBlocks.registeredBlocks.get(oreName).get().defaultBlockState(), (int)(BASE_VEIN_SIZE * type.sizeModifier));
+        OreConfiguration overworldConfig = new OreConfiguration(new TagMatchTest(type.canReplace), RecipeGenerator.registryToBlock(oreName).defaultBlockState(), (int)(BASE_VEIN_SIZE * type.sizeModifier));
         return registerPlacedFeature("oregen_" + oreName, new ConfiguredFeature<>(Feature.ORE, overworldConfig),
                 CountPlacement.of((int)(BASE_PLACEMENT_COUNT * type.rarity)),
                 InSquarePlacement.spread(),
@@ -59,7 +59,7 @@ public class OreGen
 
         // Limit placement of this ore to the "bottom half" of the underground area (deepslate)
         OreConfiguration deepslateConfig = new OreConfiguration(new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES),
-                ModBlocks.registeredBlocks.get(oreName).get().defaultBlockState(), (int)(BASE_VEIN_SIZE * type.sizeModifier));
+                RecipeGenerator.registryToBlock(oreName).defaultBlockState(), (int)(BASE_VEIN_SIZE * type.sizeModifier));
         return registerPlacedFeature("oregen_" + (hasDeepVariant ? oreName : ("deepslate_" + oreName)),
                 new ConfiguredFeature<>(Feature.ORE, deepslateConfig),
                 CountPlacement.of((int)(BASE_PLACEMENT_COUNT * type.rarity)),
@@ -71,6 +71,7 @@ public class OreGen
         return PlacementUtils.register(registryName, Holder.direct(feature), placementModifiers);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     public static void onBiomeLoadingEvent(BiomeLoadingEvent event)
     {
         if (event.getCategory() == Biome.BiomeCategory.NETHER) {

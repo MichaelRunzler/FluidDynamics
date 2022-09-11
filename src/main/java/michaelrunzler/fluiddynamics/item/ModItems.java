@@ -1,6 +1,7 @@
 package michaelrunzler.fluiddynamics.item;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
 import michaelrunzler.fluiddynamics.types.OreEnum;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
@@ -203,7 +204,7 @@ public class ModItems
         // The uncharged version of the portable grinder, returns a charged version of itself when used in crafting
         RegistryObject<Item> unPortableGrinder = registerItem("uncharged_portable_grinder",
                 () -> new Item(new Item.Properties().tab(CreativeTabs.TAB_TOOLS).rarity(Rarity.UNCOMMON).setNoRepair().stacksTo(1)
-                        .craftRemainder(ModItems.registeredItems.get("portable_grinder").get())));
+                        .craftRemainder(RecipeGenerator.registryToItem("portable_grinder"))));
         FDEnLangProvider.addItemLangMapping(unPortableGrinder, "Portable Molecular Decompiler (uncharged)");
 
         FluidDynamics.logModEvent(Level.DEBUG, "...done.");

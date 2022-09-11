@@ -1,8 +1,7 @@
 package michaelrunzler.fluiddynamics.generators;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
-import michaelrunzler.fluiddynamics.block.ModBlockItems;
-import michaelrunzler.fluiddynamics.item.ModItems;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
@@ -44,8 +43,8 @@ public class FDItemTagProvider extends ItemTagsProvider
         // Manual tags
         //
 
-        tag(ItemTags.COPPER_ORES).add(ModBlockItems.registeredBItems.get("ore_native_copper").get());
-        tag(ItemTags.PIGLIN_LOVED).add(ModItems.registeredItems.get("ingot_palladium").get());
+        tag(ItemTags.COPPER_ORES).add(RecipeGenerator.registryToItem("ore_native_copper"));
+        tag(ItemTags.PIGLIN_LOVED).add(RecipeGenerator.registryToItem("ingot_palladium"));
     }
 
     /**

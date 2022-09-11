@@ -4,7 +4,6 @@ import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,8 +104,8 @@ public class RecipeIndex
         }
         
         // Generate recipes for vanilla ores
-        generateVanillaOreRecipe("iron_ore", Items.IRON_ORE, Items.DEEPSLATE_IRON_ORE, Items.IRON_INGOT, 1798.0f, 3.0f);
-        generateVanillaOreRecipe("gold_ore", Items.GOLD_ORE, Items.DEEPSLATE_GOLD_ORE, Items.GOLD_INGOT, 1337.0f, 4.0f);
+        generateVanillaOreRecipe("iron_ore", Items.RAW_IRON, Items.IRON_INGOT, 1798.0f, 3.0f);
+        generateVanillaOreRecipe("gold_ore", Items.RAW_GOLD, Items.GOLD_INGOT, 1337.0f, 4.0f);
 
         // Endstone is a special case, since it only has a crushed version and a separation recipe
         Item crushed = RecipeGenerator.registryToItem("crushed_endstone");
@@ -168,18 +167,16 @@ public class RecipeIndex
      * Generates crushing, purification, separation, and smelting recipes for the normal and (optionally) deepslate variants
      * of a given Vanilla ore.
      */
-    private static void generateVanillaOreRecipe(String name, Item ore, @Nullable Item deepslate, Item ingot, float temp, float hardness)
+    private static void generateVanillaOreRecipe(String name, Item ore, Item ingot, float temp, float hardness)
     {
         Item crushed = RecipeGenerator.registryToItem("crushed_" + name);
         Item purified = RecipeGenerator.registryToItem("purified_" + name);
 
         gen.ingotToDustPortable(ore, crushed);
-        if(deepslate != null) gen.ingotToDustPortable(deepslate, crushed);
         gen.dustToIngotSmelting(crushed, ingot, temp * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP);
         gen.dustToIngotSmelting(purified, ingot, temp * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP);
 
         MFMDRecipes.put(name, gen.ingotToDustMachine(ore, crushed, hardness * CRUSHING_MULTIPLIER));
-        if(deepslate != null) MFMDRecipes.put(RecipeGenerator.getName(deepslate), gen.ingotToDustMachine(deepslate, crushed, hardness * CRUSHING_MULTIPLIER));
         PurifierRecipes.put(RecipeGenerator.getName(crushed), gen.crushedToPurified(crushed, purified, OreEnum.NATIVE_COPPER.hardness * PURIFICATION_MULTIPLIER));
         CentrifugeRecipes.put(RecipeGenerator.getName(purified), gen.purifiedToDust(purified, hardness * SEPARATION_MULTIPLIER, OreProductIndex.CentrifugeProducts.get(ore)));
         EFurnaceRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, temp * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));

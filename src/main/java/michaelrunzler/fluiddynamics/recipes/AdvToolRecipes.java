@@ -1,6 +1,5 @@
 package michaelrunzler.fluiddynamics.recipes;
 
-import michaelrunzler.fluiddynamics.item.ModItems;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -13,42 +12,42 @@ public class AdvToolRecipes
 {
     public static void generateAdvToolRecipes(Consumer<FinishedRecipe> c)
     {
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("energy_cell").get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("energy_cell"))
                 .pattern(" c ")
                 .pattern("tbt")
                 .pattern("trt")
-                .define('b', ModItems.registeredItems.get("ingot_beryllium").get())
-                .define('c', ModItems.registeredItems.get("ingot_copper").get())
+                .define('b', RecipeGenerator.registryToItem("ingot_beryllium"))
+                .define('c', RecipeGenerator.registryToItem("ingot_copper"))
                 .define('r', Items.REDSTONE)
-                .define('t', ModItems.registeredItems.get("ingot_tin").get())
-                .unlockedBy("energy_cell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("ingot_beryllium").get()))
+                .define('t', RecipeGenerator.registryToItem("ingot_tin"))
+                .unlockedBy("energy_cell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_beryllium")))
                 .save(c, "energy_cell");
 
-        ShapelessRecipeBuilder.shapeless(ModItems.registeredItems.get("energy_cell").get(), 1)
-                .requires(ModItems.registeredItems.get("ingot_beryllium").get(), 1)
-                .requires(ModItems.registeredItems.get("depleted_cell").get(), 1)
+        ShapelessRecipeBuilder.shapeless(RecipeGenerator.registryToItem("energy_cell"), 1)
+                .requires(RecipeGenerator.registryToItem("ingot_beryllium"), 1)
+                .requires(RecipeGenerator.registryToItem("depleted_cell"), 1)
                 .requires(Items.REDSTONE, 1)
-                .unlockedBy("depleted_cell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("depleted_cell").get()))
+                .unlockedBy("depleted_cell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("depleted_cell")))
                 .save(c, "depleted_cell_recharge");
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("portable_grinder").get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("portable_grinder"))
                 .pattern("aba")
                 .pattern("apa")
                 .pattern("cgc")
-                .define('a', ModItems.registeredItems.get("ingot_aluminium").get())
-                .define('b', ModItems.registeredItems.get("ingot_beryllium").get())
-                .define('c', ModItems.registeredItems.get("ingot_cobalt").get())
-                .define('p', ModItems.registeredItems.get("energy_cell").get())
+                .define('a', RecipeGenerator.registryToItem("ingot_aluminium"))
+                .define('b', RecipeGenerator.registryToItem("ingot_beryllium"))
+                .define('c', RecipeGenerator.registryToItem("ingot_cobalt"))
+                .define('p', RecipeGenerator.registryToItem("energy_cell"))
                 .define('g', Items.GLOWSTONE)
-                .unlockedBy("portable_grinder_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("energy_cell").get()))
+                .unlockedBy("portable_grinder_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("energy_cell")))
                 .save(c, "portable_grinder");
 
         // This recipe trips the container definition for the uncharged grinder, adding a fully-charged grinder to the
         // player's inventory alongside the depleted cell output by the crafting recipe
-        ShapelessRecipeBuilder.shapeless(ModItems.registeredItems.get("depleted_cell").get(), 1)
-                .requires(ModItems.registeredItems.get("energy_cell").get(), 1)
-                .requires(ModItems.registeredItems.get("uncharged_portable_grinder").get(), 1)
-                .unlockedBy("grinder_recharge_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.registeredItems.get("uncharged_portable_grinder").get()))
+        ShapelessRecipeBuilder.shapeless(RecipeGenerator.registryToItem("depleted_cell"), 1)
+                .requires(RecipeGenerator.registryToItem("energy_cell"), 1)
+                .requires(RecipeGenerator.registryToItem("uncharged_portable_grinder"), 1)
+                .unlockedBy("grinder_recharge_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("uncharged_portable_grinder")))
                 .save(c, "grinder_recharge");
     }
 }

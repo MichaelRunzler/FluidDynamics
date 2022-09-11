@@ -1,11 +1,12 @@
 package michaelrunzler.fluiddynamics.machines;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
-import michaelrunzler.fluiddynamics.block.ModBlocks;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBE;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBE;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBE;
+import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBE;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBE;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
@@ -28,19 +29,19 @@ public class ModBlockEntities
     public static void registerAllBEs()
     {
         registerBE(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase(), () -> BlockEntityType.Builder.of(MFMDBE::new,
-                ModBlocks.registeredBlocks.get(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase()).get()).build(null));
+                RecipeGenerator.registryToBlock(MachineEnum.MOLECULAR_DECOMPILER.name().toLowerCase())).build(null));
 
         registerBE(MachineEnum.PURIFIER.name().toLowerCase(), () -> BlockEntityType.Builder.of(PurifierBE::new,
-                ModBlocks.registeredBlocks.get(MachineEnum.PURIFIER.name().toLowerCase()).get()).build(null));
+                RecipeGenerator.registryToBlock(MachineEnum.PURIFIER.name().toLowerCase())).build(null));
 
         registerBE(MachineEnum.CENTRIFUGE.name().toLowerCase(), () -> BlockEntityType.Builder.of(CentrifugeBE::new,
-                ModBlocks.registeredBlocks.get(MachineEnum.CENTRIFUGE.name().toLowerCase()).get()).build(null));
+                RecipeGenerator.registryToBlock(MachineEnum.CENTRIFUGE.name().toLowerCase())).build(null));
 
         registerBE(MachineEnum.E_FURNACE.name().toLowerCase(), () -> BlockEntityType.Builder.of(EFurnaceBE::new,
-                ModBlocks.registeredBlocks.get(MachineEnum.E_FURNACE.name().toLowerCase()).get()).build(null));
+                RecipeGenerator.registryToBlock(MachineEnum.E_FURNACE.name().toLowerCase())).build(null));
 
-        registerBE(MachineEnum.HT_FURNACE.name().toLowerCase(), () -> BlockEntityType.Builder.of(EFurnaceBE::new,
-                ModBlocks.registeredBlocks.get(MachineEnum.HT_FURNACE.name().toLowerCase()).get()).build(null));
+        registerBE(MachineEnum.HT_FURNACE.name().toLowerCase(), () -> BlockEntityType.Builder.of(HTFurnaceBE::new,
+                RecipeGenerator.registryToBlock(MachineEnum.HT_FURNACE.name().toLowerCase())).build(null));
     }
 
     /**

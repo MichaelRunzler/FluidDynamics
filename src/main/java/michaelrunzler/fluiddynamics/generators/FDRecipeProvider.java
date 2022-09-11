@@ -1,6 +1,5 @@
 package michaelrunzler.fluiddynamics.generators;
 
-import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.recipes.*;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.DataGenerator;
@@ -36,7 +35,7 @@ public class FDRecipeProvider extends RecipeProvider
         // Special smelting recipes
         //
 
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.REDSTONE), ModItems.registeredItems.get("nugget_silicon").get(), 0.1f, 100)
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Items.REDSTONE), RecipeGenerator.registryToItem("nugget_silicon"), 0.1f, 100)
                 .group("fluid_dynamics_silicon_wafer_smelting")
                 .unlockedBy("silicon_wafer_smelting", InventoryChangeTrigger.TriggerInstance.hasItems(Items.REDSTONE))
                 .save(consumer, "silicon_wafer_smelting");

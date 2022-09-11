@@ -1,7 +1,7 @@
 package michaelrunzler.fluiddynamics.generators;
 
 import michaelrunzler.fluiddynamics.FluidDynamics;
-import michaelrunzler.fluiddynamics.block.ModBlocks;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.resources.ResourceKey;
@@ -42,7 +42,7 @@ public class FDBlockTagProvider extends BlockTagsProvider
         // Manual tags
         //
 
-        tag(BlockTags.COPPER_ORES).add(ModBlocks.registeredBlocks.get("ore_native_copper").get());
+        tag(BlockTags.COPPER_ORES).add(RecipeGenerator.registryToBlock("ore_native_copper"));
     }
 
     /**

@@ -1,6 +1,6 @@
 package michaelrunzler.fluiddynamics.machines.base;
 
-import michaelrunzler.fluiddynamics.block.ModBlocks;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.FDEnergyStorage;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
@@ -42,7 +42,7 @@ public abstract class MachineContainerBase extends AbstractContainerMenu
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return stillValid(ContainerLevelAccess.create(player.getLevel(), be.getBlockPos()), player, ModBlocks.registeredBlocks.get(type.name().toLowerCase()).get());
+        return stillValid(ContainerLevelAccess.create(player.getLevel(), be.getBlockPos()), player, RecipeGenerator.registryToBlock(type.name().toLowerCase()));
     }
 
     /**

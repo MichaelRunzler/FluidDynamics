@@ -1,6 +1,7 @@
 package michaelrunzler.fluiddynamics.item;
 
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
@@ -24,7 +25,7 @@ public class PortableGrinder extends Item
         if(itemStack.getDamageValue() >= itemStack.getMaxDamage() - 1) {
             // If the PMD is at or (somehow) past its max damage value (i.e. it is out of charge/on its last charge),
             // replace it with its discharged version instead of the original item
-            tmp = new ItemStack(ModItems.registeredItems.get("uncharged_portable_grinder").get(), itemStack.getCount());
+            tmp = new ItemStack(RecipeGenerator.registryToItem("uncharged_portable_grinder"), itemStack.getCount());
         }else{
             // Increment the PMD's damage value by 1 to reflect its use in the recipe
             tmp = new ItemStack(itemStack.getItem(), itemStack.getCount());

@@ -2,8 +2,8 @@ package michaelrunzler.fluiddynamics.machines.centrifuge;
 
 import com.mojang.authlib.GameProfile;
 import michaelrunzler.fluiddynamics.item.EnergyCell;
-import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
+import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
@@ -242,7 +242,7 @@ public class CentrifugeBE extends MachineBlockEntityBase
 
         // Check for an Energy Cell in the cell slot
         ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY);
-        if(batt.is(ModItems.registeredItems.get("energy_cell").get()) && batt.getCount() > 0)
+        if(batt.is(RecipeGenerator.registryToItem("energy_cell")) && batt.getCount() > 0)
         {
             // If there is a valid cell in the slot, check to see if we need energy, and if so, extract some from the cell
             if(energyHandler.getEnergyStored() < energyHandler.getMaxEnergyStored() && batt.getDamageValue() < batt.getMaxDamage())
@@ -348,7 +348,7 @@ public class CentrifugeBE extends MachineBlockEntityBase
             @Override
             public void setStackInSlot(int slot, @NotNull ItemStack stack) {
                 // Refuse to extract the item if it isn't a depleted cell
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(ModItems.registeredItems.get("energy_cell").get())) return;
+                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell"))) return;
                 itemHandler.setStackInSlot(slotID, stack);
             }
 
@@ -367,7 +367,7 @@ public class CentrifugeBE extends MachineBlockEntityBase
             @NotNull
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(ModItems.registeredItems.get("energy_cell").get()))
+                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell")))
                     return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
                 return itemHandler.extractItem(slotID, amount, simulate);
             }
@@ -411,7 +411,7 @@ public class CentrifugeBE extends MachineBlockEntityBase
             {
                 if(slot >= slotIDs.length) return ItemStack.EMPTY;
 
-                if(slotIDs[slot] == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(ModItems.registeredItems.get("energy_cell").get()))
+                if(slotIDs[slot] == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell")))
                     return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
                 else return itemHandler.extractItem(slotIDs[slot], amount, simulate);
             }
@@ -480,8 +480,8 @@ public class CentrifugeBE extends MachineBlockEntityBase
     public boolean isItemValid(int slot, @NotNull ItemStack stack)
     {
         if(slot == SLOT_INPUT) return recipes.containsKey(stack.getItem().getRegistryName().getPath().toLowerCase());
-        else if(slot == SLOT_BATTERY) return stack.is(ModItems.registeredItems.get("energy_cell").get())
-                || stack.is(ModItems.registeredItems.get("depleted_cell").get());
+        else if(slot == SLOT_BATTERY) return stack.is(RecipeGenerator.registryToItem("energy_cell"))
+                || stack.is(RecipeGenerator.registryToItem("depleted_cell"));
         else if(slot == SLOT_BUCKET) return stack.getItem() instanceof BucketItem;
         else if(slot == SLOT_EMPTY_BUCKET) return stack.getItem() instanceof DispensibleContainerItem;
         else return false;

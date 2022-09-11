@@ -1,13 +1,11 @@
 package michaelrunzler.fluiddynamics.recipes;
 
-import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Consumer;
 
@@ -40,149 +38,140 @@ public class ToolArmorRecipes
     private static void armorRecipeHead(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
         String matName = mat.name().toLowerCase();
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        Item itm = RecipeGenerator.registryToItem("ingot_" + matName);
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("armor_head_" + matName).get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("armor_head_" + matName))
                 .pattern("xxx")
                 .pattern("x x")
                 .pattern("   ")
-                .define('x', itm.get())
+                .define('x', itm)
                 .group("fluid_dynamics_armor_head")
-                .unlockedBy("armor_head_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .unlockedBy("armor_head_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm))
                 .save(c, "armor_head_" + matName);
     }
 
     private static void armorRecipeChest(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
         String matName = mat.name().toLowerCase();
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        Item itm = RecipeGenerator.registryToItem("ingot_" + matName);
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("armor_chest_" + matName).get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("armor_chest_" + matName))
                 .pattern("x x")
                 .pattern("xxx")
                 .pattern("xxx")
-                .define('x', itm.get())
+                .define('x', itm)
                 .group("fluid_dynamics_armor_chest")
-                .unlockedBy("armor_chest_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .unlockedBy("armor_chest_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm))
                 .save(c, "armor_chest_" + matName);
     }
 
     private static void armorRecipeLegs(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
         String matName = mat.name().toLowerCase();
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        Item itm = RecipeGenerator.registryToItem("ingot_" + matName);
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("armor_legs_" + matName).get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("armor_legs_" + matName))
                 .pattern("xxx")
                 .pattern("x x")
                 .pattern("x x")
-                .define('x', itm.get())
+                .define('x', itm)
                 .group("fluid_dynamics_armor_legs")
-                .unlockedBy("armor_legs_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .unlockedBy("armor_legs_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm))
                 .save(c, "armor_legs_" + matName);
     }
 
     private static void armorRecipeFeet(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
         String matName = mat.name().toLowerCase();
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        Item itm = RecipeGenerator.registryToItem("ingot_" + matName);
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("armor_feet_" + matName).get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("armor_feet_" + matName))
                 .pattern("   ")
                 .pattern("x x")
                 .pattern("x x")
-                .define('x', itm.get())
+                .define('x', itm)
                 .group("fluid_dynamics_armor_feet")
-                .unlockedBy("armor_feet_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .unlockedBy("armor_feet_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm))
                 .save(c, "armor_feet_" + matName);
     }
     
     private static void toolRecipeAxe(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
         String matName = mat.name().toLowerCase();
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        Item itm = RecipeGenerator.registryToItem("ingot_" + matName);
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("axe_" + matName).get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("axe_" + matName))
                 .pattern("xx ")
                 .pattern("xs ")
                 .pattern(" s ")
-                .define('x', itm.get())
+                .define('x', itm)
                 .define('s', Items.STICK)
                 .group("fluid_dynamics_axe")
-                .unlockedBy("axe_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .unlockedBy("axe_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm))
                 .save(c, "axe_" + matName);
     }
 
     private static void toolRecipePick(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
         String matName = mat.name().toLowerCase();
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        Item itm = RecipeGenerator.registryToItem("ingot_" + matName);
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("pickaxe_" + matName).get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("pickaxe_" + matName))
                 .pattern("xxx")
                 .pattern(" s ")
                 .pattern(" s ")
-                .define('x', itm.get())
+                .define('x', itm)
                 .define('s', Items.STICK)
                 .group("fluid_dynamics_pickaxe")
-                .unlockedBy("pickaxe_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .unlockedBy("pickaxe_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm))
                 .save(c, "pickaxe_" + matName);
     }
 
     private static void toolRecipeSpade(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
         String matName = mat.name().toLowerCase();
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        Item itm = RecipeGenerator.registryToItem("ingot_" + matName);
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("spade_" + matName).get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("spade_" + matName))
                 .pattern(" x ")
                 .pattern(" s ")
                 .pattern(" s ")
-                .define('x', itm.get())
+                .define('x', itm)
                 .define('s', Items.STICK)
                 .group("fluid_dynamics_spade")
-                .unlockedBy("spade_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .unlockedBy("spade_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm))
                 .save(c, "spade_" + matName);
     }
 
     private static void toolRecipeSword(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
         String matName = mat.name().toLowerCase();
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        Item itm = RecipeGenerator.registryToItem("ingot_" + matName);
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("sword_" + matName).get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("sword_" + matName))
                 .pattern(" x ")
                 .pattern(" x ")
                 .pattern(" s ")
-                .define('x', itm.get())
+                .define('x', itm)
                 .define('s', Items.STICK)
                 .group("fluid_dynamics_sword")
-                .unlockedBy("sword_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .unlockedBy("sword_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm))
                 .save(c, "sword_" + matName);
     }
 
     private static void toolRecipeHoe(MaterialEnum mat, Consumer<FinishedRecipe> c)
     {
         String matName = mat.name().toLowerCase();
-        RegistryObject<Item> itm = ModItems.registeredItems.get("ingot_" + matName);
-        if(itm == null) throw new NullPointerException("Unable to find material with type: " + matName);
+        Item itm = RecipeGenerator.registryToItem("ingot_" + matName);
 
-        ShapedRecipeBuilder.shaped(ModItems.registeredItems.get("hoe_" + matName).get())
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("hoe_" + matName))
                 .pattern("xx ")
                 .pattern(" s ")
                 .pattern(" s ")
-                .define('x', itm.get())
+                .define('x', itm)
                 .define('s', Items.STICK)
                 .group("fluid_dynamics_hoe")
-                .unlockedBy("hoe_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm.get()))
+                .unlockedBy("hoe_" + matName + "_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(itm))
                 .save(c, "hoe_" + matName);
     }
 }
