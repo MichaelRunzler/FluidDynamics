@@ -5,8 +5,12 @@ import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
@@ -72,5 +76,27 @@ public abstract class MachineBlockEntityBase extends BlockEntity
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         return super.getCapability(cap, side);
+    }
+
+    /**
+     * Drops a properly valued XP orb in the world at the position of the block entity generating the orb.
+     * Fractional XP values will be dropped as 1 XP, randomly weighted by their magnitude.
+     * See the Vanilla Furnace code for more info.
+     */
+    protected void dropXP(float amount)
+    {
+        if(level == null || level.isClientSide) return;
+
+        // Copied from the Vanilla Furnace XP code; obtains the fractional and whole components of the XP amount.
+        // If the fractional amount is nonzero, randomly award one whole XP point or no additional XP, weighted upon
+        // the magnitude of the fractional component. This results in the "bonus" XP (beyond the whole part) being awarded
+        // the correct amount of the time.
+        int i = Mth.floor(amount);
+        float f = Mth.frac(amount);
+        if (f != 0.0F && Math.random() < (double)f) i++;
+
+        // Drop the XP orb if its amount is nonzero
+        if(i > 0)
+            ExperienceOrb.award((ServerLevel)level, new Vec3(this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ()), i);
     }
 }

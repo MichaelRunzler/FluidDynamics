@@ -38,6 +38,9 @@ public class ModBlockEntities
 
         registerBE(MachineEnum.E_FURNACE.name().toLowerCase(), () -> BlockEntityType.Builder.of(EFurnaceBE::new,
                 ModBlocks.registeredBlocks.get(MachineEnum.E_FURNACE.name().toLowerCase()).get()).build(null));
+
+        registerBE(MachineEnum.HT_FURNACE.name().toLowerCase(), () -> BlockEntityType.Builder.of(EFurnaceBE::new,
+                ModBlocks.registeredBlocks.get(MachineEnum.HT_FURNACE.name().toLowerCase()).get()).build(null));
     }
 
     /**

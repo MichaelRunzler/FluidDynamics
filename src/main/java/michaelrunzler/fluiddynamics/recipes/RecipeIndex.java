@@ -17,6 +17,7 @@ public class RecipeIndex
     public static Map<String, GenericMachineRecipe> PurifierRecipes = new HashMap<>();
     public static Map<String, GenericMachineRecipe> CentrifugeRecipes = new HashMap<>();
     public static Map<String, XPGeneratingMachineRecipe> EFurnaceRecipes = new HashMap<>();
+    public static Map<String, XPGeneratingMachineRecipe> HTFurnaceRecipes = new HashMap<>();
     private static RecipeGenerator gen = null;
 
     private static final float BASE_SMELT_MULTIPLIER = 0.2f;
@@ -28,6 +29,9 @@ public class RecipeIndex
     public static final float ORE_SMELT_XP = 0.7f;
     public static final float INGOT_SMELT_XP = 0.1f;
 
+    public static final float VANILLA_FURNACE_TEMP = 1800.0f;
+    public static final float HT_FURNACE_TEMP = 3000.0f;
+
     /**
      * Generates ALL recipes that this index is capable of providing.
      */
@@ -37,6 +41,9 @@ public class RecipeIndex
 
         generateOreRecipes(c);
         generateMaterialRecipes(c);
+
+        // Copy generated E-furnace recipes over to the HT furnace
+        for(String k : EFurnaceRecipes.keySet()) HTFurnaceRecipes.put(k, EFurnaceRecipes.get(k));
     }
 
     /**
@@ -58,27 +65,42 @@ public class RecipeIndex
             Item ingot = RecipeGenerator.registryToItem("ingot_" + product.name().toLowerCase());
             
             // Generate vanilla recipes (crafting/smelting)
-            gen.oreToIngotSmelting(ore, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP);
             gen.ingotToDustPortable(ore, crushed);
-            gen.dustToIngotSmelting(crushed, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP);
-            gen.dustToIngotSmelting(purified, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP);
+            if(product.meltPoint < VANILLA_FURNACE_TEMP){
+                gen.oreToIngotSmelting(ore, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP);
+                gen.dustToIngotSmelting(crushed, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP);
+                gen.dustToIngotSmelting(purified, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP);
+            }
 
             // Generate modded recipes (machines)
             MFMDRecipes.put(RecipeGenerator.getName(ore), gen.ingotToDustMachine(ore, crushed, type.hardness * CRUSHING_MULTIPLIER));
             PurifierRecipes.put(RecipeGenerator.getName(crushed), gen.crushedToPurified(crushed, purified, OreEnum.NATIVE_COPPER.hardness * PURIFICATION_MULTIPLIER));
             CentrifugeRecipes.put(RecipeGenerator.getName(purified), gen.purifiedToDust(purified, type.hardness * SEPARATION_MULTIPLIER, OreProductIndex.CentrifugeProducts.get(ore)));
-            EFurnaceRecipes.put(RecipeGenerator.getName(ore), gen.dustToIngotESmelting(ore, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP));
-            EFurnaceRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
-            EFurnaceRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
+
+            if(product.meltPoint < VANILLA_FURNACE_TEMP)
+            {
+                EFurnaceRecipes.put(RecipeGenerator.getName(ore), gen.dustToIngotESmelting(ore, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP));
+                EFurnaceRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
+                EFurnaceRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
+            }else if(product.meltPoint < HT_FURNACE_TEMP){
+                HTFurnaceRecipes.put(RecipeGenerator.getName(ore), gen.dustToIngotESmelting(ore, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP));
+                HTFurnaceRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
+                HTFurnaceRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, product.meltPoint * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
+            }
 
             // Generate deepslate ore recipes
             if(type.hasDeepslateVariant)
             {
                 Item deepOre = RecipeGenerator.registryToItem("deepslate_ore_" + name);
-                gen.oreToIngotSmelting(deepOre, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP);
                 gen.ingotToDustPortable(deepOre, crushed);
                 MFMDRecipes.put(RecipeGenerator.getName(deepOre), gen.ingotToDustMachine(deepOre, crushed, type.hardness * CRUSHING_MULTIPLIER));
-                EFurnaceRecipes.put(RecipeGenerator.getName(deepOre), gen.dustToIngotESmelting(deepOre, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP));
+
+                if(product.meltPoint < VANILLA_FURNACE_TEMP) {
+                    gen.oreToIngotSmelting(deepOre, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP);
+                    EFurnaceRecipes.put(RecipeGenerator.getName(deepOre), gen.dustToIngotESmelting(deepOre, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP));
+                }else if(product.meltPoint < HT_FURNACE_TEMP){
+                    HTFurnaceRecipes.put(RecipeGenerator.getName(deepOre), gen.dustToIngotESmelting(deepOre, ingot, product.meltPoint * BASE_SMELT_MULTIPLIER, ORE_SMELT_XP));
+                }
             }
         }
         

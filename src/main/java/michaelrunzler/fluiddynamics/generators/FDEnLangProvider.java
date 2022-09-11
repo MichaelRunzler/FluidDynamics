@@ -4,6 +4,7 @@ import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBlock;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBlock;
+import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
@@ -47,6 +48,7 @@ public class FDEnLangProvider extends LanguageProvider
         add(PurifierBlock.SCREEN_TITLE, "Electrogravitic Purifier");
         add(CentrifugeBlock.SCREEN_TITLE, "Fractionating Centrifuge");
         add(EFurnaceBlock.SCREEN_TITLE, "Resistive Furnace");
+        add(HTFurnaceBlock.SCREEN_TITLE, "High-Temp Blast Furnace");
     }
 
     /**

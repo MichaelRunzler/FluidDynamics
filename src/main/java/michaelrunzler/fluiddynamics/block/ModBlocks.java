@@ -8,6 +8,7 @@ import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBlock;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBlock;
+import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
@@ -110,6 +111,13 @@ public class ModBlocks
         FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.E_FURNACE.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, eFurnace.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, eFurnace.getKey());
+
+        RegistryObject<Block> htFurnace = specialRegisterBlock(MachineEnum.HT_FURNACE.name().toLowerCase(), HTFurnaceBlock::new,
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
+        FDEnLangProvider.addBlockLangMapping(htFurnace, MachineEnum.HT_FURNACE.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.HT_FURNACE.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, htFurnace.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, htFurnace.getKey());
 
         //
         // Special Non-Machine Blocks

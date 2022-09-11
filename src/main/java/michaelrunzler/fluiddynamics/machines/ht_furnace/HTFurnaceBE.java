@@ -1,7 +1,5 @@
-package michaelrunzler.fluiddynamics.machines.e_furnace;
+package michaelrunzler.fluiddynamics.machines.ht_furnace;
 
-import michaelrunzler.fluiddynamics.item.EnergyCell;
-import michaelrunzler.fluiddynamics.item.ModItems;
 import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
@@ -14,10 +12,9 @@ import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
@@ -28,51 +25,51 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EFurnaceBE extends MachineBlockEntityBase
+public class HTFurnaceBE extends MachineBlockEntityBase
 {
     private final ItemStackHandler itemHandler = createIHandler();
     private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
-    private final FDEnergyStorage energyHandler = createEHandler();
-    private final LazyOptional<IEnergyStorage> energyOpt = LazyOptional.of(() -> energyHandler);
 
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
 
     private static final String ITEM_NBT_TAG = "Inventory";
-    private static final String ENERGY_NBT_TAG = "Energy";
     private static final String INFO_NBT_TAG = "Info";
     private static final String PROGRESS_NBT_TAG = "Progress";
+    private static final String FUEL_NBT_TAG = "Fuel";
+    private static final String MAX_FUEL_NBT_TAG = "MaxFuel";
 
     public static final int NUM_INV_SLOTS = 3;
-    public static final int SLOT_BATTERY = 0;
+    public static final int SLOT_FUEL = 0;
     public static final int SLOT_INPUT = 1;
     public static final int SLOT_OUTPUT = 2;
-    public static final int MAX_CHARGE_RATE = 10;
 
-    public static final Map<String, XPGeneratingMachineRecipe> recipes = RecipeIndex.EFurnaceRecipes; // Stores all valid recipes for this machine tagged by their input item name
+    public static final Map<String, XPGeneratingMachineRecipe> recipes = RecipeIndex.HTFurnaceRecipes; // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
     public AtomicInteger progress;
     public AtomicInteger maxProgress;
+    public AtomicInteger fuel;
+    public AtomicInteger maxFuel;
     public XPGeneratingMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
     private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
     private boolean lastPowerState; // Used to minimize state updates
     private boolean tryTickRecipeCB; // Used to determine if the BE should attempt to re-query recipes on tick instead of on load
 
     @SuppressWarnings("unchecked")
-    public EFurnaceBE(BlockPos pos, BlockState state)
+    public HTFurnaceBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.E_FURNACE);
+        super(pos, state, MachineEnum.HT_FURNACE);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         progress = new AtomicInteger(0);
         maxProgress = new AtomicInteger(1);
+        fuel = new AtomicInteger(0);
+        maxFuel = new AtomicInteger(1);
         currentRecipe = null;
         invalidOutput = false;
         lastPowerState = false;
         tryTickRecipeCB = false;
         optionals.add(itemOpt);
-        optionals.add(energyOpt);
 
         // Initialize handlers for each slot
         slotHandlers = new LazyOptional[NUM_INV_SLOTS];
@@ -92,19 +89,23 @@ public class EFurnaceBE extends MachineBlockEntityBase
     public void load(@NotNull CompoundTag tag)
     {
         if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
-        if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
         updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
-        if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
+        if(tag.contains(INFO_NBT_TAG)) {
+            progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
+            fuel.set(tag.getCompound(INFO_NBT_TAG).getInt(FUEL_NBT_TAG));
+            maxFuel.set(tag.getCompound(INFO_NBT_TAG).getInt(MAX_FUEL_NBT_TAG));
+        }
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag)
     {
         tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
-        tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
 
         CompoundTag iTag = new CompoundTag();
         iTag.putInt(PROGRESS_NBT_TAG, progress.get());
+        iTag.putInt(FUEL_NBT_TAG, fuel.get());
+        iTag.putInt(MAX_FUEL_NBT_TAG, maxFuel.get());
         tag.put(INFO_NBT_TAG, iTag);
     }
 
@@ -118,12 +119,10 @@ public class EFurnaceBE extends MachineBlockEntityBase
         {
             if(side == relativeFacing.TOP || side == relativeFacing.LEFT) return (LazyOptional<T>)slotHandlers[SLOT_INPUT];
             else if(side == relativeFacing.BOTTOM || side == relativeFacing.RIGHT) return (LazyOptional<T>)slotHandlers[SLOT_OUTPUT];
-            else if(side == relativeFacing.FRONT || side == relativeFacing.BACK) return (LazyOptional<T>) slotHandlers[SLOT_BATTERY];
+            else if(side == relativeFacing.FRONT || side == relativeFacing.BACK) return (LazyOptional<T>) slotHandlers[SLOT_FUEL];
             else return (LazyOptional<T>) itemOpt;
         }
 
-        // Energy is accessible from all sides, so we don't need sided logic for this
-        if(cap == CapabilityEnergy.ENERGY) return (LazyOptional<T>)energyOpt;
         return super.getCapability(cap, side);
     }
 
@@ -132,8 +131,8 @@ public class EFurnaceBE extends MachineBlockEntityBase
         // If needed, try re-querying the recipe index
         if(tryTickRecipeCB) addVanillaRecipes();
 
-        // Just run power handling if no recipe is in progress
-        acceptPower();
+        // Just run fuel handling if no recipe is in progress
+        addFuel();
         if(currentRecipe == null) {
             // Forcibly update power state to ensure that it remains synced
             updatePowerState(false);
@@ -142,10 +141,10 @@ public class EFurnaceBE extends MachineBlockEntityBase
 
         boolean powered = false;
 
-        if(progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
+        if(progress.get() < currentRecipe.time && fuel.get() > 0)
         {
-            // If the current recipe is still in progress, try to consume some energy and advance the recipe
-            energyHandler.setEnergy(energyHandler.getEnergyStored() - type.powerConsumption);
+            // If the current recipe is still in progress, try to consume some fuel and advance the recipe
+            fuel.decrementAndGet();
             progress.incrementAndGet();
             powered = true;
         }else if(progress.get() >= currentRecipe.time) // If the current recipe is done, try to transfer the input to the output
@@ -180,34 +179,31 @@ public class EFurnaceBE extends MachineBlockEntityBase
                 powered = true;
                 setChanged();
             }else invalidOutput = true; // Otherwise, mark the output as invalid until we see an item change
+        }else if(fuel.get() <= 0){
+            // Reset the recipe if the furnace runs out of fuel - unlike the powered variants, this acts like the
+            // Vanilla furnace, and cannot hold a recipe's state if it gets stalled
+            progress.set(0);
+            maxFuel.set(1);
         }
 
         updatePowerState(powered);
     }
 
     /**
-     * Gets power from a cell in the battery slot if there is one.
+     * Runs fuel item updates - refueling, validity, etc.
      */
-    private void acceptPower()
+    private void addFuel()
     {
-        AtomicInteger capacity = new AtomicInteger(energyHandler.getEnergyStored());
-        if(capacity.get() >= energyHandler.getMaxEnergyStored()) return;
+        ItemStack fuelStack = itemHandler.getStackInSlot(SLOT_FUEL);
+        if(fuelStack.isEmpty() || fuel.get() > 0) return;
 
-        // Check for an Energy Cell in the cell slot
-        ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY);
-        if(batt.is(ModItems.registeredItems.get("energy_cell").get()) && batt.getCount() > 0)
+        // Ensure the item in the fuel slot is valid, then attempt to consume it and add to the burn time
+        int burnTime = ForgeHooks.getBurnTime(fuelStack, RecipeType.BLASTING);
+        if(burnTime > 0)
         {
-            // If there is a valid cell in the slot, check to see if we need energy, and if so, extract some from the cell
-            if(energyHandler.getEnergyStored() < energyHandler.getMaxEnergyStored() && batt.getDamageValue() < batt.getMaxDamage())
-            {
-                // Transfer the lowest out of: remaining cell capacity, remaining storage space, or maximum charge rate
-                int rcvd = energyHandler.receiveEnergy(Math.min((batt.getMaxDamage() - batt.getDamageValue()),
-                        (energyHandler.getMaxEnergyStored() - energyHandler.getEnergyStored())), false);
-                ItemStack tmp = ((EnergyCell)batt.getItem()).chargeDischarge(batt, rcvd, false);
-
-                // The cell might have been depleted, so assign back the stack we get from the cell's charge/discharge
-                itemHandler.setStackInSlot(SLOT_BATTERY, tmp);
-            }
+            fuel.set(burnTime);
+            maxFuel.set(burnTime);
+            itemHandler.setStackInSlot(SLOT_FUEL, new ItemStack(fuelStack.getItem(), fuelStack.getCount() - 1));
         }
     }
 
@@ -218,7 +214,7 @@ public class EFurnaceBE extends MachineBlockEntityBase
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack)
             {
-                if(slot < NUM_INV_SLOTS) return EFurnaceBE.this.isItemValid(slot, stack);
+                if(slot < NUM_INV_SLOTS) return HTFurnaceBE.this.isItemValid(slot, stack);
                 else return super.isItemValid(slot, stack);
             }
 
@@ -241,8 +237,6 @@ public class EFurnaceBE extends MachineBlockEntityBase
         {
             @Override
             public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-                // Refuse to extract the item if it isn't a depleted cell
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(ModItems.registeredItems.get("energy_cell").get())) return;
                 itemHandler.setStackInSlot(slotID, stack);
             }
 
@@ -261,8 +255,6 @@ public class EFurnaceBE extends MachineBlockEntityBase
             @NotNull
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(ModItems.registeredItems.get("energy_cell").get()))
-                    return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
                 return itemHandler.extractItem(slotID, amount, simulate);
             }
 
@@ -271,10 +263,6 @@ public class EFurnaceBE extends MachineBlockEntityBase
                 return itemHandler.isItemValid(slotID, stack);
             }
         };
-    }
-
-    private FDEnergyStorage createEHandler(){
-        return new FDEnergyStorage(type.powerCapacity, MAX_CHARGE_RATE, 0);
     }
 
     /**
@@ -320,8 +308,7 @@ public class EFurnaceBE extends MachineBlockEntityBase
     public boolean isItemValid(int slot, @NotNull ItemStack stack)
     {
         if(slot == SLOT_INPUT) return recipes.containsKey(stack.getItem().getRegistryName().getPath().toLowerCase());
-        else if(slot == SLOT_BATTERY) return stack.is(ModItems.registeredItems.get("energy_cell").get())
-                || stack.is(ModItems.registeredItems.get("depleted_cell").get());
+        else if(slot == SLOT_FUEL) return ForgeHooks.getBurnTime(stack, RecipeType.BLASTING) > 0;
         else if(slot == SLOT_OUTPUT) return false;
         else return false;
     }
