@@ -39,6 +39,7 @@ import java.util.Random;
 public abstract class FDMachineBase extends Block implements EntityBlock
 {
     protected final MachineEnum type;
+    protected boolean doItemDrops; // If set to false, this block will not attempt to drop its contents when it is destroyed
     private static final VoxelShape RENDER_SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);
 
     public FDMachineBase(MachineEnum type)
@@ -49,6 +50,7 @@ public abstract class FDMachineBase extends Block implements EntityBlock
                 .strength(type.strength)
                 .lightLevel((state) -> state.getValue(BlockStateProperties.POWERED) ? 12 : 0));
 
+        this.doItemDrops = true;
         this.type = type;
     }
 
@@ -142,7 +144,7 @@ public abstract class FDMachineBase extends Block implements EntityBlock
     public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean p_60519_)
     {
         // If this is a removal as a consequence of a state change, don't do anything and just delegate to super
-        if(!newState.is(this))
+        if(!newState.is(this) && doItemDrops)
         {
             // Drop all inventory items from the block before it is destroyed
             BlockEntity be = level.getBlockEntity(pos);

@@ -82,5 +82,16 @@ public class MachineRecipes
                 .group("fluid_dynamics_machine_htfurnace")
                 .unlockedBy("machine_htfurnace_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.NETHER_BRICK))
                 .save(c, "machine_htfurnace");
+
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.POWER_CELL.name().toLowerCase()))
+                .pattern("ccc")
+                .pattern("pfp")
+                .pattern("ccc")
+                .define('c', RecipeGenerator.registryToItem("energy_cell"))
+                .define('p', RecipeGenerator.registryToItem("power_conduit"))
+                .define('f', RecipeGenerator.registryToItem("machine_frame"))
+                .group("fluid_dynamics_machine_powercell")
+                .unlockedBy("machine_powercell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("energy_cell")))
+                .save(c, "machine_powercell");
     }
 }

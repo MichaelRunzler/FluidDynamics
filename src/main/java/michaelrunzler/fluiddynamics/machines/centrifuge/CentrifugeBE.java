@@ -1,7 +1,6 @@
 package michaelrunzler.fluiddynamics.machines.centrifuge;
 
 import com.mojang.authlib.GameProfile;
-import michaelrunzler.fluiddynamics.item.EnergyCell;
 import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
@@ -237,12 +236,11 @@ public class CentrifugeBE extends MachineBlockEntityBase
      */
     private void acceptPower()
     {
-        AtomicInteger capacity = new AtomicInteger(energyHandler.getEnergyStored());
-        if(capacity.get() >= energyHandler.getMaxEnergyStored()) return;
+        if(energyHandler.getEnergyStored() >= energyHandler.getMaxEnergyStored()) return;
 
         // Check for an Energy Cell in the cell slot
         ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY);
-        if(batt.is(RecipeGenerator.registryToItem("energy_cell")) && batt.getCount() > 0)
+        if(batt.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge() && batt.getCount() > 0)
         {
             // If there is a valid cell in the slot, check to see if we need energy, and if so, extract some from the cell
             if(energyHandler.getEnergyStored() < energyHandler.getMaxEnergyStored() && batt.getDamageValue() < batt.getMaxDamage())
@@ -250,7 +248,7 @@ public class CentrifugeBE extends MachineBlockEntityBase
                 // Transfer the lowest out of: remaining cell capacity, remaining storage space, or maximum charge rate
                 int rcvd = energyHandler.receiveEnergy(Math.min((batt.getMaxDamage() - batt.getDamageValue()),
                         (energyHandler.getMaxEnergyStored() - energyHandler.getEnergyStored())), false);
-                ItemStack tmp = ((EnergyCell)batt.getItem()).chargeDischarge(batt, rcvd, false);
+                ItemStack tmp = chargeable.chargeDischarge(batt, rcvd, false);
 
                 // The cell might have been depleted, so assign back the stack we get from the cell's charge/discharge
                 itemHandler.setStackInSlot(SLOT_BATTERY, tmp);
@@ -480,8 +478,7 @@ public class CentrifugeBE extends MachineBlockEntityBase
     public boolean isItemValid(int slot, @NotNull ItemStack stack)
     {
         if(slot == SLOT_INPUT) return recipes.containsKey(stack.getItem().getRegistryName().getPath().toLowerCase());
-        else if(slot == SLOT_BATTERY) return stack.is(RecipeGenerator.registryToItem("energy_cell"))
-                || stack.is(RecipeGenerator.registryToItem("depleted_cell"));
+        else if(slot == SLOT_BATTERY) return stack.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge();
         else if(slot == SLOT_BUCKET) return stack.getItem() instanceof BucketItem;
         else if(slot == SLOT_EMPTY_BUCKET) return stack.getItem() instanceof DispensibleContainerItem;
         else return false;

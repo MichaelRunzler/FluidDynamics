@@ -2,6 +2,7 @@ package michaelrunzler.fluiddynamics.item;
 
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
+import michaelrunzler.fluiddynamics.types.IChargeableItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
@@ -9,7 +10,7 @@ import net.minecraft.world.item.Rarity;
 /**
  * A single-use Redstone-Beryllium energy cell item which becomes depleted after use and may be recharged through crafting.
  */
-public class EnergyCell extends Item
+public class EnergyCell extends Item implements IChargeableItem
 {
     public static final int DURABILITY = 1000;
 
@@ -34,12 +35,22 @@ public class EnergyCell extends Item
                 throw new IllegalStateException("Energy cell has insufficient energy capacity (has " + stack.getDamageValue() + ", needs " + -amount + ")");
         }
 
-        super.setDamage(stack, stack.getDamageValue() + amount);
+        this.setDamage(stack, stack.getDamageValue() + amount);
 
         // Convert this item to a Depleted Cell if it is out of energy
         if(this.getDamage(stack) == stack.getMaxDamage())
             return new ItemStack(RecipeGenerator.registryToItem("depleted_cell"), stack.getCount());
 
         return stack;
+    }
+
+    @Override
+    public boolean canCharge() {
+        return true;
+    }
+
+    @Override
+    public boolean canDischarge() {
+        return true;
     }
 }

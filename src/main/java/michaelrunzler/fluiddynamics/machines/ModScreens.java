@@ -4,6 +4,7 @@ import michaelrunzler.fluiddynamics.machines.MFMD.MFMDScreen;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeScreen;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceScreen;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceScreen;
+import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellScreen;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierScreen;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
@@ -32,5 +33,8 @@ public class ModScreens
 
         MenuScreens.register(ModContainers.CONTAINER_HTFURNACE.get(), HTFurnaceScreen::new);
         ItemBlockRenderTypes.setRenderLayer(RecipeGenerator.registryToBlock(MachineEnum.HT_FURNACE.name().toLowerCase()), RenderType.translucent());
+
+        MenuScreens.register(ModContainers.CONTAINER_POWERCELL.get(), PowerCellScreen::new);
+        ItemBlockRenderTypes.setRenderLayer(RecipeGenerator.registryToBlock(MachineEnum.POWER_CELL.name().toLowerCase()), RenderType.translucent());
     }
 }

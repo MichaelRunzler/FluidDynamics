@@ -1,13 +1,14 @@
-package michaelrunzler.fluiddynamics.machines.MFMD;
+package michaelrunzler.fluiddynamics.machines.power_cell;
 
 import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
-import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.Capability;
@@ -20,10 +21,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class MFMDBE extends MachineBlockEntityBase
+public class PowerCellBE extends MachineBlockEntityBase
 {
     private final ItemStackHandler itemHandler = createIHandler();
     private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
@@ -37,32 +35,21 @@ public class MFMDBE extends MachineBlockEntityBase
     private static final String ITEM_NBT_TAG = "Inventory";
     private static final String ENERGY_NBT_TAG = "Energy";
     private static final String INFO_NBT_TAG = "Info";
-    private static final String PROGRESS_NBT_TAG = "Progress";
 
-    public static final int NUM_INV_SLOTS = 3;
-    public static final int SLOT_BATTERY = 0;
-    public static final int SLOT_INPUT = 1;
-    public static final int SLOT_OUTPUT = 2;
-    public static final int MAX_CHARGE_RATE = 10;
+    public static final int NUM_INV_SLOTS = 2;
+    public static final int SLOT_BATTERY_IN = 0;
+    public static final int SLOT_BATTERY_OUT = 1;
+    public static final int MAX_TRANSFER_RATE = 20;
 
-    public static final Map<String, GenericMachineRecipe> recipes = RecipeIndex.MFMDRecipes; // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
-    public AtomicInteger progress;
-    public AtomicInteger maxProgress;
-    public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
-    private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
     private boolean lastPowerState; // Used to minimize state updates
 
     @SuppressWarnings("unchecked")
-    public MFMDBE(BlockPos pos, BlockState state)
+    public PowerCellBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.MOLECULAR_DECOMPILER);
+        super(pos, state, MachineEnum.POWER_CELL);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
-        progress = new AtomicInteger(0);
-        maxProgress = new AtomicInteger(1);
-        currentRecipe = null;
-        invalidOutput = false;
         lastPowerState = false;
         optionals.add(itemOpt);
         optionals.add(energyOpt);
@@ -83,8 +70,6 @@ public class MFMDBE extends MachineBlockEntityBase
     {
         if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
         if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
-        updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
-        if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
     }
 
     @Override
@@ -94,8 +79,13 @@ public class MFMDBE extends MachineBlockEntityBase
         tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
 
         CompoundTag iTag = new CompoundTag();
-        iTag.putInt(PROGRESS_NBT_TAG, progress.get());
         tag.put(INFO_NBT_TAG, iTag);
+    }
+
+    @Override
+    public void saveToItem(@NotNull ItemStack stack) {
+        // The cell should retain its energy when picked up, so ensure that we write metadata when breaking it
+        BlockItem.setBlockEntityData(stack, this.getType(), this.saveWithFullMetadata());
     }
 
     @SuppressWarnings("unchecked")
@@ -103,71 +93,22 @@ public class MFMDBE extends MachineBlockEntityBase
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
     {
-        // Return appropriate inventory access wrappers for each side
-        if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
-        {
-            if(side == relativeFacing.TOP || side == relativeFacing.LEFT) return (LazyOptional<T>)slotHandlers[SLOT_INPUT];
-            else if(side == relativeFacing.BOTTOM || side == relativeFacing.RIGHT) return (LazyOptional<T>)slotHandlers[SLOT_OUTPUT];
-            else if(side == relativeFacing.FRONT || side == relativeFacing.BACK) return (LazyOptional<T>) slotHandlers[SLOT_BATTERY];
+        if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+            if(side == relativeFacing.TOP || side == relativeFacing.BOTTOM) return (LazyOptional<T>)slotHandlers[SLOT_BATTERY_IN];
+            else if(side == relativeFacing.LEFT || side == relativeFacing.RIGHT) return (LazyOptional<T>)slotHandlers[SLOT_BATTERY_OUT];
             else return (LazyOptional<T>) itemOpt;
         }
 
-        // Energy is accessible from all sides, so we don't need sided logic for this
         if(cap == CapabilityEnergy.ENERGY) return (LazyOptional<T>)energyOpt;
         return super.getCapability(cap, side);
     }
 
     public void tickServer()
     {
-        // Just run power handling if no recipe is in progress
+        outputPower();
+        chargeBatteryItems();
         acceptPower();
-        if(currentRecipe == null) {
-            // Forcibly update power state to ensure that it remains synced
-            updatePowerState(false);
-            return;
-        }
-
-        boolean powered = false;
-
-        if(progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
-        {
-            // If the current recipe is still in progress, try to consume some energy and advance the recipe
-            energyHandler.setEnergy(energyHandler.getEnergyStored() - type.powerConsumption);
-            progress.incrementAndGet();
-            powered = true;
-        }else if(progress.get() >= currentRecipe.time) // If the current recipe is done, try to transfer the input to the output
-        {
-            // Shortcut the output-checking logic if we already know the output is blocking the recipe from finishing
-            if(invalidOutput) return;
-
-            ItemStack input = itemHandler.getStackInSlot(SLOT_INPUT);
-            ItemStack output = itemHandler.getStackInSlot(SLOT_OUTPUT);
-            RecipeIngredient out = currentRecipe.out[0];
-            boolean didOperation = false;
-
-            if(output.getCount() == 0)
-            {
-                // If the output is empty, add the new item(s)
-                itemHandler.setStackInSlot(SLOT_OUTPUT, new ItemStack(out.ingredient(), out.count()));
-                didOperation = true;
-            }else if (output.getCount() < output.getMaxStackSize() && output.is(out.ingredient().asItem()))
-            {
-                // If the output is not empty, check that the item in the output is the same and not a full stack, then
-                // add the item(s) to the stack
-                itemHandler.setStackInSlot(SLOT_OUTPUT, new ItemStack(output.getItem(), output.getCount() + out.count()));
-                didOperation = true;
-            }
-
-            // If we successfully added an output, remove one item from the input
-            if(didOperation) {
-                itemHandler.setStackInSlot(SLOT_INPUT, new ItemStack(input.getItem(), input.getCount() - 1));
-                progress.set(0);
-                powered = true;
-                setChanged();
-            }else invalidOutput = true; // Otherwise, mark the output as invalid until we see an item change
-        }
-
-        updatePowerState(powered);
+        updatePowerState(energyHandler.getEnergyStored() > 0);
     }
 
     /**
@@ -178,7 +119,7 @@ public class MFMDBE extends MachineBlockEntityBase
         if(energyHandler.getEnergyStored() >= energyHandler.getMaxEnergyStored()) return;
 
         // Check for an Energy Cell in the cell slot
-        ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY);
+        ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY_IN);
         if(batt.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge() && batt.getCount() > 0)
         {
             // If there is a valid cell in the slot, check to see if we need energy, and if so, extract some from the cell
@@ -190,7 +131,72 @@ public class MFMDBE extends MachineBlockEntityBase
                 ItemStack tmp = chargeable.chargeDischarge(batt, rcvd, false);
 
                 // The cell might have been depleted, so assign back the stack we get from the cell's charge/discharge
-                itemHandler.setStackInSlot(SLOT_BATTERY, tmp);
+                itemHandler.setStackInSlot(SLOT_BATTERY_IN, tmp);
+            }
+        }
+    }
+
+    /**
+     * Outputs power to adjacent energy-receptive blocks if there are any.
+     */
+    private void outputPower()
+    {
+        // For each direction surrounding the block, attempt to push up to this block's max transfer rate
+        for(Direction d : Direction.values())
+        {
+            // Don't continue checking directions if there is no energy left to distribute
+            if(energyHandler.getEnergyStored() == 0) return;
+
+            // Grab the BE at the adjacent position
+            BlockPos rel = this.worldPosition.relative(d);
+            if(level == null) continue;
+            BlockEntity rbe = level.getBlockEntity(rel);
+            if(rbe == null) continue;
+
+            // If the adjacent BE is another power cell, try to balance power instead of blindly transmitting it
+            if(rbe instanceof PowerCellBE pbe)
+            {
+                // Leave a margin of 1 tick to prevent oscillating energy transfers
+                if(pbe.energyHandler.getEnergyStored() + MAX_TRANSFER_RATE < this.energyHandler.getEnergyStored()){
+                    int xfer = Math.min(this.energyHandler.getEnergyStored(), pbe.energyHandler.getMaxEnergyStored() - pbe.energyHandler.getEnergyStored());
+                    int xfered = pbe.energyHandler.receiveEnergy(xfer, false);
+                    this.energyHandler.extractEnergy(xfered, false);
+                }
+            }else
+            {
+                // See if the BE can accept power, and if so, try to push some
+                rbe.getCapability(CapabilityEnergy.ENERGY).ifPresent(c ->
+                {
+                    if (c.canReceive()) {
+                        int xfer = Math.min(this.energyHandler.getEnergyStored(), MAX_TRANSFER_RATE);
+                        int xfered = c.receiveEnergy(xfer, false);
+                        this.energyHandler.extractEnergy(xfered, false);
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Attempts to charge any available battery items in the output slot.
+     */
+    private void chargeBatteryItems()
+    {
+        if(energyHandler.getEnergyStored() == 0) return;
+
+        // Check for an Energy Cell in the cell slot
+        ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY_OUT);
+        if(batt.getItem() instanceof IChargeableItem chargeable && chargeable.canCharge() && batt.getCount() > 0)
+        {
+            // If there is a valid cell in the slot, check to see if we need energy, and if so, extract some from the cell
+            if(energyHandler.getEnergyStored() > 0 && batt.getDamageValue() > 0)
+            {
+                // Transfer the lowest out of: remaining cell capacity, remaining energy, or maximum charge rate
+                int trns = energyHandler.extractEnergy(Math.min(batt.getDamageValue(), energyHandler.getEnergyStored()), false);
+                ItemStack tmp = chargeable.chargeDischarge(batt, -trns, false);
+
+                // The cell might have been a depleted cell which has now been charged, so assign the stack back just to be sure
+                itemHandler.setStackInSlot(SLOT_BATTERY_OUT, tmp);
             }
         }
     }
@@ -202,16 +208,13 @@ public class MFMDBE extends MachineBlockEntityBase
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack)
             {
-                if(slot < NUM_INV_SLOTS) return MFMDBE.this.isItemValid(slot, stack);
+                if(slot < NUM_INV_SLOTS) return PowerCellBE.this.isItemValid(slot, stack);
                 else return super.isItemValid(slot, stack);
             }
 
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
-                // Update recipe and invalidation data if relevant
-                if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
-                else if(slot == SLOT_OUTPUT) invalidOutput = false;
             }
         };
     }
@@ -226,7 +229,7 @@ public class MFMDBE extends MachineBlockEntityBase
             @Override
             public void setStackInSlot(int slot, @NotNull ItemStack stack) {
                 // Refuse to extract the item if it isn't a depleted cell
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell"))) return;
+                if(slotID == SLOT_BATTERY_IN && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell"))) return;
                 itemHandler.setStackInSlot(slotID, stack);
             }
 
@@ -245,7 +248,7 @@ public class MFMDBE extends MachineBlockEntityBase
             @NotNull
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell")))
+                if(slotID == SLOT_BATTERY_IN && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell")))
                     return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
                 return itemHandler.extractItem(slotID, amount, simulate);
             }
@@ -258,31 +261,7 @@ public class MFMDBE extends MachineBlockEntityBase
     }
 
     private FDEnergyStorage createEHandler(){
-        return new FDEnergyStorage(type.powerCapacity, MAX_CHARGE_RATE, 0);
-    }
-
-    /**
-     * Updates the currently-cached recipe to match the type of the given ItemStack.
-     * Also updates the output-invalidation flag and the current maximum progress.
-     */
-    @SuppressWarnings("ConstantConditions")
-    public void updateRecipe(@Nullable ItemStack stack)
-    {
-        // Don't update anything if the item type hasn't changed
-        if(currentRecipe != null && stack != null && stack.is(currentRecipe.in.asItem())) return;
-
-        // If the stack is empty or invalid, clear the recipe
-        if(stack == null || stack.getCount() == 0 || !isItemValid(SLOT_INPUT, stack)) {
-            currentRecipe = null;
-            maxProgress.set(1);
-        }else{
-            // Otherwise, look up the item in the recipe list
-            currentRecipe = recipes.get(stack.getItem().getRegistryName().getPath());
-            maxProgress.set(currentRecipe == null ? 1 : currentRecipe.time);
-        }
-
-        progress.set(0);
-        invalidOutput = false;
+        return new FDEnergyStorage(type.powerCapacity, MAX_TRANSFER_RATE);
     }
 
     /**
@@ -300,12 +279,10 @@ public class MFMDBE extends MachineBlockEntityBase
     /**
      * Checks if a given ItemStack is valid for a given slot.
      */
-    @SuppressWarnings("ConstantConditions")
     public boolean isItemValid(int slot, @NotNull ItemStack stack)
     {
-        if(slot == SLOT_INPUT) return recipes.containsKey(stack.getItem().getRegistryName().getPath().toLowerCase());
-        else if(slot == SLOT_BATTERY) return stack.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge();
-        else if(slot == SLOT_OUTPUT) return false;
+        if(slot == SLOT_BATTERY_IN) return stack.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge();
+        else if(slot == SLOT_BATTERY_OUT) return stack.getItem() instanceof IChargeableItem chargeable && chargeable.canCharge();
         else return false;
     }
 }

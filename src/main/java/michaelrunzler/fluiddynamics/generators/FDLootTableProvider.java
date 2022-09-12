@@ -7,8 +7,12 @@ import michaelrunzler.fluiddynamics.types.OreEnum;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.level.block.Block;
 
+import java.util.ArrayList;
+
 public class FDLootTableProvider extends BaseLootTableProvider
 {
+    public static ArrayList<String> nonDefaultLootTableBlocks = new ArrayList<>();
+
     public FDLootTableProvider(DataGenerator gen) {
         super(gen);
     }
@@ -32,6 +36,8 @@ public class FDLootTableProvider extends BaseLootTableProvider
         for(MachineEnum mat : MachineEnum.values())
         {
             String name = mat.name().toLowerCase();
+            if(nonDefaultLootTableBlocks.contains(name)) continue;
+
             Block block = RecipeGenerator.registryToBlock(name);
             lootTables.put(block, createSimpleTable(name, block));
         }

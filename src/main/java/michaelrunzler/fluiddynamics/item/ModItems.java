@@ -192,7 +192,7 @@ public class ModItems
         // Advanced Tools and Utility Items
         //
 
-        RegistryObject<Item> depletedCell = registerItem("depleted_cell", componentSupplier);
+        RegistryObject<Item> depletedCell = registerItem("depleted_cell", DepletedEnergyCell::new);
         FDEnLangProvider.addItemLangMapping(depletedCell, "Depleted Redstone-Beryllium Power Cell");
 
         RegistryObject<Item> energyCell = registerItem("energy_cell", EnergyCell::new);

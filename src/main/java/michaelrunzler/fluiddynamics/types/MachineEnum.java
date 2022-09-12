@@ -11,7 +11,8 @@ public enum MachineEnum
     PURIFIER("Electrogravitic Purifier", 3.0f, 2 * EnergyCell.DURABILITY, 2),
     CENTRIFUGE("Fractionating Centrifuge", 5.0f, 4 * EnergyCell.DURABILITY, 4),
     E_FURNACE("Resistive Casting Furnace", 3.0f, 2 * EnergyCell.DURABILITY, 1),
-    HT_FURNACE("High-Temp Blast Furnace", 8.0f, -1, -1); // Power isn't used by this machine, since it's fueled
+    HT_FURNACE("High-Temp Blast Furnace", 8.0f, -1, -1), // Power isn't used by this machine, since it's fueled
+    POWER_CELL("Rs-Be Power Cell", 3.0f, 20000, -1); // Power is never consumed by the cell, only stored
 
     public final String englishName;
     public final float strength;

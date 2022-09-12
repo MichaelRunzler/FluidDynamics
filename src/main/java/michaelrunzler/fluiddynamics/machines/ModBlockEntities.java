@@ -5,6 +5,7 @@ import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBE;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBE;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBE;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBE;
+import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBE;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBE;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
@@ -42,6 +43,9 @@ public class ModBlockEntities
 
         registerBE(MachineEnum.HT_FURNACE.name().toLowerCase(), () -> BlockEntityType.Builder.of(HTFurnaceBE::new,
                 RecipeGenerator.registryToBlock(MachineEnum.HT_FURNACE.name().toLowerCase())).build(null));
+
+        registerBE(MachineEnum.POWER_CELL.name().toLowerCase(), () -> BlockEntityType.Builder.of(PowerCellBE::new,
+                RecipeGenerator.registryToBlock(MachineEnum.POWER_CELL.name().toLowerCase())).build(null));
     }
 
     /**

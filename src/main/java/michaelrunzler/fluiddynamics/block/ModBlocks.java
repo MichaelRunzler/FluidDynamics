@@ -4,11 +4,13 @@ import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.generators.FDBlockStateProvider;
 import michaelrunzler.fluiddynamics.generators.FDBlockTagProvider;
 import michaelrunzler.fluiddynamics.generators.FDEnLangProvider;
+import michaelrunzler.fluiddynamics.generators.FDLootTableProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBlock;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBlock;
+import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBlock;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
@@ -118,6 +120,14 @@ public class ModBlocks
         FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.HT_FURNACE.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, htFurnace.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, htFurnace.getKey());
+
+        RegistryObject<Block> powerCell = specialRegisterBlock(MachineEnum.POWER_CELL.name().toLowerCase(), PowerCellBlock::new,
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
+        FDEnLangProvider.addBlockLangMapping(powerCell, MachineEnum.POWER_CELL.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.POWER_CELL.name().toLowerCase());
+        FDLootTableProvider.nonDefaultLootTableBlocks.add(MachineEnum.POWER_CELL.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, powerCell.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, powerCell.getKey());
 
         //
         // Special Non-Machine Blocks

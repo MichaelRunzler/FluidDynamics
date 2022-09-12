@@ -2,6 +2,7 @@ package michaelrunzler.fluiddynamics.item;
 
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
+import michaelrunzler.fluiddynamics.types.IChargeableItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
@@ -10,7 +11,8 @@ import net.minecraft.world.item.Rarity;
  * A portable version of the Molecular Decompiler, used to dissolve blocks and items into their constituents.
  * Uses Energy Cells for power, and can be recharged via crafting.
  */
-public class PortableGrinder extends Item
+// TODO add depleted grinder class to allow recharging
+public class PortableGrinder extends Item implements IChargeableItem
 {
     public static final int DURABILITY = 10;
 
@@ -21,22 +23,40 @@ public class PortableGrinder extends Item
     @Override
     public ItemStack getContainerItem(ItemStack itemStack)
     {
-        ItemStack tmp;
-        if(itemStack.getDamageValue() >= itemStack.getMaxDamage() - 1) {
-            // If the PMD is at or (somehow) past its max damage value (i.e. it is out of charge/on its last charge),
-            // replace it with its discharged version instead of the original item
-            tmp = new ItemStack(RecipeGenerator.registryToItem("uncharged_portable_grinder"), itemStack.getCount());
-        }else{
-            // Increment the PMD's damage value by 1 to reflect its use in the recipe
-            tmp = new ItemStack(itemStack.getItem(), itemStack.getCount());
-            tmp.getItem().setDamage(tmp, itemStack.getDamageValue() + 1);
-        }
-
-        return tmp;
+        return chargeDischarge(itemStack, 1, false);
     }
 
     @Override
     public boolean hasContainerItem(ItemStack stack) {
         return true; // The PMD's "container" is in fact itself
+    }
+
+    @Override
+    public ItemStack chargeDischarge(ItemStack stack, int amount, boolean checkEnergy)
+    {
+        if(checkEnergy)
+        {
+            if(amount > 0) throw new IllegalStateException("Cannot discharge from a PMD!");
+            else if(amount < 0 && -amount > stack.getDamageValue())
+                throw new IllegalStateException("PMD has insufficient energy capacity (has " + stack.getDamageValue() + ", needs " + -amount + ")");
+        }
+
+        super.setDamage(stack, stack.getDamageValue() + amount);
+
+        // Convert this item to an Uncharged PMD if it is out of energy
+        if(this.getDamage(stack) == stack.getMaxDamage())
+            return new ItemStack(RecipeGenerator.registryToItem("uncharged_portable_grinder"), stack.getCount());
+
+        return stack;
+    }
+
+    @Override
+    public boolean canCharge() {
+        return true;
+    }
+
+    @Override
+    public boolean canDischarge() {
+        return false;
     }
 }
