@@ -1,7 +1,7 @@
 package michaelrunzler.fluiddynamics.machines.centrifuge;
 
 import com.mojang.authlib.GameProfile;
-import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
+import michaelrunzler.fluiddynamics.machines.base.PoweredMachineBE;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
 import michaelrunzler.fluiddynamics.types.*;
@@ -18,7 +18,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -32,13 +31,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CentrifugeBE extends MachineBlockEntityBase
+public class CentrifugeBE extends PoweredMachineBE
 {
     private final ItemStackHandler itemHandler = createIHandler();
     private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
-    private final FDEnergyStorage energyHandler = createEHandler();
-    private final LazyOptional<IEnergyStorage> energyOpt = LazyOptional.of(() -> energyHandler);
 
     private final FDFluidStorage fluidHandler = createFHandler();
     private final LazyOptional<IFluidHandler> fluidOpt = LazyOptional.of(() -> fluidHandler);
@@ -65,7 +61,6 @@ public class CentrifugeBE extends MachineBlockEntityBase
     public static final int SLOT_OUTPUT_1 = 4;
     public static final int SLOT_OUTPUT_2 = 5;
     public static final int SLOT_OUTPUT_3 = 6;
-    public static final int MAX_CHARGE_RATE = 15;
     public static final int FLUID_CONSUMPTION_RATE = 1;
     public static final int FLUID_CAPACITY = 4000;
 
@@ -80,7 +75,7 @@ public class CentrifugeBE extends MachineBlockEntityBase
     @SuppressWarnings("unchecked")
     public CentrifugeBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.CENTRIFUGE);
+        super(pos, state, MachineEnum.CENTRIFUGE, false, true, false);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         progress = new AtomicInteger(0);
@@ -90,7 +85,6 @@ public class CentrifugeBE extends MachineBlockEntityBase
         lastPowerState = false;
         dummyPlayer = null;
         optionals.add(itemOpt);
-        optionals.add(energyOpt);
         optionals.add(fluidOpt);
 
         // Initialize handlers for each slot
@@ -158,7 +152,8 @@ public class CentrifugeBE extends MachineBlockEntityBase
     public void tickServer()
     {
         // Just run power and fluid handling if no recipe is in progress
-        acceptPower();
+        ItemStack bStack = chargeFromBattery(SLOT_BATTERY, itemHandler);
+        if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY, bStack);
         acceptFluids();
         if(currentRecipe == null) {
             // Forcibly update power state to ensure that it remains synced
@@ -229,31 +224,6 @@ public class CentrifugeBE extends MachineBlockEntityBase
         }
 
         updatePowerState(powered);
-    }
-
-    /**
-     * Gets power from a cell in the battery slot if there is one.
-     */
-    private void acceptPower()
-    {
-        if(energyHandler.getEnergyStored() >= energyHandler.getMaxEnergyStored()) return;
-
-        // Check for an Energy Cell in the cell slot
-        ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY);
-        if(batt.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge() && batt.getCount() > 0)
-        {
-            // If there is a valid cell in the slot, check to see if we need energy, and if so, extract some from the cell
-            if(energyHandler.getEnergyStored() < energyHandler.getMaxEnergyStored() && batt.getDamageValue() < batt.getMaxDamage())
-            {
-                // Transfer the lowest out of: remaining cell capacity, remaining storage space, or maximum charge rate
-                int rcvd = energyHandler.receiveEnergy(Math.min((batt.getMaxDamage() - batt.getDamageValue()),
-                        (energyHandler.getMaxEnergyStored() - energyHandler.getEnergyStored())), false);
-                ItemStack tmp = chargeable.chargeDischarge(batt, rcvd, false);
-
-                // The cell might have been depleted, so assign back the stack we get from the cell's charge/discharge
-                itemHandler.setStackInSlot(SLOT_BATTERY, tmp);
-            }
-        }
     }
 
     /**
@@ -419,10 +389,6 @@ public class CentrifugeBE extends MachineBlockEntityBase
                 return itemHandler.isItemValid(slotIDs[slot], stack);
             }
         };
-    }
-
-    private FDEnergyStorage createEHandler(){
-        return new FDEnergyStorage(type.powerCapacity, MAX_CHARGE_RATE, 0);
     }
 
     private FDFluidStorage createFHandler()

@@ -1,6 +1,6 @@
 package michaelrunzler.fluiddynamics.machines.MFMD;
 
-import michaelrunzler.fluiddynamics.machines.base.MachineBlockEntityBase;
+import michaelrunzler.fluiddynamics.machines.base.PoweredMachineBE;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
 import michaelrunzler.fluiddynamics.types.*;
@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
@@ -23,13 +22,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MFMDBE extends MachineBlockEntityBase
+public class MFMDBE extends PoweredMachineBE
 {
     private final ItemStackHandler itemHandler = createIHandler();
     private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
-    private final FDEnergyStorage energyHandler = createEHandler();
-    private final LazyOptional<IEnergyStorage> energyOpt = LazyOptional.of(() -> energyHandler);
 
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
@@ -43,7 +39,6 @@ public class MFMDBE extends MachineBlockEntityBase
     public static final int SLOT_BATTERY = 0;
     public static final int SLOT_INPUT = 1;
     public static final int SLOT_OUTPUT = 2;
-    public static final int MAX_CHARGE_RATE = 10;
 
     public static final Map<String, GenericMachineRecipe> recipes = RecipeIndex.MFMDRecipes; // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
@@ -56,7 +51,7 @@ public class MFMDBE extends MachineBlockEntityBase
     @SuppressWarnings("unchecked")
     public MFMDBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.MOLECULAR_DECOMPILER);
+        super(pos, state, MachineEnum.MOLECULAR_DECOMPILER, false, true, false);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         progress = new AtomicInteger(0);
@@ -65,7 +60,6 @@ public class MFMDBE extends MachineBlockEntityBase
         invalidOutput = false;
         lastPowerState = false;
         optionals.add(itemOpt);
-        optionals.add(energyOpt);
 
         // Initialize handlers for each slot
         slotHandlers = new LazyOptional[NUM_INV_SLOTS];
@@ -120,7 +114,8 @@ public class MFMDBE extends MachineBlockEntityBase
     public void tickServer()
     {
         // Just run power handling if no recipe is in progress
-        acceptPower();
+        ItemStack bStack = chargeFromBattery(SLOT_BATTERY, itemHandler);
+        if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY, bStack);
         if(currentRecipe == null) {
             // Forcibly update power state to ensure that it remains synced
             updatePowerState(false);
@@ -168,31 +163,6 @@ public class MFMDBE extends MachineBlockEntityBase
         }
 
         updatePowerState(powered);
-    }
-
-    /**
-     * Gets power from a cell in the battery slot if there is one.
-     */
-    private void acceptPower()
-    {
-        if(energyHandler.getEnergyStored() >= energyHandler.getMaxEnergyStored()) return;
-
-        // Check for an Energy Cell in the cell slot
-        ItemStack batt = itemHandler.getStackInSlot(SLOT_BATTERY);
-        if(batt.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge() && batt.getCount() > 0)
-        {
-            // If there is a valid cell in the slot, check to see if we need energy, and if so, extract some from the cell
-            if(energyHandler.getEnergyStored() < energyHandler.getMaxEnergyStored() && batt.getDamageValue() < batt.getMaxDamage())
-            {
-                // Transfer the lowest out of: remaining cell capacity, remaining storage space, or maximum charge rate
-                int rcvd = energyHandler.receiveEnergy(Math.min((batt.getMaxDamage() - batt.getDamageValue()),
-                        (energyHandler.getMaxEnergyStored() - energyHandler.getEnergyStored())), false);
-                ItemStack tmp = chargeable.chargeDischarge(batt, rcvd, false);
-
-                // The cell might have been depleted, so assign back the stack we get from the cell's charge/discharge
-                itemHandler.setStackInSlot(SLOT_BATTERY, tmp);
-            }
-        }
     }
 
     private ItemStackHandler createIHandler()
@@ -255,10 +225,6 @@ public class MFMDBE extends MachineBlockEntityBase
                 return itemHandler.isItemValid(slotID, stack);
             }
         };
-    }
-
-    private FDEnergyStorage createEHandler(){
-        return new FDEnergyStorage(type.powerCapacity, MAX_CHARGE_RATE, 0);
     }
 
     /**
