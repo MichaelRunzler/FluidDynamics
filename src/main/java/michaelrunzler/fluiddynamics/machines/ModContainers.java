@@ -7,6 +7,7 @@ import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceContainer;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceContainer;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellContainer;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierContainer;
+import michaelrunzler.fluiddynamics.machines.redstone_generator.RsGenContainer;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
@@ -27,6 +28,7 @@ public class ModContainers
     public static RegistryObject<MenuType<EFurnaceContainer>> CONTAINER_EFURNACE;
     public static RegistryObject<MenuType<HTFurnaceContainer>> CONTAINER_HTFURNACE;
     public static RegistryObject<MenuType<PowerCellContainer>> CONTAINER_POWERCELL;
+    public static RegistryObject<MenuType<RsGenContainer>> CONTAINER_RSGEN;
 
     public static void registerAllContainers()
     {
@@ -36,5 +38,6 @@ public class ModContainers
         CONTAINER_EFURNACE = containers.register(MachineEnum.E_FURNACE.name().toLowerCase(), () -> IForgeMenuType.create(((windowId, inv, data) -> new EFurnaceContainer(windowId, data.readBlockPos(), inv, inv.player))));
         CONTAINER_HTFURNACE = containers.register(MachineEnum.HT_FURNACE.name().toLowerCase(), () -> IForgeMenuType.create(((windowId, inv, data) -> new HTFurnaceContainer(windowId, data.readBlockPos(), inv, inv.player))));
         CONTAINER_POWERCELL = containers.register(MachineEnum.POWER_CELL.name().toLowerCase(), () -> IForgeMenuType.create(((windowId, inv, data) -> new PowerCellContainer(windowId, data.readBlockPos(), inv, inv.player))));
+        CONTAINER_RSGEN = containers.register(MachineEnum.RS_GENERATOR.name().toLowerCase(), () -> IForgeMenuType.create(((windowId, inv, data) -> new RsGenContainer(windowId, data.readBlockPos(), inv, inv.player))));
     }
 }

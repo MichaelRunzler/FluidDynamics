@@ -1,6 +1,7 @@
 package michaelrunzler.fluiddynamics.machines.base;
 
 import michaelrunzler.fluiddynamics.machines.ModBlockEntities;
+import michaelrunzler.fluiddynamics.types.IInventoriedBE;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -22,7 +24,7 @@ import java.util.ArrayList;
  * Represents the base model class for any mod block entities.
  * Must be overridden and paired with a block definition to form a functional block.
  */
-public abstract class MachineBlockEntityBase extends BlockEntity
+public abstract class MachineBlockEntityBase extends BlockEntity implements IInventoriedBE
 {
     protected MachineEnum type;
     protected ArrayList<LazyOptional<?>> optionals;
@@ -98,5 +100,11 @@ public abstract class MachineBlockEntityBase extends BlockEntity
         // Drop the XP orb if its amount is nonzero
         if(i > 0)
             ExperienceOrb.award((ServerLevel)level, new Vec3(this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ()), i);
+    }
+
+    public abstract boolean isItemValid(int slot, @NotNull ItemStack stack);
+
+    public int getNumSlots() {
+        return type.numInvSlots;
     }
 }

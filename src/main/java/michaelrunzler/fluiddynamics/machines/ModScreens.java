@@ -6,6 +6,7 @@ import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceScreen;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceScreen;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellScreen;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierScreen;
+import michaelrunzler.fluiddynamics.machines.redstone_generator.RsGenScreen;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -36,5 +37,8 @@ public class ModScreens
 
         MenuScreens.register(ModContainers.CONTAINER_POWERCELL.get(), PowerCellScreen::new);
         ItemBlockRenderTypes.setRenderLayer(RecipeGenerator.registryToBlock(MachineEnum.POWER_CELL.name().toLowerCase()), RenderType.translucent());
+
+        MenuScreens.register(ModContainers.CONTAINER_RSGEN.get(), RsGenScreen::new);
+        ItemBlockRenderTypes.setRenderLayer(RecipeGenerator.registryToBlock(MachineEnum.RS_GENERATOR.name().toLowerCase()), RenderType.translucent());
     }
 }

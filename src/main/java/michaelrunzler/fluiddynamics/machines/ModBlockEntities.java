@@ -7,6 +7,7 @@ import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBE;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBE;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBE;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBE;
+import michaelrunzler.fluiddynamics.machines.redstone_generator.RsGenBE;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -46,6 +47,9 @@ public class ModBlockEntities
 
         registerBE(MachineEnum.POWER_CELL.name().toLowerCase(), () -> BlockEntityType.Builder.of(PowerCellBE::new,
                 RecipeGenerator.registryToBlock(MachineEnum.POWER_CELL.name().toLowerCase())).build(null));
+
+        registerBE(MachineEnum.RS_GENERATOR.name().toLowerCase(), () -> BlockEntityType.Builder.of(RsGenBE::new,
+                RecipeGenerator.registryToBlock(MachineEnum.RS_GENERATOR.name().toLowerCase())).build(null));
     }
 
     /**

@@ -7,6 +7,7 @@ import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBlock;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
+import michaelrunzler.fluiddynamics.machines.redstone_generator.RsGenBlock;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -51,6 +52,7 @@ public class FDEnLangProvider extends LanguageProvider
         add(EFurnaceBlock.SCREEN_TITLE, "Resistive Furnace");
         add(HTFurnaceBlock.SCREEN_TITLE, "High-Temp Blast Furnace");
         add(PowerCellBlock.SCREEN_TITLE, "Power Cell");
+        add(RsGenBlock.SCREEN_TITLE, "Redstone Generator");
     }
 
     /**

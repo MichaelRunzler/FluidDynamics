@@ -12,6 +12,7 @@ import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBlock;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
+import michaelrunzler.fluiddynamics.machines.redstone_generator.RsGenBlock;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
 import michaelrunzler.fluiddynamics.types.OreEnum;
@@ -128,6 +129,14 @@ public class ModBlocks
         FDLootTableProvider.nonDefaultLootTableBlocks.add(MachineEnum.POWER_CELL.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, powerCell.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, powerCell.getKey());
+
+        RegistryObject<Block> rsGen = specialRegisterBlock(MachineEnum.RS_GENERATOR.name().toLowerCase(), RsGenBlock::new,
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
+        FDEnLangProvider.addBlockLangMapping(rsGen, MachineEnum.RS_GENERATOR.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.RS_GENERATOR.name().toLowerCase());
+        FDLootTableProvider.nonDefaultLootTableBlocks.add(MachineEnum.RS_GENERATOR.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, rsGen.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, rsGen.getKey());
 
         //
         // Special Non-Machine Blocks

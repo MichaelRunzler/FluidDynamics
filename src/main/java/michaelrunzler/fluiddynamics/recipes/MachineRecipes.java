@@ -93,5 +93,19 @@ public class MachineRecipes
                 .group("fluid_dynamics_machine_powercell")
                 .unlockedBy("machine_powercell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("energy_cell")))
                 .save(c, "machine_powercell");
+
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.RS_GENERATOR.name().toLowerCase()))
+                .pattern("bcb")
+                .pattern("pdp")
+                .pattern("ofo")
+                .define('b', RecipeGenerator.registryToItem("ingot_beryllium"))
+                .define('c', RecipeGenerator.registryToItem("energy_cell"))
+                .define('p', RecipeGenerator.registryToItem("power_converter"))
+                .define('d', RecipeGenerator.registryToItem("redstone_dynamo"))
+                .define('o', RecipeGenerator.registryToItem("ingot_cobalt"))
+                .define('f', RecipeGenerator.registryToItem("machine_frame"))
+                .group("fluid_dynamics_machine_rs_generator")
+                .unlockedBy("machine_rs_generator_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("energy_cell")))
+                .save(c, "machine_rs_generator");
     }
 }

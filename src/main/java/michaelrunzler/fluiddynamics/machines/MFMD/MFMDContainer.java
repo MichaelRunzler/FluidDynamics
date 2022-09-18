@@ -2,17 +2,13 @@ package michaelrunzler.fluiddynamics.machines.MFMD;
 
 import michaelrunzler.fluiddynamics.machines.ModContainers;
 import michaelrunzler.fluiddynamics.machines.base.MachineContainerBase;
-import michaelrunzler.fluiddynamics.types.FDItemHandler;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.DataSlot;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
-import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("SameParameterValue")
 public class MFMDContainer extends MachineContainerBase
@@ -32,46 +28,8 @@ public class MFMDContainer extends MachineContainerBase
 
         layoutPlayerInventory(8, 84);
 
-        syncPower();
+
         syncProgress();
-    }
-
-    @Override
-    public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index)
-    {
-        // Set convenient numeric bounds for the various parts of the inventory
-        Slot s = this.slots.get(index);
-        final int INV_START = MFMDBE.NUM_INV_SLOTS;
-        final int INV_END = INV_START + 26;
-        final int HOTBAR_START = INV_END + 1;
-        final int HOTBAR_END = HOTBAR_START + 8;
-
-        // Shortcut if the requested transfer is empty
-        if(!s.hasItem()) return ItemStack.EMPTY;
-
-        // If the slot has an item in it, see which direction it's going in
-        ItemStack dst = s.getItem().copy();
-
-        // If the item is moving from the machine to the inventory, place it in the first available slot
-        if(index < INV_START) {
-            if(this.moveItemStackTo(s.getItem(), INV_START, HOTBAR_END + 1, false)) {
-                // Propagate the change back to the BE's item handler, since this doesn't trigger onContentsChanged by default
-                be.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(c -> ((FDItemHandler)c).notifyExternalChange(index));
-                return dst;
-            } else return ItemStack.EMPTY;
-        }else{
-            // If the item is moving from the inventory to the machine, see which slot it should go in
-            for(int i = 0; i < INV_START; i++)
-            {
-                // If we found a good slot, try to move the item
-                if(((MFMDBE)be).isItemValid(i, s.getItem())) {
-                    if(this.moveItemStackTo(s.getItem(), i, i + 1, false)) return dst;
-                    else return ItemStack.EMPTY;
-                }
-            }
-        }
-
-        return ItemStack.EMPTY;
     }
 
     /**
