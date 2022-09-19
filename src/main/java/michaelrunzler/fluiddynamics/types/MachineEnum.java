@@ -7,13 +7,15 @@ import michaelrunzler.fluiddynamics.item.EnergyCell;
  */
 public enum MachineEnum
 {
+    // Note: power I/O rates are per-side; consumption is per-tick
     MOLECULAR_DECOMPILER("Molecular Decompiler", 3.0f, 2 * EnergyCell.DURABILITY, 10, 0, 2, 3),
     PURIFIER("Electrogravitic Purifier", 3.0f, 2 * EnergyCell.DURABILITY, 10, 0, 2, 5),
     CENTRIFUGE("Fractionating Centrifuge", 5.0f, 4 * EnergyCell.DURABILITY, 15, 0, 4, 7),
     E_FURNACE("Resistive Casting Furnace", 3.0f, 2 * EnergyCell.DURABILITY, 10, 0, 1, 3),
     HT_FURNACE("High-Temp Blast Furnace", 8.0f, -1, -1, -1, -1, 3), // Power isn't used by this machine, since it's fueled
-    POWER_CELL("Rs-Be Power Cell", 3.0f, 20000, 20, 20, -1, 2), // Power is never consumed by the cell, only stored
-    RS_GENERATOR("Catalytic Redstone Generator", 4.0f, 5000, 0, 20, 10, 2); // In this case, consumption represents output, not input
+    POWER_CELL("Rs-Be Power Cell", 3.0f, 20000, 50, 50, -1, 2), // Power is never consumed by the cell, only stored
+    RS_GENERATOR("Catalytic Redstone Generator", 4.0f, 5000, 0, 10, 10, 2), // In this case, consumption represents output, not input
+    RBE_GENERATOR("Rs-Be Reaction Generator", 6.0f, 9000, 0, 25, 25, 3); // Same as above
 
     public final String englishName;
     public final float strength;

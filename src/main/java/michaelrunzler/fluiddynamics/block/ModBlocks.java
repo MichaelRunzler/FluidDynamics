@@ -12,6 +12,7 @@ import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBlock;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
+import michaelrunzler.fluiddynamics.machines.rbe_generator.RsBeGenBlock;
 import michaelrunzler.fluiddynamics.machines.redstone_generator.RsGenBlock;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import michaelrunzler.fluiddynamics.types.MaterialEnum;
@@ -120,7 +121,7 @@ public class ModBlocks
         FDEnLangProvider.addBlockLangMapping(htFurnace, MachineEnum.HT_FURNACE.englishName);
         FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.HT_FURNACE.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, htFurnace.getKey());
-        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, htFurnace.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_DIAMOND_TOOL, htFurnace.getKey());
 
         RegistryObject<Block> powerCell = specialRegisterBlock(MachineEnum.POWER_CELL.name().toLowerCase(), PowerCellBlock::new,
                 new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
@@ -137,6 +138,14 @@ public class ModBlocks
         FDLootTableProvider.nonDefaultLootTableBlocks.add(MachineEnum.RS_GENERATOR.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, rsGen.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, rsGen.getKey());
+
+        RegistryObject<Block> rbeGen = specialRegisterBlock(MachineEnum.RBE_GENERATOR.name().toLowerCase(), RsBeGenBlock::new,
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
+        FDEnLangProvider.addBlockLangMapping(rbeGen, MachineEnum.RBE_GENERATOR.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.RBE_GENERATOR.name().toLowerCase());
+        FDLootTableProvider.nonDefaultLootTableBlocks.add(MachineEnum.RBE_GENERATOR.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, rbeGen.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_IRON_TOOL, rbeGen.getKey());
 
         //
         // Special Non-Machine Blocks

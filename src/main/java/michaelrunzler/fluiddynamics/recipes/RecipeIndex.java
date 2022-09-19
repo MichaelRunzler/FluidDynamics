@@ -12,12 +12,17 @@ import java.util.function.Consumer;
 @SuppressWarnings("SameParameterValue")
 public class RecipeIndex
 {
+    // Machine recipe indexes
     public static Map<String, GenericMachineRecipe> MFMDRecipes = new HashMap<>();
     public static Map<String, GenericMachineRecipe> PurifierRecipes = new HashMap<>();
     public static Map<String, GenericMachineRecipe> CentrifugeRecipes = new HashMap<>();
     public static Map<String, XPGeneratingMachineRecipe> EFurnaceRecipes = new HashMap<>();
     public static Map<String, XPGeneratingMachineRecipe> HTFurnaceRecipes = new HashMap<>();
     private static RecipeGenerator gen = null;
+    
+    // Generator fuel indexes
+    public static Map<Item, Integer> RSGenFuels = new HashMap<>();
+    public static Map<Item, Integer> RsBeGenFuels = new HashMap<>();
 
     private static final float BASE_SMELT_MULTIPLIER = 0.2f;
     private static final float ACCELERATED_SMELT_MULTIPLIER = 0.1f;
@@ -31,6 +36,8 @@ public class RecipeIndex
     public static final float VANILLA_FURNACE_TEMP = 1800.0f;
     public static final float HT_FURNACE_TEMP = 4000.0f;
 
+    public static final int RBE_GEN_FUEL_MULT = 3;
+
     /**
      * Generates ALL recipes that this index is capable of providing.
      */
@@ -40,13 +47,14 @@ public class RecipeIndex
 
         generateOreRecipes(c);
         generateMaterialRecipes(c);
+        addGeneratorFuels();
 
         // Copy generated E-furnace recipes over to the HT furnace
         for(String k : EFurnaceRecipes.keySet()) HTFurnaceRecipes.put(k, EFurnaceRecipes.get(k));
     }
 
     /**
-     * Generates all ore-related recipes, not including those from Vanilla Minecraft.
+     * Generates all ore-related recipes, including those from Vanilla Minecraft.
      */
     public static void generateOreRecipes(Consumer<FinishedRecipe> c)
     {
@@ -113,6 +121,9 @@ public class RecipeIndex
         CentrifugeRecipes.put("crushed_endstone", gen.purifiedToDust(crushed, 5.0f * SEPARATION_MULTIPLIER, OreProductIndex.CentrifugeProducts.get(Items.END_STONE)));
     }
 
+    /**
+     * Generates all material-related recipes, including those from Vanilla Minecraft.
+     */
     public static void generateMaterialRecipes(Consumer<FinishedRecipe> c)
     {
         if(gen == null) gen = new RecipeGenerator(c);
@@ -154,6 +165,18 @@ public class RecipeIndex
         // Generate alloying recipes
         generateAlloyRecipes("bronze", 2, MaterialEnum.BRONZE.hardness, "copper", "copper", "tin");
         generateAlloyRecipes("invar", 2, MaterialEnum.INVAR.hardness, "iron", "iron", "nickel");
+    }
+    
+    public static void addGeneratorFuels()
+    {
+        // RS Generator
+        RSGenFuels.put(Items.REDSTONE, 10);
+        RSGenFuels.put(Items.REDSTONE_BLOCK, 90);
+        RSGenFuels.put(Items.REDSTONE_ORE, 50);
+        RSGenFuels.put(Items.DEEPSLATE_REDSTONE_ORE, 50);
+
+        RsBeGenFuels.put(RecipeGenerator.registryToItem("dust_beryllium"), 40);
+        RsBeGenFuels.put(RecipeGenerator.registryToItem("dust_small_beryllium"), 10);
     }
 
     /**

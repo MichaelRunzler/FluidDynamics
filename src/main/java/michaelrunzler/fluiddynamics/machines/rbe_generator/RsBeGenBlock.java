@@ -1,4 +1,4 @@
-package michaelrunzler.fluiddynamics.machines.redstone_generator;
+package michaelrunzler.fluiddynamics.machines.rbe_generator;
 
 import michaelrunzler.fluiddynamics.machines.base.FDMachineBase;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
@@ -22,17 +22,17 @@ import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RsGenBlock extends FDMachineBase
+public class RsBeGenBlock extends FDMachineBase
 {
-    public static final String SCREEN_TITLE = "screen.fd.rs_generator";
+    public static final String SCREEN_TITLE = "screen.fd.rsbe_generator";
 
-    public RsGenBlock() {
-        super(MachineEnum.RS_GENERATOR);
+    public RsBeGenBlock() {
+        super(MachineEnum.RBE_GENERATOR);
     }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new RsGenBE(pos, state);
+        return new RsBeGenBE(pos, state);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class RsGenBlock extends FDMachineBase
         // Gets the ticker instance from the BE
         if(!level.isClientSide()) {
             return (lvl, pos, bstate, tile) -> {
-                if(tile instanceof RsGenBE) ((RsGenBE) tile).tickServer();
+                if(tile instanceof RsBeGenBE) ((RsBeGenBE) tile).tickServer();
             };
         }else return null;
     }
@@ -53,8 +53,8 @@ public class RsGenBlock extends FDMachineBase
 
         // Ensure BE is of proper type (i.e. not corrupt)
         BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof RsGenBE))
-            throw new IllegalStateException("Invalid Block Entity state for Redstone Generator block!");
+        if (!(be instanceof RsBeGenBE))
+            throw new IllegalStateException("Invalid Block Entity state for Rs-Be Generator block!");
 
         // Create menu provider interface and call the server-side openGui utility method to automatically handle client-server interactions
         MenuProvider container = new MenuProvider() {
@@ -65,7 +65,7 @@ public class RsGenBlock extends FDMachineBase
 
             @Override
             public AbstractContainerMenu createMenu(int id, @NotNull Inventory inv, @NotNull Player player) {
-                return new RsGenContainer(id, pos, inv, player);
+                return new RsBeGenContainer(id, pos, inv, player);
             }
         };
 

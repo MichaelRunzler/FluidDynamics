@@ -7,6 +7,7 @@ import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBE;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBE;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBE;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBE;
+import michaelrunzler.fluiddynamics.machines.rbe_generator.RsBeGenBE;
 import michaelrunzler.fluiddynamics.machines.redstone_generator.RsGenBE;
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
@@ -50,6 +51,9 @@ public class ModBlockEntities
 
         registerBE(MachineEnum.RS_GENERATOR.name().toLowerCase(), () -> BlockEntityType.Builder.of(RsGenBE::new,
                 RecipeGenerator.registryToBlock(MachineEnum.RS_GENERATOR.name().toLowerCase())).build(null));
+
+        registerBE(MachineEnum.RBE_GENERATOR.name().toLowerCase(), () -> BlockEntityType.Builder.of(RsBeGenBE::new,
+                RecipeGenerator.registryToBlock(MachineEnum.RBE_GENERATOR.name().toLowerCase())).build(null));
     }
 
     /**

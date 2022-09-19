@@ -50,7 +50,6 @@ public class PurifierBE extends PoweredMachineBE
     private static final String INFO_NBT_TAG = "Info";
     private static final String PROGRESS_NBT_TAG = "Progress";
 
-    public static final int NUM_INV_SLOTS = 5;
     public static final int SLOT_BATTERY = 0;
     public static final int SLOT_INPUT = 1;
     public static final int SLOT_OUTPUT = 2;
@@ -83,9 +82,9 @@ public class PurifierBE extends PoweredMachineBE
         optionals.add(fluidOpt);
 
         // Initialize handlers for each slot
-        slotHandlers = new LazyOptional[NUM_INV_SLOTS];
-        rawHandlers = new IItemHandler[NUM_INV_SLOTS];
-        for(int i = 0; i < NUM_INV_SLOTS; i++) {
+        slotHandlers = new LazyOptional[type.numInvSlots];
+        rawHandlers = new IItemHandler[type.numInvSlots];
+        for(int i = 0; i < type.numInvSlots; i++) {
             final int k = i;
             rawHandlers[k] = createStackSpecificIHandler(k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
@@ -258,12 +257,12 @@ public class PurifierBE extends PoweredMachineBE
 
     private ItemStackHandler createIHandler()
     {
-        return new FDItemHandler(NUM_INV_SLOTS)
+        return new FDItemHandler(type.numInvSlots)
         {
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack)
             {
-                if(slot < NUM_INV_SLOTS) return PurifierBE.this.isItemValid(slot, stack);
+                if(slot < type.numInvSlots) return PurifierBE.this.isItemValid(slot, stack);
                 else return super.isItemValid(slot, stack);
             }
 

@@ -27,7 +27,7 @@ public class MachineRecipes
                 .define('g', Items.GLOWSTONE)
                 .define('f', Items.IRON_INGOT)
                 .group("fluid_dynamics_machine_mfmd")
-                .unlockedBy("machine_mfmd_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                .unlockedBy("machine_mfmd_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.GLOWSTONE))
                 .save(c, "machine_mfmd");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.PURIFIER.name().toLowerCase()))
@@ -41,7 +41,7 @@ public class MachineRecipes
                 .define('e', RecipeGenerator.registryToItem("electromagnet"))
                 .define('p', RecipeGenerator.registryToItem("power_converter"))
                 .group("fluid_dynamics_machine_purifier")
-                .unlockedBy("machine_purifier_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_nickel")))
+                .unlockedBy("machine_purifier_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("machine_frame")))
                 .save(c, "machine_purifier");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.CENTRIFUGE.name().toLowerCase()))
@@ -54,7 +54,7 @@ public class MachineRecipes
                 .define('s', RecipeGenerator.registryToItem("actuator"))
                 .define('i', RecipeGenerator.registryToItem("filter_screen"))
                 .group("fluid_dynamics_machine_centrifuge")
-                .unlockedBy("machine_centrifuge_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.OBSIDIAN))
+                .unlockedBy("machine_centrifuge_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.QUARTZ))
                 .save(c, "machine_centrifuge");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.E_FURNACE.name().toLowerCase()))
@@ -67,7 +67,7 @@ public class MachineRecipes
                 .define('f', RecipeGenerator.registryToItem("machine_frame"))
                 .define('h', RecipeGenerator.registryToItem("heating_element"))
                 .group("fluid_dynamics_machine_efurnace")
-                .unlockedBy("machine_efurnace_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_invar")))
+                .unlockedBy("machine_efurnace_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("machine_frame")))
                 .save(c, "machine_efurnace");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.HT_FURNACE.name().toLowerCase()))
@@ -91,7 +91,7 @@ public class MachineRecipes
                 .define('p', RecipeGenerator.registryToItem("power_conduit"))
                 .define('f', RecipeGenerator.registryToItem("machine_frame"))
                 .group("fluid_dynamics_machine_powercell")
-                .unlockedBy("machine_powercell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("energy_cell")))
+                .unlockedBy("machine_powercell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("machine_frame")))
                 .save(c, "machine_powercell");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.RS_GENERATOR.name().toLowerCase()))
@@ -105,7 +105,20 @@ public class MachineRecipes
                 .define('o', RecipeGenerator.registryToItem("ingot_cobalt"))
                 .define('f', RecipeGenerator.registryToItem("machine_frame"))
                 .group("fluid_dynamics_machine_rs_generator")
-                .unlockedBy("machine_rs_generator_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("energy_cell")))
+                .unlockedBy("machine_rs_generator_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("machine_frame")))
                 .save(c, "machine_rs_generator");
+
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.RBE_GENERATOR.name().toLowerCase()))
+                .pattern("cdc")
+                .pattern("pip")
+                .pattern("ofo")
+                .define('c', RecipeGenerator.registryToItem("energy_cell"))
+                .define('d', RecipeGenerator.registryToItem("redstone_dynamo"))
+                .define('p', RecipeGenerator.registryToItem("power_converter"))
+                .define('i', RecipeGenerator.registryToItem("dust_palladium"))
+                .define('o', RecipeGenerator.registryToItem("ingot_cobalt"))
+                .define('f', RecipeGenerator.registryToItem("machine_frame"))
+                .group("fluid_dynamics_machine_rbe_generator")
+                .unlockedBy("machine_rbe_generator_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("dust_palladium")));
     }
 }

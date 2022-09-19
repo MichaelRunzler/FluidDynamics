@@ -24,7 +24,7 @@ public class ComponentRecipes
                 .define('a', RecipeGenerator.registryToItem("ingot_aluminium"))
                 .define('o', RecipeGenerator.registryToItem("ingot_cobalt"))
                 .define('z', RecipeGenerator.registryToItem("ingot_bronze"))
-                .unlockedBy("machine_frame_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_cobalt")))
+                .unlockedBy("machine_frame_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_bronze")))
                 .save(c, "machine_frame");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("power_conduit"))
@@ -34,7 +34,7 @@ public class ComponentRecipes
                 .define('b', RecipeGenerator.registryToItem("ingot_beryllium"))
                 .define('c', RecipeGenerator.registryToItem("ingot_copper"))
                 .define('g', Items.GLASS_PANE)
-                .unlockedBy("power_conduit_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_copper")))
+                .unlockedBy("power_conduit_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_beryllium")))
                 .save(c, "power_conduit");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("power_converter"))
@@ -45,7 +45,7 @@ public class ComponentRecipes
                 .define('c', RecipeGenerator.registryToItem("ingot_copper"))
                 .define('r', Items.REDSTONE)
                 .define('g', Items.GOLD_INGOT)
-                .unlockedBy("power_converter_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_beryllium")))
+                .unlockedBy("power_converter_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.GOLD_INGOT))
                 .save(c, "power_converter");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("redstone_dynamo"))
@@ -140,7 +140,7 @@ public class ComponentRecipes
                 .define('n', RecipeGenerator.registryToItem("ingot_nickel"))
                 .define('c', RecipeGenerator.registryToItem("ingot_copper"))
                 .define('g', Items.GOLD_INGOT)
-                .unlockedBy("heat_exchanger_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_aluminium")))
+                .unlockedBy("heat_exchanger_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.GOLD_INGOT))
                 .save(c, "heat_exchanger");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("processor"))
@@ -174,7 +174,7 @@ public class ComponentRecipes
                 .define('r', Items.REDSTONE_BLOCK)
                 .define('d', Items.DIAMOND)
                 .define('g', Items.GLOWSTONE)
-                .unlockedBy("beam_emitter_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
+                .unlockedBy("beam_emitter_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.GLOWSTONE))
                 .save(c, "beam_emitter");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("filter_screen"))

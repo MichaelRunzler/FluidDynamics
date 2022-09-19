@@ -1,12 +1,14 @@
-package michaelrunzler.fluiddynamics.machines.power_cell;
+package michaelrunzler.fluiddynamics.machines.rbe_generator;
 
 import michaelrunzler.fluiddynamics.machines.base.PoweredMachineBE;
-import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
-import michaelrunzler.fluiddynamics.types.*;
+import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
+import michaelrunzler.fluiddynamics.types.FDItemHandler;
+import michaelrunzler.fluiddynamics.types.IChargeableItem;
+import michaelrunzler.fluiddynamics.types.MachineEnum;
+import michaelrunzler.fluiddynamics.types.RelativeFacing;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -19,7 +21,9 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class PowerCellBE extends PoweredMachineBE
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class RsBeGenBE extends PoweredMachineBE
 {
     private final ItemStackHandler itemHandler = createIHandler();
     private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
@@ -31,20 +35,30 @@ public class PowerCellBE extends PoweredMachineBE
     private static final String ENERGY_NBT_TAG = "Energy";
     private static final String INFO_NBT_TAG = "Info";
 
-    public static final int SLOT_BATTERY_IN = 0;
-    public static final int SLOT_BATTERY_OUT = 1;
+    public static final int SLOT_BATTERY = 0;
+    public static final int SLOT_FUEL_RS = 1;
+    public static final int SLOT_FUEL_BE = 2;
 
     public RelativeFacing relativeFacing;
     private boolean lastPowerState; // Used to minimize state updates
+    public AtomicInteger rsFuel;
+    public AtomicInteger maxRsFuel;
+    public AtomicInteger beFuel;
+    public AtomicInteger maxBeFuel;
 
     @SuppressWarnings("unchecked")
-    public PowerCellBE(BlockPos pos, BlockState state)
+    public RsBeGenBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.POWER_CELL, true, true, true);
+        super(pos, state, MachineEnum.RBE_GENERATOR, true, false, false);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         lastPowerState = false;
         optionals.add(itemOpt);
+
+        rsFuel = new AtomicInteger(0);
+        maxRsFuel = new AtomicInteger(1);
+        beFuel = new AtomicInteger(0);
+        maxBeFuel = new AtomicInteger(1);
 
         // Initialize handlers for each slot
         slotHandlers = new LazyOptional[type.numInvSlots];
@@ -74,20 +88,15 @@ public class PowerCellBE extends PoweredMachineBE
         tag.put(INFO_NBT_TAG, iTag);
     }
 
-    @Override
-    public void saveToItem(@NotNull ItemStack stack) {
-        // The cell should retain its energy when picked up, so ensure that we write metadata when breaking it
-        BlockItem.setBlockEntityData(stack, this.getType(), this.saveWithFullMetadata());
-    }
-
     @SuppressWarnings("unchecked")
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
     {
         if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            if(side == relativeFacing.TOP || side == relativeFacing.BOTTOM) return (LazyOptional<T>)slotHandlers[SLOT_BATTERY_IN];
-            else if(side == relativeFacing.LEFT || side == relativeFacing.RIGHT || side == relativeFacing.FRONT || side == relativeFacing.BACK) return (LazyOptional<T>)slotHandlers[SLOT_BATTERY_OUT];
+            if(side == relativeFacing.TOP || side == relativeFacing.FRONT) return (LazyOptional<T>)slotHandlers[SLOT_FUEL_RS];
+            else if(side == relativeFacing.BOTTOM || side == relativeFacing.BACK) return (LazyOptional<T>)slotHandlers[SLOT_FUEL_BE];
+            else if(side == relativeFacing.LEFT || side == relativeFacing.RIGHT) return (LazyOptional<T>)slotHandlers[SLOT_BATTERY];
             else return (LazyOptional<T>) itemOpt;
         }
 
@@ -97,19 +106,56 @@ public class PowerCellBE extends PoweredMachineBE
 
     public void tickServer()
     {
-        ItemStack bStack = chargeFromBattery(SLOT_BATTERY_IN, itemHandler);
-        if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY_IN, bStack);
-
-        bStack = chargeBatteryItem(SLOT_BATTERY_OUT, itemHandler);
-        if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY_OUT, bStack);
+        ItemStack bStack = chargeBatteryItem(SLOT_BATTERY, itemHandler);
+        if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY, bStack);
 
         exportToNeighbors(Direction.values());
 
-        boolean powerState = energyHandler.getEnergyStored() > 0;
-        if(powerState != lastPowerState) {
-            lastPowerState = powerState;
-            updatePowerState(energyHandler.getEnergyStored() > 0);
+        // Consume RS fuel if required
+        boolean powered = false;
+        if(rsFuel.get() == 0)
+        {
+            ItemStack fStack = itemHandler.getStackInSlot(SLOT_FUEL_RS);
+            Integer fuelTime = RecipeIndex.RSGenFuels.get(fStack.getItem());
+            if(fuelTime != null)
+            {
+                // If the fuel item is valid, consume one from the stack and update the fuel time
+                fuelTime *= RecipeIndex.RBE_GEN_FUEL_MULT; // Multiply the RS values from the RS-gen to account for increased efficiency
+                maxRsFuel.set(fuelTime);
+                rsFuel.set(rsFuel.get() + fuelTime);
+                itemHandler.setStackInSlot(SLOT_FUEL_RS, new ItemStack(fStack.getItem(), fStack.getCount() - 1));
+            }else{
+                // Reset max fuel time if no valid fuel item is present
+                maxRsFuel.set(1);
+            }
         }
+        
+        // Do the same for Be
+        if(beFuel.get() == 0)
+        {
+            ItemStack fStack = itemHandler.getStackInSlot(SLOT_FUEL_BE);
+            Integer fuelTime = RecipeIndex.RsBeGenFuels.get(fStack.getItem());
+            if(fuelTime != null)
+            {
+                // If the fuel item is valid, consume one from the stack and update the fuel time
+                maxBeFuel.set(fuelTime);
+                beFuel.set(beFuel.get() + fuelTime);
+                itemHandler.setStackInSlot(SLOT_FUEL_BE, new ItemStack(fStack.getItem(), fStack.getCount() - 1));
+            }else{
+                // Reset max fuel time if no valid fuel item is present
+                maxBeFuel.set(1);
+            }
+        }
+
+        // Generate power from the currently loaded fuel
+        if(rsFuel.get() > 0  && beFuel.get() > 0 && energyHandler.getEnergyStored() + type.powerConsumption <= energyHandler.getMaxEnergyStored()){
+            energyHandler.setEnergy(energyHandler.getEnergyStored() + type.powerConsumption);
+            rsFuel.decrementAndGet();
+            beFuel.decrementAndGet();
+            powered = true;
+        }
+
+        updatePowerState(powered);
     }
 
     private ItemStackHandler createIHandler()
@@ -119,7 +165,7 @@ public class PowerCellBE extends PoweredMachineBE
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack)
             {
-                if(slot < type.numInvSlots) return PowerCellBE.this.isItemValid(slot, stack);
+                if(slot < type.numInvSlots) return RsBeGenBE.this.isItemValid(slot, stack);
                 else return super.isItemValid(slot, stack);
             }
 
@@ -130,6 +176,7 @@ public class PowerCellBE extends PoweredMachineBE
         };
     }
 
+    // TODO move to super
     /**
      * This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
      */
@@ -138,9 +185,13 @@ public class PowerCellBE extends PoweredMachineBE
         return new ItemStackHandler(1)
         {
             @Override
-            public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-                // Refuse to extract the item if it isn't a depleted cell
-                if(slotID == SLOT_BATTERY_IN && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell"))) return;
+            public void setStackInSlot(int slot, @NotNull ItemStack stack)
+            {
+                // Refuse to extract the item if it is anything other than full
+                if(slotID == SLOT_BATTERY && stack.getCount() == 0) {
+                    ItemStack bStack = itemHandler.getStackInSlot(SLOT_BATTERY);
+                    if(bStack.getItem() instanceof IChargeableItem && bStack.getDamageValue() > 0) return;
+                }
                 itemHandler.setStackInSlot(slotID, stack);
             }
 
@@ -158,9 +209,12 @@ public class PowerCellBE extends PoweredMachineBE
 
             @NotNull
             @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if(slotID == SLOT_BATTERY_IN && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell")))
-                    return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
+            public ItemStack extractItem(int slot, int amount, boolean simulate)
+            {
+                if(slotID == SLOT_BATTERY){
+                    ItemStack bStack = itemHandler.getStackInSlot(SLOT_BATTERY);
+                    if(bStack.getItem() instanceof IChargeableItem && bStack.getDamageValue() > 0) return ItemStack.EMPTY;
+                }
                 return itemHandler.extractItem(slotID, amount, simulate);
             }
 
@@ -171,6 +225,7 @@ public class PowerCellBE extends PoweredMachineBE
         };
     }
 
+    // TODO move to super
     /**
      * Updates the visual power state of the block. Only actually changes the blockstate if the given power state differs
      * from the current power state.
@@ -188,8 +243,9 @@ public class PowerCellBE extends PoweredMachineBE
      */
     public boolean isItemValid(int slot, @NotNull ItemStack stack)
     {
-        if(slot == SLOT_BATTERY_IN) return stack.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge();
-        else if(slot == SLOT_BATTERY_OUT) return stack.getItem() instanceof IChargeableItem chargeable && chargeable.canCharge();
+        if(slot == SLOT_FUEL_RS) return RecipeIndex.RSGenFuels.get(stack.getItem()) != null;
+        else if(slot == SLOT_FUEL_BE) return RecipeIndex.RsBeGenFuels.get(stack.getItem()) != null;
+        else if(slot == SLOT_BATTERY) return stack.getItem() instanceof IChargeableItem chargeable && chargeable.canCharge();
         else return false;
     }
 }
