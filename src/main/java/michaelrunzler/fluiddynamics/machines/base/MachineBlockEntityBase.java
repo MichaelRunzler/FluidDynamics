@@ -1,6 +1,8 @@
 package michaelrunzler.fluiddynamics.machines.base;
 
 import michaelrunzler.fluiddynamics.machines.ModBlockEntities;
+import michaelrunzler.fluiddynamics.types.BatterySlotAction;
+import michaelrunzler.fluiddynamics.types.IChargeableItem;
 import michaelrunzler.fluiddynamics.types.IInventoriedBE;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
  * Represents the base model class for any mod block entities.
  * Must be overridden and paired with a block definition to form a functional block.
  */
+@SuppressWarnings("SameParameterValue")
 public abstract class MachineBlockEntityBase extends BlockEntity implements IInventoriedBE
 {
     protected MachineEnum type;
@@ -108,12 +111,13 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
     /**
      * This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
      */
-    protected ItemStackHandler createStackSpecificIHandler(ItemStackHandler itemHandler, int slotID)
+    protected ItemStackHandler createStackSpecificIHandler(ItemStackHandler itemHandler, BatterySlotAction action, int slotID)
     {
         return new ItemStackHandler(1)
         {
             @Override
             public void setStackInSlot(int slot, @NotNull ItemStack stack) {
+                if(checkBatteryExtraction(itemHandler, action, slotID)) return;
                 itemHandler.setStackInSlot(slotID, stack);
             }
 
@@ -132,6 +136,7 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
             @NotNull
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if(checkBatteryExtraction(itemHandler, action, slotID)) return ItemStack.EMPTY;
                 return itemHandler.extractItem(slotID, amount, simulate);
             }
 
@@ -145,13 +150,14 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
     /**
      * This handler will map multiple accessible "slots" to actual slots in the internal inventory handler.
      */
-    protected ItemStackHandler createMultiStackSpecificIHandler(ItemStackHandler itemHandler, int... slotIDs)
+    protected ItemStackHandler createMultiStackSpecificIHandler(ItemStackHandler itemHandler, BatterySlotAction action, int... slotIDs)
     {
         return new ItemStackHandler(slotIDs.length)
         {
             @Override
             public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-                if(slot < slotIDs.length) itemHandler.setStackInSlot(slotIDs[slot], stack);
+                if(slot > slotIDs.length || checkBatteryExtraction(itemHandler, action, slotIDs[slot])) return;
+                itemHandler.setStackInSlot(slotIDs[slot], stack);
             }
 
             @NotNull
@@ -170,9 +176,8 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
 
             @NotNull
             @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate)
-            {
-                if(slot >= slotIDs.length) return ItemStack.EMPTY;
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if(slot >= slotIDs.length || checkBatteryExtraction(itemHandler, action, slotIDs[slot])) return ItemStack.EMPTY;
                 return itemHandler.extractItem(slotIDs[slot], amount, simulate);
             }
 
@@ -199,5 +204,32 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
 
     public int getNumSlots() {
         return type.numInvSlots;
+    }
+
+    /**
+     * Checks to see if an attempted extraction from a given slot is valid.
+     * The extraction will be invalid (true) under the following conditions:
+     * 1. The extracted slot is a battery discharge slot
+     * 2. The extracted slot contains a chargeable item
+     * 3. The chargeable item is not at its lowest possible charge state
+     */
+    protected boolean checkBatteryExtraction(ItemStackHandler itemHandler, BatterySlotAction action, int slot)
+    {
+        // Refuse to extract chargeable items if they are in the battery slot and satisfy the charge/discharge rules of said slot
+        ItemStack iStack = itemHandler.getStackInSlot(slot);
+        switch (action)
+        {
+            case NOTHING -> {
+                return false;
+            }
+            case CHARGE -> {
+                return iStack.getItem() instanceof IChargeableItem && iStack.getDamageValue() > 0;
+            }
+            case DISCHARGE -> {
+                return iStack.getItem() instanceof IChargeableItem && iStack.getDamageValue() < iStack.getMaxDamage();
+            }
+        }
+
+        return true;
     }
 }

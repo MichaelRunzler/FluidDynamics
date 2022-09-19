@@ -2,10 +2,7 @@ package michaelrunzler.fluiddynamics.machines.rbe_generator;
 
 import michaelrunzler.fluiddynamics.machines.base.PoweredMachineBE;
 import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
-import michaelrunzler.fluiddynamics.types.FDItemHandler;
-import michaelrunzler.fluiddynamics.types.IChargeableItem;
-import michaelrunzler.fluiddynamics.types.MachineEnum;
-import michaelrunzler.fluiddynamics.types.RelativeFacing;
+import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -64,7 +61,7 @@ public class RsBeGenBE extends PoweredMachineBE
         rawHandlers = new IItemHandler[type.numInvSlots];
         for(int i = 0; i < type.numInvSlots; i++) {
             final int k = i;
-            rawHandlers[k] = createStackSpecificIHandler(itemHandler, k);
+            rawHandlers[k] = createStackSpecificIHandler(itemHandler,  k == SLOT_BATTERY ? BatterySlotAction.CHARGE : BatterySlotAction.NOTHING, k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }
@@ -93,9 +90,9 @@ public class RsBeGenBE extends PoweredMachineBE
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
     {
         if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            if(side == relativeFacing.TOP || side == relativeFacing.FRONT) return (LazyOptional<T>)slotHandlers[SLOT_FUEL_RS];
-            else if(side == relativeFacing.BOTTOM || side == relativeFacing.BACK) return (LazyOptional<T>)slotHandlers[SLOT_FUEL_BE];
-            else if(side == relativeFacing.LEFT || side == relativeFacing.RIGHT) return (LazyOptional<T>)slotHandlers[SLOT_BATTERY];
+            if(side == relativeFacing.LEFT || side == relativeFacing.FRONT) return (LazyOptional<T>)slotHandlers[SLOT_FUEL_RS];
+            else if(side == relativeFacing.TOP || side == relativeFacing.BOTTOM) return (LazyOptional<T>)slotHandlers[SLOT_BATTERY];
+            else if(side == relativeFacing.RIGHT || side == relativeFacing.BACK) return (LazyOptional<T>)slotHandlers[SLOT_FUEL_BE];
             else return (LazyOptional<T>) itemOpt;
         }
 

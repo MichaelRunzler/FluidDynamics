@@ -47,9 +47,13 @@ public class PowerCellBE extends PoweredMachineBE
         // Initialize handlers for each slot
         slotHandlers = new LazyOptional[type.numInvSlots];
         rawHandlers = new IItemHandler[type.numInvSlots];
-        for(int i = 0; i < type.numInvSlots; i++) {
+        for(int i = 0; i < type.numInvSlots; i++)
+        {
             final int k = i;
-            rawHandlers[k] = createStackSpecificIHandler(itemHandler, k);
+            if(k == SLOT_BATTERY_IN) rawHandlers[k] = createStackSpecificIHandler(itemHandler, BatterySlotAction.DISCHARGE, k);
+            else if(k == SLOT_BATTERY_OUT) rawHandlers[k] = createStackSpecificIHandler(itemHandler, BatterySlotAction.CHARGE, k);
+            else rawHandlers[k] = createStackSpecificIHandler(itemHandler, BatterySlotAction.NOTHING, k);
+
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }

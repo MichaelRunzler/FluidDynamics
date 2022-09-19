@@ -74,7 +74,7 @@ public class HTFurnaceBE extends MachineBlockEntityBase
         rawHandlers = new IItemHandler[type.numInvSlots];
         for(int i = 0; i < type.numInvSlots; i++) {
             final int k = i;
-            rawHandlers[k] = createStackSpecificIHandler(itemHandler, k);
+            rawHandlers[k] = createStackSpecificIHandler(itemHandler, BatterySlotAction.NOTHING, k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }

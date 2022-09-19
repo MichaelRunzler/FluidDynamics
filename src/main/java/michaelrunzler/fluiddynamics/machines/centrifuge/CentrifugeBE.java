@@ -89,12 +89,12 @@ public class CentrifugeBE extends PoweredMachineBE
         rawHandlers = new IItemHandler[type.numInvSlots];
         for(int i = 0; i < type.numInvSlots; i++) {
             final int k = i;
-            rawHandlers[k] = createStackSpecificIHandler(itemHandler, k);
+            rawHandlers[k] = createStackSpecificIHandler(itemHandler, k == SLOT_BATTERY ? BatterySlotAction.DISCHARGE : BatterySlotAction.NOTHING, k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }
 
-        outputHandler = createMultiStackSpecificIHandler(itemHandler, SLOT_OUTPUT_1, SLOT_OUTPUT_2, SLOT_OUTPUT_3);
+        outputHandler = createMultiStackSpecificIHandler(itemHandler, BatterySlotAction.NOTHING, SLOT_OUTPUT_1, SLOT_OUTPUT_2, SLOT_OUTPUT_3);
         outputOpt = LazyOptional.of(() -> outputHandler);
         optionals.add(outputOpt);
     }
@@ -284,7 +284,7 @@ public class CentrifugeBE extends PoweredMachineBE
 
     private ItemStackHandler createIHandler()
     {
-        return new FDEnergyItemHandler(type.numInvSlots)
+        return new FDItemHandler(type.numInvSlots)
         {
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack)
