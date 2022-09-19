@@ -16,13 +16,14 @@ public class ComponentRecipes
     public static void generateComponentRecipes(Consumer<FinishedRecipe> c)
     {
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("machine_frame"))
-                .pattern("cbc")
+                .pattern("zbc")
                 .pattern("aoa")
-                .pattern("cbc")
+                .pattern("cbz")
                 .define('c', RecipeGenerator.registryToItem("ingot_copper"))
                 .define('b', RecipeGenerator.registryToItem("ingot_beryllium"))
                 .define('a', RecipeGenerator.registryToItem("ingot_aluminium"))
                 .define('o', RecipeGenerator.registryToItem("ingot_cobalt"))
+                .define('z', RecipeGenerator.registryToItem("ingot_bronze"))
                 .unlockedBy("machine_frame_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_cobalt")))
                 .save(c, "machine_frame");
 
@@ -175,5 +176,15 @@ public class ComponentRecipes
                 .define('g', Items.GLOWSTONE)
                 .unlockedBy("beam_emitter_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
                 .save(c, "beam_emitter");
+
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("filter_screen"))
+                .pattern("coc")
+                .pattern("qqq")
+                .pattern("coc")
+                .define('c', RecipeGenerator.registryToItem("ingot_copper"))
+                .define('o', Items.OBSIDIAN)
+                .define('q', Items.QUARTZ)
+                .unlockedBy("filter_screen_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.QUARTZ))
+                .save(c, "filter_screen");
     }
 }

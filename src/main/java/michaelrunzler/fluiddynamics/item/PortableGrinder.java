@@ -11,19 +11,17 @@ import net.minecraft.world.item.Rarity;
  * A portable version of the Molecular Decompiler, used to dissolve blocks and items into their constituents.
  * Uses Energy Cells for power, and can be recharged via crafting.
  */
-// TODO add depleted grinder class to allow recharging
 public class PortableGrinder extends Item implements IChargeableItem
 {
-    public static final int DURABILITY = 10;
+    public static final int DURABILITY = 4;
 
     public PortableGrinder() {
         super(new Properties().tab(CreativeTabs.TAB_TOOLS).rarity(Rarity.UNCOMMON).setNoRepair().stacksTo(1).defaultDurability(DURABILITY));
     }
 
     @Override
-    public ItemStack getContainerItem(ItemStack itemStack)
-    {
-        return chargeDischarge(itemStack, 1, false);
+    public ItemStack getContainerItem(ItemStack itemStack) {
+        return chargeDischarge(itemStack.copy(), 1, false);
     }
 
     @Override

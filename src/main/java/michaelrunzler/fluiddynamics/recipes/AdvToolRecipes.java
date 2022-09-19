@@ -31,15 +31,16 @@ public class AdvToolRecipes
                 .save(c, "depleted_cell_recharge");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("portable_grinder"))
-                .pattern("aba")
+                .pattern("bub")
                 .pattern("apa")
-                .pattern("cgc")
+                .pattern("cdc")
                 .define('a', RecipeGenerator.registryToItem("ingot_aluminium"))
                 .define('b', RecipeGenerator.registryToItem("ingot_beryllium"))
                 .define('c', RecipeGenerator.registryToItem("ingot_cobalt"))
+                .define('u', RecipeGenerator.registryToItem("ingot_copper"))
                 .define('p', RecipeGenerator.registryToItem("energy_cell"))
-                .define('g', Items.GLOWSTONE)
-                .unlockedBy("portable_grinder_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("energy_cell")))
+                .define('d', Items.DIAMOND)
+                .unlockedBy("portable_grinder_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
                 .save(c, "portable_grinder");
 
         // This recipe trips the container definition for the uncharged grinder, adding a fully-charged grinder to the

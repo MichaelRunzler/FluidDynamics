@@ -187,6 +187,9 @@ public class ModItems
         RegistryObject<Item> beamEmitter = registerItem("beam_emitter", componentSupplier);
         FDEnLangProvider.addItemLangMapping(beamEmitter, "Particle Beam Emitter");
 
+        RegistryObject<Item> filterScreen = registerItem("filter_screen", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(filterScreen, "Electrostatic Filter Screen");
+
         //
         // Advanced Tools and Utility Items
         //
