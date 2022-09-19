@@ -12,9 +12,11 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +30,7 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
 {
     protected MachineEnum type;
     protected ArrayList<LazyOptional<?>> optionals;
+    protected boolean lastPowerState; // Used to minimize state updates
 
     /**
      * Overriding classes should declare LazyOptionals containing Handlers for each function that the BE provides
@@ -38,7 +41,7 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
         super(ModBlockEntities.registeredBEs.get(type.name().toLowerCase()).get(), pos, state);
 
         this.optionals = new ArrayList<>();
-
+        this.lastPowerState = false;
         this.type = type;
     }
 
@@ -100,6 +103,96 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
         // Drop the XP orb if its amount is nonzero
         if(i > 0)
             ExperienceOrb.award((ServerLevel)level, new Vec3(this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ()), i);
+    }
+
+    /**
+     * This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
+     */
+    protected ItemStackHandler createStackSpecificIHandler(ItemStackHandler itemHandler, int slotID)
+    {
+        return new ItemStackHandler(1)
+        {
+            @Override
+            public void setStackInSlot(int slot, @NotNull ItemStack stack) {
+                itemHandler.setStackInSlot(slotID, stack);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack getStackInSlot(int slot) {
+                return itemHandler.getStackInSlot(slotID);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+                return itemHandler.insertItem(slotID, stack, simulate);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                return itemHandler.extractItem(slotID, amount, simulate);
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                return itemHandler.isItemValid(slotID, stack);
+            }
+        };
+    }
+
+    /**
+     * This handler will map multiple accessible "slots" to actual slots in the internal inventory handler.
+     */
+    protected ItemStackHandler createMultiStackSpecificIHandler(ItemStackHandler itemHandler, int... slotIDs)
+    {
+        return new ItemStackHandler(slotIDs.length)
+        {
+            @Override
+            public void setStackInSlot(int slot, @NotNull ItemStack stack) {
+                if(slot < slotIDs.length) itemHandler.setStackInSlot(slotIDs[slot], stack);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack getStackInSlot(int slot) {
+                if(slot < slotIDs.length) return itemHandler.getStackInSlot(slotIDs[slot]);
+                return ItemStack.EMPTY;
+            }
+
+            @NotNull
+            @Override
+            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+                if(slot < slotIDs.length) return itemHandler.insertItem(slotIDs[slot], stack, simulate);
+                return stack;
+            }
+
+            @NotNull
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate)
+            {
+                if(slot >= slotIDs.length) return ItemStack.EMPTY;
+                return itemHandler.extractItem(slotIDs[slot], amount, simulate);
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                return itemHandler.isItemValid(slotIDs[slot], stack);
+            }
+        };
+    }
+
+    /**
+     * Updates the visual power state of the block. Only actually changes the blockstate if the given power state differs
+     * from the current power state.
+     */
+    protected void updatePowerState(boolean state)
+    {
+        if(state != lastPowerState){
+            if(level != null) level.setBlockAndUpdate(worldPosition, this.getBlockState().setValue(BlockStateProperties.POWERED, state));
+            lastPowerState = state;
+        }
     }
 
     public abstract boolean isItemValid(int slot, @NotNull ItemStack stack);

@@ -40,7 +40,6 @@ public class RsBeGenBE extends PoweredMachineBE
     public static final int SLOT_FUEL_BE = 2;
 
     public RelativeFacing relativeFacing;
-    private boolean lastPowerState; // Used to minimize state updates
     public AtomicInteger rsFuel;
     public AtomicInteger maxRsFuel;
     public AtomicInteger beFuel;
@@ -65,7 +64,7 @@ public class RsBeGenBE extends PoweredMachineBE
         rawHandlers = new IItemHandler[type.numInvSlots];
         for(int i = 0; i < type.numInvSlots; i++) {
             final int k = i;
-            rawHandlers[k] = createStackSpecificIHandler(k);
+            rawHandlers[k] = createStackSpecificIHandler(itemHandler, k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }
@@ -174,68 +173,6 @@ public class RsBeGenBE extends PoweredMachineBE
                 setChanged();
             }
         };
-    }
-
-    // TODO move to super
-    /**
-     * This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
-     */
-    private ItemStackHandler createStackSpecificIHandler(int slotID)
-    {
-        return new ItemStackHandler(1)
-        {
-            @Override
-            public void setStackInSlot(int slot, @NotNull ItemStack stack)
-            {
-                // Refuse to extract the item if it is anything other than full
-                if(slotID == SLOT_BATTERY && stack.getCount() == 0) {
-                    ItemStack bStack = itemHandler.getStackInSlot(SLOT_BATTERY);
-                    if(bStack.getItem() instanceof IChargeableItem && bStack.getDamageValue() > 0) return;
-                }
-                itemHandler.setStackInSlot(slotID, stack);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack getStackInSlot(int slot) {
-                return itemHandler.getStackInSlot(slotID);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-                return itemHandler.insertItem(slotID, stack, simulate);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate)
-            {
-                if(slotID == SLOT_BATTERY){
-                    ItemStack bStack = itemHandler.getStackInSlot(SLOT_BATTERY);
-                    if(bStack.getItem() instanceof IChargeableItem && bStack.getDamageValue() > 0) return ItemStack.EMPTY;
-                }
-                return itemHandler.extractItem(slotID, amount, simulate);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return itemHandler.isItemValid(slotID, stack);
-            }
-        };
-    }
-
-    // TODO move to super
-    /**
-     * Updates the visual power state of the block. Only actually changes the blockstate if the given power state differs
-     * from the current power state.
-     */
-    private void updatePowerState(boolean state)
-    {
-        if(state != lastPowerState){
-            if(level != null) level.setBlockAndUpdate(worldPosition, this.getBlockState().setValue(BlockStateProperties.POWERED, state));
-            lastPowerState = state;
-        }
     }
 
     /**

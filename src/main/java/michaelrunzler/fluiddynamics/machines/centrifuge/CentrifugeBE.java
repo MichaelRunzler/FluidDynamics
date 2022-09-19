@@ -2,7 +2,6 @@ package michaelrunzler.fluiddynamics.machines.centrifuge;
 
 import com.mojang.authlib.GameProfile;
 import michaelrunzler.fluiddynamics.machines.base.PoweredMachineBE;
-import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.recipes.RecipeIndex;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
@@ -69,7 +68,6 @@ public class CentrifugeBE extends PoweredMachineBE
     public AtomicInteger maxProgress;
     public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
     private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
-    private boolean lastPowerState; // Used to minimize state updates
 
     @SuppressWarnings("unchecked")
     public CentrifugeBE(BlockPos pos, BlockState state)
@@ -91,12 +89,12 @@ public class CentrifugeBE extends PoweredMachineBE
         rawHandlers = new IItemHandler[type.numInvSlots];
         for(int i = 0; i < type.numInvSlots; i++) {
             final int k = i;
-            rawHandlers[k] = createStackSpecificIHandler(k);
+            rawHandlers[k] = createStackSpecificIHandler(itemHandler, k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }
 
-        outputHandler = createMultiStackSpecificIHandler(SLOT_OUTPUT_1, SLOT_OUTPUT_2, SLOT_OUTPUT_3);
+        outputHandler = createMultiStackSpecificIHandler(itemHandler, SLOT_OUTPUT_1, SLOT_OUTPUT_2, SLOT_OUTPUT_3);
         outputOpt = LazyOptional.of(() -> outputHandler);
         optionals.add(outputOpt);
     }
@@ -286,7 +284,7 @@ public class CentrifugeBE extends PoweredMachineBE
 
     private ItemStackHandler createIHandler()
     {
-        return new FDItemHandler(type.numInvSlots)
+        return new FDEnergyItemHandler(type.numInvSlots)
         {
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack)
@@ -301,91 +299,6 @@ public class CentrifugeBE extends PoweredMachineBE
                 // Update recipe and invalidation data if relevant
                 if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
                 else if(slot == SLOT_OUTPUT_1 || slot == SLOT_OUTPUT_2 || slot == SLOT_OUTPUT_3) invalidOutput = false;
-            }
-        };
-    }
-
-    /**
-     * This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
-     */
-    private ItemStackHandler createStackSpecificIHandler(int slotID)
-    {
-        return new ItemStackHandler(1)
-        {
-            @Override
-            public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-                // Refuse to extract the item if it isn't a depleted cell
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell"))) return;
-                itemHandler.setStackInSlot(slotID, stack);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack getStackInSlot(int slot) {
-                return itemHandler.getStackInSlot(slotID);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-                return itemHandler.insertItem(slotID, stack, simulate);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell")))
-                    return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
-                return itemHandler.extractItem(slotID, amount, simulate);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return itemHandler.isItemValid(slotID, stack);
-            }
-        };
-    }
-
-    /**
-     * This handler will map multiple accessible "slots" to actual slots in the internal inventory handler.
-     */
-    private ItemStackHandler createMultiStackSpecificIHandler(int... slotIDs)
-    {
-        return new ItemStackHandler(slotIDs.length)
-        {
-            @Override
-            public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-                if(slot < slotIDs.length) itemHandler.setStackInSlot(slotIDs[slot], stack);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack getStackInSlot(int slot) {
-                if(slot < slotIDs.length) return itemHandler.getStackInSlot(slotIDs[slot]);
-                return ItemStack.EMPTY;
-            }
-
-            @NotNull
-            @Override
-            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-                if(slot < slotIDs.length) return itemHandler.insertItem(slotIDs[slot], stack, simulate);
-                return stack;
-            }
-
-            @NotNull
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate)
-            {
-                if(slot >= slotIDs.length) return ItemStack.EMPTY;
-
-                if(slotIDs[slot] == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell")))
-                    return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
-                else return itemHandler.extractItem(slotIDs[slot], amount, simulate);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return itemHandler.isItemValid(slotIDs[slot], stack);
             }
         };
     }
@@ -422,18 +335,6 @@ public class CentrifugeBE extends PoweredMachineBE
 
         progress.set(0);
         invalidOutput = false;
-    }
-
-    /**
-     * Updates the visual power state of the block. Only actually changes the blockstate if the given power state differs
-     * from the current power state.
-     */
-    private void updatePowerState(boolean state)
-    {
-        if(state != lastPowerState){
-            if(level != null) level.setBlockAndUpdate(worldPosition, this.getBlockState().setValue(BlockStateProperties.POWERED, state));
-            lastPowerState = state;
-        }
     }
 
     /**

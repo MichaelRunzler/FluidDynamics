@@ -1,7 +1,6 @@
 package michaelrunzler.fluiddynamics.machines.power_cell;
 
 import michaelrunzler.fluiddynamics.machines.base.PoweredMachineBE;
-import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,7 +34,6 @@ public class PowerCellBE extends PoweredMachineBE
     public static final int SLOT_BATTERY_OUT = 1;
 
     public RelativeFacing relativeFacing;
-    private boolean lastPowerState; // Used to minimize state updates
 
     @SuppressWarnings("unchecked")
     public PowerCellBE(BlockPos pos, BlockState state)
@@ -51,7 +49,7 @@ public class PowerCellBE extends PoweredMachineBE
         rawHandlers = new IItemHandler[type.numInvSlots];
         for(int i = 0; i < type.numInvSlots; i++) {
             final int k = i;
-            rawHandlers[k] = createStackSpecificIHandler(k);
+            rawHandlers[k] = createStackSpecificIHandler(itemHandler, k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }
@@ -128,59 +126,6 @@ public class PowerCellBE extends PoweredMachineBE
                 setChanged();
             }
         };
-    }
-
-    /**
-     * This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
-     */
-    private ItemStackHandler createStackSpecificIHandler(int slotID)
-    {
-        return new ItemStackHandler(1)
-        {
-            @Override
-            public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-                // Refuse to extract the item if it isn't a depleted cell
-                if(slotID == SLOT_BATTERY_IN && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell"))) return;
-                itemHandler.setStackInSlot(slotID, stack);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack getStackInSlot(int slot) {
-                return itemHandler.getStackInSlot(slotID);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-                return itemHandler.insertItem(slotID, stack, simulate);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if(slotID == SLOT_BATTERY_IN && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell")))
-                    return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
-                return itemHandler.extractItem(slotID, amount, simulate);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return itemHandler.isItemValid(slotID, stack);
-            }
-        };
-    }
-
-    /**
-     * Updates the visual power state of the block. Only actually changes the blockstate if the given power state differs
-     * from the current power state.
-     */
-    private void updatePowerState(boolean state)
-    {
-        if(state != lastPowerState){
-            if(level != null) level.setBlockAndUpdate(worldPosition, this.getBlockState().setValue(BlockStateProperties.POWERED, state));
-            lastPowerState = state;
-        }
     }
 
     /**

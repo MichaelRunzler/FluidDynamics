@@ -48,7 +48,6 @@ public class EFurnaceBE extends PoweredMachineBE
     public AtomicInteger maxProgress;
     public XPGeneratingMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
     private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
-    private boolean lastPowerState; // Used to minimize state updates
     private boolean tryTickRecipeCB; // Used to determine if the BE should attempt to re-query recipes on tick instead of on load
 
     @SuppressWarnings("unchecked")
@@ -70,7 +69,7 @@ public class EFurnaceBE extends PoweredMachineBE
         rawHandlers = new IItemHandler[type.numInvSlots];
         for(int i = 0; i < type.numInvSlots; i++) {
             final int k = i;
-            rawHandlers[k] = createStackSpecificIHandler(k);
+            rawHandlers[k] = createStackSpecificIHandler(itemHandler, k);
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }
@@ -199,47 +198,6 @@ public class EFurnaceBE extends PoweredMachineBE
     }
 
     /**
-     * This handler will map a single accessible "slot" to an actual slot in the internal inventory handler.
-     */
-    private ItemStackHandler createStackSpecificIHandler(int slotID)
-    {
-        return new ItemStackHandler(1)
-        {
-            @Override
-            public void setStackInSlot(int slot, @NotNull ItemStack stack) {
-                // Refuse to extract the item if it isn't a depleted cell
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell"))) return;
-                itemHandler.setStackInSlot(slotID, stack);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack getStackInSlot(int slot) {
-                return itemHandler.getStackInSlot(slotID);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-                return itemHandler.insertItem(slotID, stack, simulate);
-            }
-
-            @NotNull
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if(slotID == SLOT_BATTERY && itemHandler.getStackInSlot(slot).is(RecipeGenerator.registryToItem("energy_cell")))
-                    return ItemStack.EMPTY; // Refuse to extract the item if it isn't a depleted cell
-                return itemHandler.extractItem(slotID, amount, simulate);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return itemHandler.isItemValid(slotID, stack);
-            }
-        };
-    }
-
-    /**
      * Updates the currently-cached recipe to match the type of the given ItemStack.
      * Also updates the output-invalidation flag and the current maximum progress.
      */
@@ -261,18 +219,6 @@ public class EFurnaceBE extends PoweredMachineBE
 
         progress.set(0);
         invalidOutput = false;
-    }
-
-    /**
-     * Updates the visual power state of the block. Only actually changes the blockstate if the given power state differs
-     * from the current power state.
-     */
-    private void updatePowerState(boolean state)
-    {
-        if(state != lastPowerState){
-            if(level != null) level.setBlockAndUpdate(worldPosition, this.getBlockState().setValue(BlockStateProperties.POWERED, state));
-            lastPowerState = state;
-        }
     }
 
     /**
