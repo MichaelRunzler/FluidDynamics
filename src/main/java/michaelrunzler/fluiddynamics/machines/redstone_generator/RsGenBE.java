@@ -27,6 +27,8 @@ public class RsGenBE extends PoweredMachineBE
     private static final String ITEM_NBT_TAG = "Inventory";
     private static final String ENERGY_NBT_TAG = "Energy";
     private static final String INFO_NBT_TAG = "Info";
+    private static final String FUEL_NBT_TAG = "Fuel";
+    private static final String MAX_FUEL_NBT_TAG = "MaxFuel";
 
     public static final int SLOT_BATTERY = 0;
     public static final int SLOT_FUEL = 1;
@@ -62,6 +64,10 @@ public class RsGenBE extends PoweredMachineBE
     {
         if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
         if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
+        if(tag.contains(INFO_NBT_TAG)){
+            fuel.set(tag.getCompound(INFO_NBT_TAG).getInt(FUEL_NBT_TAG));
+            maxFuel.set(tag.getCompound(INFO_NBT_TAG).getInt(MAX_FUEL_NBT_TAG));
+        }
     }
 
     @Override
@@ -71,6 +77,8 @@ public class RsGenBE extends PoweredMachineBE
         tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
 
         CompoundTag iTag = new CompoundTag();
+        iTag.putInt(FUEL_NBT_TAG, fuel.get());
+        iTag.putInt(MAX_FUEL_NBT_TAG, maxFuel.get());
         tag.put(INFO_NBT_TAG, iTag);
     }
 

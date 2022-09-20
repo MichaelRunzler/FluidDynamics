@@ -24,7 +24,6 @@ public class PowerCellBE extends PoweredMachineBE
 
     private static final String ITEM_NBT_TAG = "Inventory";
     private static final String ENERGY_NBT_TAG = "Energy";
-    private static final String INFO_NBT_TAG = "Info";
 
     public static final int SLOT_BATTERY_IN = 0;
     public static final int SLOT_BATTERY_OUT = 1;
@@ -66,9 +65,6 @@ public class PowerCellBE extends PoweredMachineBE
     {
         tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
         tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
-
-        CompoundTag iTag = new CompoundTag();
-        tag.put(INFO_NBT_TAG, iTag);
     }
 
     @Override
