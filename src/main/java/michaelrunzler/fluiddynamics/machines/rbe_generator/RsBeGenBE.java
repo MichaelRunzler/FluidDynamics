@@ -154,24 +154,6 @@ public class RsBeGenBE extends PoweredMachineBE
         updatePowerState(powered);
     }
 
-    private ItemStackHandler createIHandler()
-    {
-        return new FDItemHandler(type.numInvSlots)
-        {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack)
-            {
-                if(slot < type.numInvSlots) return RsBeGenBE.this.isItemValid(slot, stack);
-                else return super.isItemValid(slot, stack);
-            }
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                setChanged();
-            }
-        };
-    }
-
     /**
      * Checks if a given ItemStack is valid for a given slot.
      */

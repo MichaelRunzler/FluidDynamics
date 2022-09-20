@@ -14,7 +14,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,9 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MFMDBE extends PoweredMachineBE
 {
-    private final ItemStackHandler itemHandler = createIHandler();
-    private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
 
@@ -56,7 +52,6 @@ public class MFMDBE extends PoweredMachineBE
         currentRecipe = null;
         invalidOutput = false;
         lastPowerState = false;
-        optionals.add(itemOpt);
 
         // Initialize handlers for each slot
         slotHandlers = new LazyOptional[type.numInvSlots];
@@ -108,12 +103,11 @@ public class MFMDBE extends PoweredMachineBE
         return super.getCapability(cap, side);
     }
 
-    public void tickServer()
-    {
+    public void tickServer() {
         // Just run power handling if no recipe is in progress
         ItemStack bStack = chargeFromBattery(SLOT_BATTERY, itemHandler);
-        if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY, bStack);
-        if(currentRecipe == null) {
+        if (bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY, bStack);
+        if (currentRecipe == null) {
             // Forcibly update power state to ensure that it remains synced
             updatePowerState(false);
             return;
@@ -121,29 +115,26 @@ public class MFMDBE extends PoweredMachineBE
 
         boolean powered = false;
 
-        if(progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption)
-        {
+        if (progress.get() < currentRecipe.time && energyHandler.getEnergyStored() >= type.powerConsumption) {
             // If the current recipe is still in progress, try to consume some energy and advance the recipe
             energyHandler.setEnergy(energyHandler.getEnergyStored() - type.powerConsumption);
             progress.incrementAndGet();
             powered = true;
-        }else if(progress.get() >= currentRecipe.time) // If the current recipe is done, try to transfer the input to the output
+        } else if (progress.get() >= currentRecipe.time) // If the current recipe is done, try to transfer the input to the output
         {
             // Shortcut the output-checking logic if we already know the output is blocking the recipe from finishing
-            if(invalidOutput) return;
+            if (invalidOutput) return;
 
             ItemStack input = itemHandler.getStackInSlot(SLOT_INPUT);
             ItemStack output = itemHandler.getStackInSlot(SLOT_OUTPUT);
             RecipeIngredient out = currentRecipe.out[0];
             boolean didOperation = false;
 
-            if(output.getCount() == 0)
-            {
+            if (output.getCount() == 0) {
                 // If the output is empty, add the new item(s)
                 itemHandler.setStackInSlot(SLOT_OUTPUT, new ItemStack(out.ingredient(), out.count()));
                 didOperation = true;
-            }else if (output.getCount() < output.getMaxStackSize() && output.is(out.ingredient().asItem()))
-            {
+            } else if (output.getCount() < output.getMaxStackSize() && output.is(out.ingredient().asItem())) {
                 // If the output is not empty, check that the item in the output is the same and not a full stack, then
                 // add the item(s) to the stack
                 itemHandler.setStackInSlot(SLOT_OUTPUT, new ItemStack(output.getItem(), output.getCount() + out.count()));
@@ -151,36 +142,15 @@ public class MFMDBE extends PoweredMachineBE
             }
 
             // If we successfully added an output, remove one item from the input
-            if(didOperation) {
+            if (didOperation) {
                 itemHandler.setStackInSlot(SLOT_INPUT, new ItemStack(input.getItem(), input.getCount() - 1));
                 progress.set(0);
                 powered = true;
                 setChanged();
-            }else invalidOutput = true; // Otherwise, mark the output as invalid until we see an item change
+            } else invalidOutput = true; // Otherwise, mark the output as invalid until we see an item change
         }
 
         updatePowerState(powered);
-    }
-
-    private ItemStackHandler createIHandler()
-    {
-        return new FDItemHandler(type.numInvSlots)
-        {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack)
-            {
-                if(slot < type.numInvSlots) return MFMDBE.this.isItemValid(slot, stack);
-                else return super.isItemValid(slot, stack);
-            }
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                setChanged();
-                // Update recipe and invalidation data if relevant
-                if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
-                else if(slot == SLOT_OUTPUT) invalidOutput = false;
-            }
-        };
     }
 
     /**
@@ -217,5 +187,13 @@ public class MFMDBE extends PoweredMachineBE
         else if(slot == SLOT_BATTERY) return stack.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge();
         else if(slot == SLOT_OUTPUT) return false;
         else return false;
+    }
+
+    @Override
+    protected void onContentsChanged(int slot) {
+        setChanged();
+        // Update recipe and invalidation data if relevant
+        if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
+        else if(slot == SLOT_OUTPUT) invalidOutput = false;
     }
 }

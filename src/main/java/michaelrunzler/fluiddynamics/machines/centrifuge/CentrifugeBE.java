@@ -22,7 +22,6 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,9 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CentrifugeBE extends PoweredMachineBE
 {
-    private final ItemStackHandler itemHandler = createIHandler();
-    private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
     private final FDFluidStorage fluidHandler = createFHandler();
     private final LazyOptional<IFluidHandler> fluidOpt = LazyOptional.of(() -> fluidHandler);
 
@@ -81,7 +77,6 @@ public class CentrifugeBE extends PoweredMachineBE
         invalidOutput = false;
         lastPowerState = false;
         dummyPlayer = null;
-        optionals.add(itemOpt);
         optionals.add(fluidOpt);
 
         // Initialize handlers for each slot
@@ -282,27 +277,6 @@ public class CentrifugeBE extends PoweredMachineBE
         return result;
     }
 
-    private ItemStackHandler createIHandler()
-    {
-        return new FDItemHandler(type.numInvSlots)
-        {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack)
-            {
-                if(slot < type.numInvSlots) return CentrifugeBE.this.isItemValid(slot, stack);
-                else return super.isItemValid(slot, stack);
-            }
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                setChanged();
-                // Update recipe and invalidation data if relevant
-                if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
-                else if(slot == SLOT_OUTPUT_1 || slot == SLOT_OUTPUT_2 || slot == SLOT_OUTPUT_3) invalidOutput = false;
-            }
-        };
-    }
-
     private FDFluidStorage createFHandler()
     {
         return new FDFluidStorage(FLUID_CAPACITY){
@@ -348,5 +322,13 @@ public class CentrifugeBE extends PoweredMachineBE
         else if(slot == SLOT_BUCKET) return stack.getItem() instanceof BucketItem;
         else if(slot == SLOT_EMPTY_BUCKET) return stack.getItem() instanceof DispensibleContainerItem;
         else return false;
+    }
+
+    @Override
+    protected void onContentsChanged(int slot) {
+        setChanged();
+        // Update recipe and invalidation data if relevant
+        if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
+        else if(slot == SLOT_OUTPUT_1 || slot == SLOT_OUTPUT_2 || slot == SLOT_OUTPUT_3) invalidOutput = false;
     }
 }

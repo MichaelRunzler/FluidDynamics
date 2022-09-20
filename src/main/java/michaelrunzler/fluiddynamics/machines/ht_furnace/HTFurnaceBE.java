@@ -17,7 +17,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,9 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class HTFurnaceBE extends MachineBlockEntityBase
 {
-    private final ItemStackHandler itemHandler = createIHandler();
-    private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
 
@@ -67,7 +63,6 @@ public class HTFurnaceBE extends MachineBlockEntityBase
         invalidOutput = false;
         lastPowerState = false;
         tryTickRecipeCB = false;
-        optionals.add(itemOpt);
 
         // Initialize handlers for each slot
         slotHandlers = new LazyOptional[type.numInvSlots];
@@ -207,27 +202,6 @@ public class HTFurnaceBE extends MachineBlockEntityBase
         if(fuel.get() > 0) fuel.set(fuel.get() - 4); // This furnace uses 2x the fuel that the vanilla one does (like a less efficient blast furnace)
     }
 
-    private ItemStackHandler createIHandler()
-    {
-        return new FDItemHandler(type.numInvSlots)
-        {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack)
-            {
-                if(slot < type.numInvSlots) return HTFurnaceBE.this.isItemValid(slot, stack);
-                else return super.isItemValid(slot, stack);
-            }
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                setChanged();
-                // Update recipe and invalidation data if relevant
-                if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
-                else if(slot == SLOT_OUTPUT) invalidOutput = false;
-            }
-        };
-    }
-
     /**
      * Updates the currently-cached recipe to match the type of the given ItemStack.
      * Also updates the output-invalidation flag and the current maximum progress.
@@ -262,6 +236,14 @@ public class HTFurnaceBE extends MachineBlockEntityBase
         else if(slot == SLOT_FUEL) return ForgeHooks.getBurnTime(stack, RecipeType.BLASTING) > 0;
         else if(slot == SLOT_OUTPUT) return false;
         else return false;
+    }
+
+    @Override
+    protected void onContentsChanged(int slot) {
+        setChanged();
+        // Update recipe and invalidation data if relevant
+        if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
+        else if(slot == SLOT_OUTPUT) invalidOutput = false;
     }
 
     /**

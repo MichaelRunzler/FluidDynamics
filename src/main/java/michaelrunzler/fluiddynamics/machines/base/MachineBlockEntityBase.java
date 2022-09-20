@@ -1,10 +1,7 @@
 package michaelrunzler.fluiddynamics.machines.base;
 
 import michaelrunzler.fluiddynamics.machines.ModBlockEntities;
-import michaelrunzler.fluiddynamics.types.BatterySlotAction;
-import michaelrunzler.fluiddynamics.types.IChargeableItem;
-import michaelrunzler.fluiddynamics.types.IInventoriedBE;
-import michaelrunzler.fluiddynamics.types.MachineEnum;
+import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -18,6 +15,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +32,8 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
     protected MachineEnum type;
     protected ArrayList<LazyOptional<?>> optionals;
     protected boolean lastPowerState; // Used to minimize state updates
+    protected final ItemStackHandler itemHandler;
+    protected final LazyOptional<IItemHandler> itemOpt;
 
     /**
      * Overriding classes should declare LazyOptionals containing Handlers for each function that the BE provides
@@ -46,6 +46,10 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
         this.optionals = new ArrayList<>();
         this.lastPowerState = false;
         this.type = type;
+
+        this.itemHandler = createIHandler();
+        itemOpt = LazyOptional.of(() -> itemHandler);
+        this.optionals.add(itemOpt);
     }
 
     /**
@@ -106,6 +110,25 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
         // Drop the XP orb if its amount is nonzero
         if(i > 0)
             ExperienceOrb.award((ServerLevel)level, new Vec3(this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ()), i);
+    }
+
+    protected ItemStackHandler createIHandler()
+    {
+        return new FDItemHandler(type.numInvSlots)
+        {
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack)
+            {
+                if(slot < type.numInvSlots) return MachineBlockEntityBase.this.isItemValid(slot, stack);
+                else return super.isItemValid(slot, stack);
+            }
+
+            @Override
+            protected void onContentsChanged(int slot) {
+                setChanged();
+                MachineBlockEntityBase.this.onContentsChanged(slot);
+            }
+        };
     }
 
     /**
@@ -201,6 +224,13 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
     }
 
     public abstract boolean isItemValid(int slot, @NotNull ItemStack stack);
+
+    /**
+     * Called whenever the inventory's contents change. Override for custom behavior.
+     */
+    protected void onContentsChanged(int slot) {
+        setChanged();
+    }
 
     public int getNumSlots() {
         return type.numInvSlots;

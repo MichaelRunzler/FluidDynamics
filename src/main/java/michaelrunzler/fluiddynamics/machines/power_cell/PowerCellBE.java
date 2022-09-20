@@ -14,15 +14,11 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class PowerCellBE extends PoweredMachineBE
 {
-    private final ItemStackHandler itemHandler = createIHandler();
-    private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
 
@@ -42,7 +38,6 @@ public class PowerCellBE extends PoweredMachineBE
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         lastPowerState = false;
-        optionals.add(itemOpt);
 
         // Initialize handlers for each slot
         slotHandlers = new LazyOptional[type.numInvSlots];
@@ -112,24 +107,6 @@ public class PowerCellBE extends PoweredMachineBE
             lastPowerState = powerState;
             updatePowerState(energyHandler.getEnergyStored() > 0);
         }
-    }
-
-    private ItemStackHandler createIHandler()
-    {
-        return new FDItemHandler(type.numInvSlots)
-        {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack)
-            {
-                if(slot < type.numInvSlots) return PowerCellBE.this.isItemValid(slot, stack);
-                else return super.isItemValid(slot, stack);
-            }
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                setChanged();
-            }
-        };
     }
 
     /**

@@ -14,7 +14,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,9 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RsGenBE extends PoweredMachineBE
 {
-    private final ItemStackHandler itemHandler = createIHandler();
-    private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
 
@@ -46,7 +42,6 @@ public class RsGenBE extends PoweredMachineBE
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         lastPowerState = false;
-        optionals.add(itemOpt);
 
         fuel = new AtomicInteger(0);
         maxFuel = new AtomicInteger(1);
@@ -130,24 +125,6 @@ public class RsGenBE extends PoweredMachineBE
             updatePowerState(powered);
             lastPowerState = powered;
         }
-    }
-
-    private ItemStackHandler createIHandler()
-    {
-        return new FDItemHandler(type.numInvSlots)
-        {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack)
-            {
-                if(slot < type.numInvSlots) return RsGenBE.this.isItemValid(slot, stack);
-                else return super.isItemValid(slot, stack);
-            }
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                setChanged();
-            }
-        };
     }
 
     /**

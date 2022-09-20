@@ -17,7 +17,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,9 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class EFurnaceBE extends PoweredMachineBE
 {
-    private final ItemStackHandler itemHandler = createIHandler();
-    private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
 
@@ -62,7 +58,6 @@ public class EFurnaceBE extends PoweredMachineBE
         invalidOutput = false;
         lastPowerState = false;
         tryTickRecipeCB = false;
-        optionals.add(itemOpt);
 
         // Initialize handlers for each slot
         slotHandlers = new LazyOptional[type.numInvSlots];
@@ -176,27 +171,6 @@ public class EFurnaceBE extends PoweredMachineBE
         updatePowerState(powered);
     }
 
-    private ItemStackHandler createIHandler()
-    {
-        return new FDItemHandler(type.numInvSlots)
-        {
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack)
-            {
-                if(slot < type.numInvSlots) return EFurnaceBE.this.isItemValid(slot, stack);
-                else return super.isItemValid(slot, stack);
-            }
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                setChanged();
-                // Update recipe and invalidation data if relevant
-                if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
-                else if(slot == SLOT_OUTPUT) invalidOutput = false;
-            }
-        };
-    }
-
     /**
      * Updates the currently-cached recipe to match the type of the given ItemStack.
      * Also updates the output-invalidation flag and the current maximum progress.
@@ -231,6 +205,14 @@ public class EFurnaceBE extends PoweredMachineBE
         else if(slot == SLOT_BATTERY) return stack.getItem() instanceof IChargeableItem chargeable && chargeable.canDischarge();
         else if(slot == SLOT_OUTPUT) return false;
         else return false;
+    }
+
+    @Override
+    protected void onContentsChanged(int slot) {
+        setChanged();
+        // Update recipe and invalidation data if relevant
+        if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
+        else if(slot == SLOT_OUTPUT) invalidOutput = false;
     }
 
     /**
