@@ -79,12 +79,7 @@ public class PowerCellBE extends PoweredMachineBE
         if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY_OUT, bStack);
 
         exportToNeighbors(Direction.values());
-
-        boolean powerState = energyHandler.getEnergyStored() > 0;
-        if(powerState != lastPowerState) {
-            lastPowerState = powerState;
-            updatePowerState(energyHandler.getEnergyStored() > 0);
-        }
+        updatePowerState(energyHandler.getEnergyStored() > 0);
     }
 
     /**

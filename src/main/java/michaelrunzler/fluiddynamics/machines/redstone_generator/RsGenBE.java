@@ -124,10 +124,7 @@ public class RsGenBE extends PoweredMachineBE
             powered = true;
         }
 
-        if(powered != lastPowerState) {
-            updatePowerState(powered);
-            lastPowerState = powered;
-        }
+        updatePowerState(powered);
     }
 
     /**
