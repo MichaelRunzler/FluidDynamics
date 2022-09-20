@@ -119,6 +119,7 @@ public class MachineRecipes
                 .define('o', RecipeGenerator.registryToItem("ingot_cobalt"))
                 .define('f', RecipeGenerator.registryToItem("machine_frame"))
                 .group("fluid_dynamics_machine_rbe_generator")
-                .unlockedBy("machine_rbe_generator_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("dust_palladium")));
+                .unlockedBy("machine_rbe_generator_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("dust_palladium")))
+                .save(c, "machine_rbe_generator");
     }
 }
