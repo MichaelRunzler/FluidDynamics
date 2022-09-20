@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CentrifugeBE extends PoweredMachineBE
+public class CentrifugeBE extends PoweredMachineBE implements IProcessingBE
 {
     private final FDFluidStorage fluidHandler = createFHandler();
     private final LazyOptional<IFluidHandler> fluidOpt = LazyOptional.of(() -> fluidHandler);
@@ -42,8 +42,6 @@ public class CentrifugeBE extends PoweredMachineBE
 
     private Player dummyPlayer;
 
-    private static final String ITEM_NBT_TAG = "Inventory";
-    private static final String ENERGY_NBT_TAG = "Energy";
     private static final String FLUID_NBT_TAG = "Fluid";
     private static final String INFO_NBT_TAG = "Info";
     private static final String PROGRESS_NBT_TAG = "Progress";
@@ -60,10 +58,10 @@ public class CentrifugeBE extends PoweredMachineBE
 
     public static final Map<String, GenericMachineRecipe> recipes = RecipeIndex.CentrifugeRecipes; // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
-    public AtomicInteger progress;
-    public AtomicInteger maxProgress;
-    public GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
-    private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
+    protected AtomicInteger progress;
+    protected AtomicInteger maxProgress;
+    protected GenericMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
+    protected boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
 
     @SuppressWarnings("unchecked")
     public CentrifugeBE(BlockPos pos, BlockState state)
@@ -97,8 +95,7 @@ public class CentrifugeBE extends PoweredMachineBE
     @Override
     public void load(@NotNull CompoundTag tag)
     {
-        if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
-        if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
+        super.load(tag);
         if(tag.contains(FLUID_NBT_TAG)) fluidHandler.readFromNBT(tag.getCompound(FLUID_NBT_TAG));
         updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
         if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
@@ -107,9 +104,7 @@ public class CentrifugeBE extends PoweredMachineBE
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag)
     {
-        tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
-        tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
-
+        super.saveAdditional(tag);
         CompoundTag fTag = new CompoundTag();
         fluidHandler.writeToNBT(fTag);
         tag.put(FLUID_NBT_TAG, fTag);
@@ -330,5 +325,15 @@ public class CentrifugeBE extends PoweredMachineBE
         // Update recipe and invalidation data if relevant
         if(slot == SLOT_INPUT) updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
         else if(slot == SLOT_OUTPUT_1 || slot == SLOT_OUTPUT_2 || slot == SLOT_OUTPUT_3) invalidOutput = false;
+    }
+
+    @Override
+    public AtomicInteger progress() {
+        return progress;
+    }
+
+    @Override
+    public AtomicInteger maxProgress() {
+        return maxProgress;
     }
 }

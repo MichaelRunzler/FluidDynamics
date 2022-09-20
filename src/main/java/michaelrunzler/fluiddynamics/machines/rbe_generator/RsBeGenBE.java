@@ -28,8 +28,6 @@ public class RsBeGenBE extends PoweredMachineBE
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
 
-    private static final String ITEM_NBT_TAG = "Inventory";
-    private static final String ENERGY_NBT_TAG = "Energy";
     private static final String INFO_NBT_TAG = "Info";
     private static final String RS_FUEL_NBT_TAG = "RsFuel";
     private static final String MAX_RS_FUEL_NBT_TAG = "MaxRsFuel";
@@ -74,8 +72,7 @@ public class RsBeGenBE extends PoweredMachineBE
     @Override
     public void load(@NotNull CompoundTag tag)
     {
-        if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
-        if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
+        super.load(tag);
         if(tag.contains(INFO_NBT_TAG)){
             rsFuel.set(tag.getCompound(INFO_NBT_TAG).getInt(RS_FUEL_NBT_TAG));
             maxRsFuel.set(tag.getCompound(INFO_NBT_TAG).getInt(MAX_RS_FUEL_NBT_TAG));
@@ -87,9 +84,7 @@ public class RsBeGenBE extends PoweredMachineBE
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag)
     {
-        tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
-        tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
-
+        super.saveAdditional(tag);
         CompoundTag iTag = new CompoundTag();
         iTag.putInt(RS_FUEL_NBT_TAG, rsFuel.get());
         iTag.putInt(MAX_RS_FUEL_NBT_TAG, maxRsFuel.get());

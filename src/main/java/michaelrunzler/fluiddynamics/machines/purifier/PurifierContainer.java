@@ -34,7 +34,6 @@ public class PurifierContainer extends MachineContainerBase
         layoutPlayerInventory(8, 84);
 
         syncFluids();
-        syncProgress();
     }
 
     /**
@@ -72,76 +71,9 @@ public class PurifierContainer extends MachineContainerBase
         });
     }
 
-    /**
-     * Synchronizes progress data between the server and client by splitting it into two data slots.
-     */
-    private void syncProgress()
-    {
-        PurifierBE mbe = (PurifierBE)be;
-
-        // Upper 16 bits of the value
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return get16b(getProgress(), true);
-            }
-
-            @Override
-            public void set(int value) {
-                mbe.progress.set(merge16b(mbe.progress.get(), value, true));
-            }
-        });
-
-        // Lower 16 bits of the value
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return get16b(getProgress(), false);
-            }
-
-            @Override
-            public void set(int value) {
-                mbe.progress.set(merge16b(mbe.progress.get(), value, false));
-            }
-        });
-
-        // Sync MaxProgress as well
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return get16b(getMaxProgress(), true);
-            }
-
-            @Override
-            public void set(int value) {
-                mbe.maxProgress.set(merge16b(mbe.maxProgress.get(), value, true));
-            }
-        });
-
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return get16b(getMaxProgress(), false);
-            }
-
-            @Override
-            public void set(int value) {
-                mbe.maxProgress.set(merge16b(mbe.maxProgress.get(), value, false));
-            }
-        });
-    }
-
     //
     // Accessors for the BE's properties
     //
-
-    public int getProgress(){
-        return ((PurifierBE)be).progress.get();
-    }
-
-    public int getMaxProgress(){
-        return ((PurifierBE)be).maxProgress.get();
-    }
 
     public int getFluidLevel(){
         return be.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).map(iFluidHandler -> iFluidHandler.getFluidInTank(0).getAmount()).orElse(0);

@@ -34,6 +34,7 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
     protected boolean lastPowerState; // Used to minimize state updates
     protected final ItemStackHandler itemHandler;
     protected final LazyOptional<IItemHandler> itemOpt;
+    protected static final String ITEM_NBT_TAG = "Inventory";
 
     /**
      * Overriding classes should declare LazyOptionals containing Handlers for each function that the BE provides
@@ -67,14 +68,20 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
      * @param tag the NBT data to load from
      */
     @Override
-    public abstract void load(@NotNull CompoundTag tag);
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
+        if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
+    }
 
     /**
      * Overriding classes should use this method to save any data which needs to be stored while the block is unloaded.
      * @param tag the NBT tag to save data to
      */
     @Override
-    protected abstract void saveAdditional(@NotNull CompoundTag tag);
+    protected void saveAdditional(@NotNull CompoundTag tag){
+        super.saveAdditional(tag);
+        tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
+    }
 
     /**
      * Subclasses should declare all additional capabilities here, with each being represented as a LazyOptional cast

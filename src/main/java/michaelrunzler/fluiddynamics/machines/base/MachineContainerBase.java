@@ -1,10 +1,7 @@
 package michaelrunzler.fluiddynamics.machines.base;
 
 import michaelrunzler.fluiddynamics.recipes.RecipeGenerator;
-import michaelrunzler.fluiddynamics.types.FDEnergyStorage;
-import michaelrunzler.fluiddynamics.types.FDItemHandler;
-import michaelrunzler.fluiddynamics.types.IInventoriedBE;
-import michaelrunzler.fluiddynamics.types.MachineEnum;
+import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -20,8 +17,11 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Represents a container instance which can be used as the basis for any {@link MachineEnum} type's container.
+ * Auto-detects if the underlying BE uses progress data and syncs said data if applicable.
  */
 @SuppressWarnings("SameParameterValue")
 public abstract class MachineContainerBase extends AbstractContainerMenu
@@ -29,6 +29,9 @@ public abstract class MachineContainerBase extends AbstractContainerMenu
     public final MachineEnum type;
     protected final BlockEntity be;
     protected final IItemHandler playerInventory;
+    
+    protected final AtomicInteger defaultProgress = new AtomicInteger(0);
+    protected final AtomicInteger defaultMaxProgress = new AtomicInteger(1);
 
     protected MachineContainerBase(MachineEnum type, @Nullable MenuType<?> menuType, int windowID, BlockPos pos, Inventory inventory, Player player)
     {
@@ -39,6 +42,7 @@ public abstract class MachineContainerBase extends AbstractContainerMenu
         this.playerInventory = new InvWrapper(inventory);
 
         syncPower();
+        syncProgress();
     }
 
     @Override
@@ -79,12 +83,77 @@ public abstract class MachineContainerBase extends AbstractContainerMenu
         });
     }
 
+    /**
+     * Synchronizes progress data between the server and client. Syncs both progress and maximum progress.
+     */
+    protected void syncProgress()
+    {
+        // Upper 16 bits of the value
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return get16b(getProgress().get(), true);
+            }
+
+            @Override
+            public void set(int value) {
+                getProgress().set(merge16b(getProgress().get(), value, true));
+            }
+        });
+
+        // Lower 16 bits of the value
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return get16b(getProgress().get(), false);
+            }
+
+            @Override
+            public void set(int value) {
+                getProgress().set(merge16b(getProgress().get(), value, false));
+            }
+        });
+
+        // Sync MaxProgress as well
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return get16b(getMaxProgress().get(), true);
+            }
+
+            @Override
+            public void set(int value) {
+                getMaxProgress().set(merge16b(getMaxProgress().get(), value, true));
+            }
+        });
+
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return get16b(getMaxProgress().get(), false);
+            }
+
+            @Override
+            public void set(int value) {
+                getMaxProgress().set(merge16b(getMaxProgress().get(), value, false));
+            }
+        });
+    }
+
     public int getEnergyStored(){
         return be.getCapability(CapabilityEnergy.ENERGY).map(IEnergyStorage::getEnergyStored).orElse(0);
     }
 
     public int getMaxEnergy(){
         return be.getCapability(CapabilityEnergy.ENERGY).map(IEnergyStorage::getMaxEnergyStored).orElse(1);
+    }
+
+    public AtomicInteger getProgress(){
+        return be instanceof IProcessingBE pe ? pe.progress() : defaultProgress;
+    }
+
+    public AtomicInteger getMaxProgress(){
+        return be instanceof IProcessingBE pe ? pe.maxProgress() : defaultMaxProgress;
     }
 
     @Override

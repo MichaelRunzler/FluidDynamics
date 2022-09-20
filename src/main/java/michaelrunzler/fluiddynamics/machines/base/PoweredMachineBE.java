@@ -5,6 +5,7 @@ import michaelrunzler.fluiddynamics.types.IChargeableItem;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,6 +13,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A variant of the {@link MachineBlockEntityBase} which includes various utilities for power storage and I/O handling.
@@ -25,6 +27,7 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
 
     protected final FDEnergyStorage energyHandler;
     protected final LazyOptional<IEnergyStorage> energyOpt;
+    protected static final String ENERGY_NBT_TAG = "Energy";
 
     /**
      * A variant of the standard constructor which allows specification of power import/export properties.
@@ -40,6 +43,18 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
         this.canExportPower = canExportPower;
         this.canImportPower = canImportPower;
         this.isPowerStorage = isPowerStorage;
+    }
+
+    @Override
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
+        if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
+    }
+
+    @Override
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
     }
 
     /**

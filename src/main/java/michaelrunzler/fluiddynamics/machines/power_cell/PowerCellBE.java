@@ -4,7 +4,6 @@ import michaelrunzler.fluiddynamics.machines.base.PoweredMachineBE;
 import michaelrunzler.fluiddynamics.types.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,9 +20,6 @@ public class PowerCellBE extends PoweredMachineBE
 {
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
-
-    private static final String ITEM_NBT_TAG = "Inventory";
-    private static final String ENERGY_NBT_TAG = "Energy";
 
     public static final int SLOT_BATTERY_IN = 0;
     public static final int SLOT_BATTERY_OUT = 1;
@@ -51,20 +47,6 @@ public class PowerCellBE extends PoweredMachineBE
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }
-    }
-
-    @Override
-    public void load(@NotNull CompoundTag tag)
-    {
-        if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
-        if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
-    }
-
-    @Override
-    protected void saveAdditional(@NotNull CompoundTag tag)
-    {
-        tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
-        tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
     }
 
     @Override

@@ -24,13 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EFurnaceBE extends PoweredMachineBE
+public class EFurnaceBE extends PoweredMachineBE implements IProcessingBE
 {
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
 
-    private static final String ITEM_NBT_TAG = "Inventory";
-    private static final String ENERGY_NBT_TAG = "Energy";
     private static final String INFO_NBT_TAG = "Info";
     private static final String PROGRESS_NBT_TAG = "Progress";
 
@@ -40,11 +38,11 @@ public class EFurnaceBE extends PoweredMachineBE
 
     public static final Map<String, XPGeneratingMachineRecipe> recipes = RecipeIndex.EFurnaceRecipes; // Stores all valid recipes for this machine tagged by their input item name
     public RelativeFacing relativeFacing;
-    public AtomicInteger progress;
-    public AtomicInteger maxProgress;
-    public XPGeneratingMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
-    private boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
-    private boolean tryTickRecipeCB; // Used to determine if the BE should attempt to re-query recipes on tick instead of on load
+    protected AtomicInteger progress;
+    protected AtomicInteger maxProgress;
+    protected XPGeneratingMachineRecipe currentRecipe; // Represents the currently processing recipe in the machine
+    protected boolean invalidOutput; // When 'true', the ticker logic can bypass state checking and assume the output is full
+    protected boolean tryTickRecipeCB; // Used to determine if the BE should attempt to re-query recipes on tick instead of on load
 
     @SuppressWarnings("unchecked")
     public EFurnaceBE(BlockPos pos, BlockState state)
@@ -76,8 +74,7 @@ public class EFurnaceBE extends PoweredMachineBE
     @Override
     public void load(@NotNull CompoundTag tag)
     {
-        if(tag.contains(ITEM_NBT_TAG)) itemHandler.deserializeNBT(tag.getCompound(ITEM_NBT_TAG));
-        if(tag.contains(ENERGY_NBT_TAG)) energyHandler.deserializeNBT(tag.get(ENERGY_NBT_TAG));
+        super.load(tag);
         updateRecipe(itemHandler.getStackInSlot(SLOT_INPUT));
         if(tag.contains(INFO_NBT_TAG)) progress.set(tag.getCompound(INFO_NBT_TAG).getInt(PROGRESS_NBT_TAG));
     }
@@ -85,9 +82,7 @@ public class EFurnaceBE extends PoweredMachineBE
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag)
     {
-        tag.put(ITEM_NBT_TAG, itemHandler.serializeNBT());
-        tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
-
+        super.saveAdditional(tag);
         CompoundTag iTag = new CompoundTag();
         iTag.putInt(PROGRESS_NBT_TAG, progress.get());
         tag.put(INFO_NBT_TAG, iTag);
@@ -235,5 +230,15 @@ public class EFurnaceBE extends PoweredMachineBE
 
         // Clear the re-query flag if it was set
         tryTickRecipeCB = false;
+    }
+
+    @Override
+    public AtomicInteger progress() {
+        return progress;
+    }
+
+    @Override
+    public AtomicInteger maxProgress() {
+        return maxProgress;
     }
 }

@@ -28,67 +28,15 @@ public class HTFurnaceContainer extends MachineContainerBase
 
         layoutPlayerInventory(8, 84);
 
-     
-        syncProgress();
+        syncFuel();
     }
 
     /**
-     * Synchronizes progress data between the server and client by splitting it into two data slots.
+     * Synchronizes fuel data between the server and client by splitting it into two data slots.
      */
-    private void syncProgress()
+    private void syncFuel()
     {
         HTFurnaceBE mbe = (HTFurnaceBE) be;
-
-        // Upper 16 bits of the value
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return get16b(getProgress(), true);
-            }
-
-            @Override
-            public void set(int value) {
-                mbe.progress.set(merge16b(mbe.progress.get(), value, true));
-            }
-        });
-
-        // Lower 16 bits of the value
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return get16b(getProgress(), false);
-            }
-
-            @Override
-            public void set(int value) {
-                mbe.progress.set(merge16b(mbe.progress.get(), value, false));
-            }
-        });
-
-        // Sync MaxProgress as well
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return get16b(getMaxProgress(), true);
-            }
-
-            @Override
-            public void set(int value) {
-                mbe.maxProgress.set(merge16b(mbe.maxProgress.get(), value, true));
-            }
-        });
-
-        addDataSlot(new DataSlot() {
-            @Override
-            public int get() {
-                return get16b(getMaxProgress(), false);
-            }
-
-            @Override
-            public void set(int value) {
-                mbe.maxProgress.set(merge16b(mbe.maxProgress.get(), value, false));
-            }
-        });
 
         // And fuel/max fuel
         addDataSlot(new DataSlot() {
@@ -143,14 +91,6 @@ public class HTFurnaceContainer extends MachineContainerBase
     //
     // Accessors for the BE's properties
     //
-
-    public int getProgress(){
-        return ((HTFurnaceBE) be).progress.get();
-    }
-
-    public int getMaxProgress(){
-        return ((HTFurnaceBE)be).maxProgress.get();
-    }
 
     public int getFuel(){
         return ((HTFurnaceBE)be).fuel.get();
