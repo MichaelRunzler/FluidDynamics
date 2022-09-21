@@ -2,6 +2,7 @@ package michaelrunzler.fluiddynamics.machines;
 
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDScreen;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeScreen;
+import michaelrunzler.fluiddynamics.machines.charging_table.ChargingTableScreen;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceScreen;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceScreen;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellScreen;
@@ -44,5 +45,8 @@ public class ModScreens
 
         MenuScreens.register(ModContainers.CONTAINER_RBEGEN.get(), RsBeGenScreen::new);
         ItemBlockRenderTypes.setRenderLayer(RecipeGenerator.registryToBlock(MachineEnum.RBE_GENERATOR.name().toLowerCase()), RenderType.translucent());
+
+        MenuScreens.register(ModContainers.CONTAINER_CHARGING_TABLE.get(), ChargingTableScreen::new);
+        ItemBlockRenderTypes.setRenderLayer(RecipeGenerator.registryToBlock(MachineEnum.CHARGING_TABLE.name().toLowerCase()), RenderType.translucent());
     }
 }

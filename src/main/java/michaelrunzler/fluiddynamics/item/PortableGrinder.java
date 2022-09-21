@@ -13,7 +13,7 @@ import net.minecraft.world.item.Rarity;
  */
 public class PortableGrinder extends Item implements IChargeableItem
 {
-    public static final int DURABILITY = 4;
+    public static final int DURABILITY = 1000;
 
     public PortableGrinder() {
         super(new Properties().tab(CreativeTabs.TAB_TOOLS).rarity(Rarity.UNCOMMON).setNoRepair().stacksTo(1).defaultDurability(DURABILITY));
@@ -21,7 +21,7 @@ public class PortableGrinder extends Item implements IChargeableItem
 
     @Override
     public ItemStack getContainerItem(ItemStack itemStack) {
-        return chargeDischarge(itemStack.copy(), 1, false);
+        return chargeDischarge(itemStack.copy(), 250, false);
     }
 
     @Override
@@ -42,8 +42,11 @@ public class PortableGrinder extends Item implements IChargeableItem
         super.setDamage(stack, stack.getDamageValue() + amount);
 
         // Convert this item to an Uncharged PMD if it is out of energy
-        if(this.getDamage(stack) == stack.getMaxDamage())
-            return new ItemStack(RecipeGenerator.registryToItem("uncharged_portable_grinder"), stack.getCount());
+        if(this.getDamage(stack) > DURABILITY - (DURABILITY / 4)) {
+            ItemStack tmp = new ItemStack(RecipeGenerator.registryToItem("uncharged_portable_grinder"), stack.getCount());
+            tmp.setDamageValue(DURABILITY / 4 - (DURABILITY - this.getDamage(stack)));
+            return tmp;
+        }
 
         return stack;
     }

@@ -42,13 +42,5 @@ public class AdvToolRecipes
                 .define('d', Items.DIAMOND)
                 .unlockedBy("portable_grinder_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(Items.DIAMOND))
                 .save(c, "portable_grinder");
-
-        // This recipe trips the container definition for the uncharged grinder, adding a fully-charged grinder to the
-        // player's inventory alongside the depleted cell output by the crafting recipe
-        ShapelessRecipeBuilder.shapeless(RecipeGenerator.registryToItem("depleted_cell"), 1)
-                .requires(RecipeGenerator.registryToItem("energy_cell"), 1)
-                .requires(RecipeGenerator.registryToItem("uncharged_portable_grinder"), 1)
-                .unlockedBy("grinder_recharge_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("uncharged_portable_grinder")))
-                .save(c, "grinder_recharge");
     }
 }

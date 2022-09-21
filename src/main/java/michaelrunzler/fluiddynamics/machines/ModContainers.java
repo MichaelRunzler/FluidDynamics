@@ -3,6 +3,7 @@ package michaelrunzler.fluiddynamics.machines;
 import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDContainer;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeContainer;
+import michaelrunzler.fluiddynamics.machines.charging_table.ChargingTableContainer;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceContainer;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceContainer;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellContainer;
@@ -31,6 +32,7 @@ public class ModContainers
     public static RegistryObject<MenuType<PowerCellContainer>> CONTAINER_POWERCELL;
     public static RegistryObject<MenuType<RsGenContainer>> CONTAINER_RSGEN;
     public static RegistryObject<MenuType<RsBeGenContainer>> CONTAINER_RBEGEN;
+    public static RegistryObject<MenuType<ChargingTableContainer>> CONTAINER_CHARGING_TABLE;
 
     public static void registerAllContainers()
     {
@@ -42,5 +44,6 @@ public class ModContainers
         CONTAINER_POWERCELL = containers.register(MachineEnum.POWER_CELL.name().toLowerCase(), () -> IForgeMenuType.create(((windowId, inv, data) -> new PowerCellContainer(windowId, data.readBlockPos(), inv, inv.player))));
         CONTAINER_RSGEN = containers.register(MachineEnum.RS_GENERATOR.name().toLowerCase(), () -> IForgeMenuType.create(((windowId, inv, data) -> new RsGenContainer(windowId, data.readBlockPos(), inv, inv.player))));
         CONTAINER_RBEGEN = containers.register(MachineEnum.RBE_GENERATOR.name().toLowerCase(), () -> IForgeMenuType.create(((windowId, inv, data) -> new RsBeGenContainer(windowId, data.readBlockPos(), inv, inv.player))));
+        CONTAINER_CHARGING_TABLE = containers.register(MachineEnum.CHARGING_TABLE.name().toLowerCase(), () -> IForgeMenuType.create(((windowId, inv, data) -> new ChargingTableContainer(windowId, data.readBlockPos(), inv, inv.player))));
     }
 }

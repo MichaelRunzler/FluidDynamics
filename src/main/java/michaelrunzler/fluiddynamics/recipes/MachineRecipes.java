@@ -121,5 +121,17 @@ public class MachineRecipes
                 .group("fluid_dynamics_machine_rbe_generator")
                 .unlockedBy("machine_rbe_generator_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("dust_palladium")))
                 .save(c, "machine_rbe_generator");
+
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.CHARGING_TABLE.name().toLowerCase()))
+                .pattern("crc")
+                .pattern("cbc")
+                .pattern("coc")
+                .define('c', Items.COBBLESTONE)
+                .define('r', Items.REDSTONE)
+                .define('b', RecipeGenerator.registryToItem("ingot_beryllium"))
+                .define('o', RecipeGenerator.registryToItem("ingot_copper"))
+                .group("fluid_dynamics_machine_charging_table")
+                .unlockedBy("machine_charging_table_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_copper")))
+                .save(c, "machine_charging_table");
     }
 }

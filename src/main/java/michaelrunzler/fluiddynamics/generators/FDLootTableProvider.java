@@ -31,6 +31,12 @@ public class FDLootTableProvider extends BaseLootTableProvider
             String name = "ore_" + mat.name().toLowerCase();
             Block block = RecipeGenerator.registryToBlock(name);
             lootTables.put(block, createSimpleTable(name, block));
+
+            if(mat.hasDeepslateVariant){
+                name = "deepslate_ore_" + mat.name().toLowerCase();
+                block = RecipeGenerator.registryToBlock(name);
+                lootTables.put(block, createSimpleTable(name, block));
+            }
         }
 
         for(MachineEnum mat : MachineEnum.values())

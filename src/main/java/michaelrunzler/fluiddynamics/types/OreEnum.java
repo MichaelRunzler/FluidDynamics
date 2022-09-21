@@ -19,12 +19,12 @@ public enum OreEnum
     // (3.0, 2, 2, 16, 1.0, -64, 64, OVERWORLD, STANDARD)
     NATIVE_COPPER(  3.0f, 2, 1.0f, 0.8f, -16, 64, BlockTags.STONE_ORE_REPLACEABLES, true, "Native Copper Ore"),
     NATIVE_TIN(     2.5f, 1, 1.0f, 0.9f, -32, 80, BlockTags.STONE_ORE_REPLACEABLES, true, "Native Tin Ore"),
-    BERTRANDITE(    3.5f, 2, 1.0f, 1.0f, -16, 48, BlockTags.STONE_ORE_REPLACEABLES, true, "Bertrandite"),
-    SPHEROCOBALTITE(5.0f, 3, 1.0f, 0.4f, -64, 32, BlockTags.STONE_ORE_REPLACEABLES, true, "Spherocobaltite"),
+    BERTRANDITE(    3.5f, 2, 1.0f, 0.9f, -16, 48, BlockTags.STONE_ORE_REPLACEABLES, true, "Bertrandite"),
+    SPHEROCOBALTITE(5.0f, 3, 1.0f, 0.3f, -64, 32, BlockTags.STONE_ORE_REPLACEABLES, true, "Spherocobaltite"),
     TETRATAENITE(   50.0f,4, 1.0f, 0.1f, -64,128, BlockTags.DIRT, false, "Tetrataenite"),
-    BAUXITE(        2.8f, 3, 2.0f, 0.4f, -64, 16, BlockTags.STONE_ORE_REPLACEABLES, true, "Bauxite"),
-    WOLFRAMITE(     7.0f, 4, 1.0f, 0.3f, -64, 8, BlockTags.STONE_ORE_REPLACEABLES, true, "Wolframite"),
-    PENTLANDITE(    4.5f, 2, 1.0f, 0.5f, -16, 32, BlockTags.STONE_ORE_REPLACEABLES, true, "Pentlandite");
+    BAUXITE(        2.8f, 3, 2.0f, 0.3f, -64, 16, BlockTags.STONE_ORE_REPLACEABLES, true, "Bauxite"),
+    WOLFRAMITE(     7.0f, 4, 1.0f, 0.6f, -64, 8, BlockTags.STONE_ORE_REPLACEABLES, true, "Wolframite"),
+    PENTLANDITE(    4.5f, 2, 1.0f, 0.3f, -32, 32, BlockTags.STONE_ORE_REPLACEABLES, true, "Pentlandite");
 
     public final float hardness;
     public final int miningLevel;

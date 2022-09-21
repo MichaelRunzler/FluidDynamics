@@ -103,7 +103,7 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
         ItemStack batt = itemHandler.getStackInSlot(slotID);
         if(batt.getItem() instanceof IChargeableItem chargeable && chargeable.canCharge() && batt.getCount() > 0)
         {
-            // If there is a valid cell in the slot, check to see if we need energy, and if so, extract some from the cell
+            // If there is a valid cell in the slot, check to see if the cell needs energy
             if(energyHandler.getEnergyStored() > 0 && batt.getDamageValue() > 0)
             {
                 // Transfer the lowest out of: remaining cell capacity, remaining energy, or maximum charge rate

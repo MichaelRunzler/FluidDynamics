@@ -62,7 +62,7 @@ public class OreGen
                 RecipeGenerator.registryToBlock(oreName).defaultBlockState(), (int)(BASE_VEIN_SIZE * type.sizeModifier));
         return registerPlacedFeature("oregen_" + (hasDeepVariant ? oreName : ("deepslate_" + oreName)),
                 new ConfiguredFeature<>(Feature.ORE, deepslateConfig),
-                CountPlacement.of((int)(BASE_PLACEMENT_COUNT * type.rarity)),
+                CountPlacement.of((int)(BASE_PLACEMENT_COUNT * type.rarity / 2)), // Deepslate has far more exposed stone than the upper layers, so we reduce the spawn rate to compensate
                 InSquarePlacement.spread(),
                 HeightRangePlacement.uniform(VerticalAnchor.absolute(Math.min(0, type.minY)), VerticalAnchor.absolute(Math.min(0, type.maxY))));
     }

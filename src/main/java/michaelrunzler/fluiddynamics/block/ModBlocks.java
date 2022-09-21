@@ -8,6 +8,7 @@ import michaelrunzler.fluiddynamics.generators.FDLootTableProvider;
 import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBlock;
+import michaelrunzler.fluiddynamics.machines.charging_table.ChargingTableBlock;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBlock;
@@ -135,7 +136,6 @@ public class ModBlocks
                 new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
         FDEnLangProvider.addBlockLangMapping(rsGen, MachineEnum.RS_GENERATOR.englishName);
         FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.RS_GENERATOR.name().toLowerCase());
-        FDLootTableProvider.nonDefaultLootTableBlocks.add(MachineEnum.RS_GENERATOR.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, rsGen.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, rsGen.getKey());
 
@@ -143,9 +143,15 @@ public class ModBlocks
                 new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
         FDEnLangProvider.addBlockLangMapping(rbeGen, MachineEnum.RBE_GENERATOR.englishName);
         FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.RBE_GENERATOR.name().toLowerCase());
-        FDLootTableProvider.nonDefaultLootTableBlocks.add(MachineEnum.RBE_GENERATOR.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, rbeGen.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_IRON_TOOL, rbeGen.getKey());
+
+        RegistryObject<Block> chargeTable = specialRegisterBlock(MachineEnum.CHARGING_TABLE.name().toLowerCase(), ChargingTableBlock::new,
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.COMMON).stacksTo(64).setNoRepair());
+        FDEnLangProvider.addBlockLangMapping(chargeTable, MachineEnum.CHARGING_TABLE.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.CHARGING_TABLE.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, chargeTable.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, chargeTable.getKey());
 
         //
         // Special Non-Machine Blocks

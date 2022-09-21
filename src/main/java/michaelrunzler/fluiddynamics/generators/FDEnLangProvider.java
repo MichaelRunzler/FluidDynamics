@@ -3,6 +3,7 @@ package michaelrunzler.fluiddynamics.generators;
 import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBlock;
+import michaelrunzler.fluiddynamics.machines.charging_table.ChargingTableBlock;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBlock;
@@ -55,6 +56,7 @@ public class FDEnLangProvider extends LanguageProvider
         add(PowerCellBlock.SCREEN_TITLE, "Power Cell");
         add(RsGenBlock.SCREEN_TITLE, "Redstone Generator");
         add(RsBeGenBlock.SCREEN_TITLE, "Rs-Be Generator");
+        add(ChargingTableBlock.SCREEN_TITLE, "Charging Table");
     }
 
     /**

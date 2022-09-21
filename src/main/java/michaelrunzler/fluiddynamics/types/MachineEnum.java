@@ -15,7 +15,8 @@ public enum MachineEnum
     HT_FURNACE("High-Temp Blast Furnace", 8.0f, -1, -1, -1, -1, 3), // Power isn't used by this machine, since it's fueled
     POWER_CELL("Rs-Be Power Cell", 3.0f, 20000, 50, 50, -1, 2), // Power is never consumed by the cell, only stored
     RS_GENERATOR("Catalytic Redstone Generator", 4.0f, 5000, 0, 10, 10, 2), // In this case, consumption represents output, not input
-    RBE_GENERATOR("Rs-Be Reaction Generator", 6.0f, 9000, 0, 25, 25, 3); // Same as above
+    RBE_GENERATOR("Rs-Be Reaction Generator", 6.0f, 9000, 0, 25, 25, 3), // Same as above
+    CHARGING_TABLE("Charging Table", 2.0f, 0, -1, -1, 10, 2); // Consumption is transfer in this case
 
     public final String englishName;
     public final float strength;

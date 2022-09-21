@@ -1,0 +1,51 @@
+{
+  "variants":
+  {
+    "facing=north,powered=false": {
+      "model": "fluiddynamics:block/charging_table"
+    },
+    "facing=north,powered=true": {
+      "model": "fluiddynamics:block/charging_table_p"
+    },
+    "facing=south,powered=false": {
+      "model": "fluiddynamics:block/charging_table",
+      "y": 180
+    },
+    "facing=south,powered=true": {
+      "model": "fluiddynamics:block/charging_table_p",
+      "y": 180
+    },
+    "facing=east,powered=false": {
+      "model": "fluiddynamics:block/charging_table",
+      "y": 90
+    },
+    "facing=east,powered=true": {
+      "model": "fluiddynamics:block/charging_table_p",
+      "y": 90
+    },
+    "facing=west,powered=false": {
+      "model": "fluiddynamics:block/charging_table",
+      "y": 270
+    },
+    "facing=west,powered=true": {
+      "model": "fluiddynamics:block/charging_table_p",
+      "y": 270
+    },
+    "facing=up,powered=false": {
+      "model": "fluiddynamics:block/charging_table",
+      "x": 90
+    },
+    "facing=up,powered=true": {
+      "model": "fluiddynamics:block/charging_table_p",
+      "x": 90
+    },
+    "facing=down,powered=false": {
+      "model": "fluiddynamics:block/charging_table",
+      "x": 270
+    },
+    "facing=down,powered=true": {
+      "model": "fluiddynamics:block/charging_table_p",
+      "x": 270
+    }
+  }
+}
