@@ -14,7 +14,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,9 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RsBeGenBE extends PoweredMachineBE
 {
-    private final ItemStackHandler itemHandler = createIHandler();
-    private final LazyOptional<IItemHandler> itemOpt = LazyOptional.of(() -> itemHandler);
-
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
 

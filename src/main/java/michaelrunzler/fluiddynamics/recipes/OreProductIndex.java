@@ -52,11 +52,11 @@ public class OreProductIndex
                 new RecipeIngredient(RecipeGenerator.registryToItem("dust_nickel"), 1),
                 new RecipeIngredient(RecipeGenerator.registryToItem("dust_iron"), 1)});
 
-        rv.put(Items.GOLD_ORE, new RecipeIngredient[] {
+        rv.put(Items.RAW_GOLD, new RecipeIngredient[] {
                 new RecipeIngredient(RecipeGenerator.registryToItem("dust_gold"), 1),
                 new RecipeIngredient(RecipeGenerator.registryToItem("dust_small_palladium"), 1)});
 
-        rv.put(Items.IRON_ORE, new RecipeIngredient[] {
+        rv.put(Items.RAW_IRON, new RecipeIngredient[] {
                 new RecipeIngredient(RecipeGenerator.registryToItem("dust_iron"), 1),
                 new RecipeIngredient(RecipeGenerator.registryToItem("dust_small_nickel"), 1)});
 
