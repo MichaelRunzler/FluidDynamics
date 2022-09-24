@@ -22,11 +22,14 @@ public class OreProductIndex
     {
         Map<Item, RecipeIngredient[]> rv = new HashMap<>();
 
+        // Copper and Tin don't product any secondaries since they're elemental; instead, they produce bonus amounts of themselves
         rv.put(RecipeGenerator.registryToItem("ore_native_copper"), new RecipeIngredient[] {
-                new RecipeIngredient(RecipeGenerator.registryToItem("dust_copper"), 1)});
+                new RecipeIngredient(RecipeGenerator.registryToItem("dust_copper"), 1),
+                new RecipeIngredient(RecipeGenerator.registryToItem("dust_small_copper"), 1)});
 
         rv.put(RecipeGenerator.registryToItem("ore_native_tin"), new RecipeIngredient[] {
-                new RecipeIngredient(RecipeGenerator.registryToItem("dust_tin"), 1)});
+                new RecipeIngredient(RecipeGenerator.registryToItem("dust_tin"), 1),
+                new RecipeIngredient(RecipeGenerator.registryToItem("dust_small_tin"), 1)});
 
         rv.put(RecipeGenerator.registryToItem("ore_bertrandite"), new RecipeIngredient[] {
                 new RecipeIngredient(RecipeGenerator.registryToItem("dust_beryllium"), 1),

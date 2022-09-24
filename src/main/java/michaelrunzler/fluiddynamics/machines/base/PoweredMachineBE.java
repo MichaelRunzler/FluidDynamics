@@ -137,15 +137,17 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
             // If the adjacent BE is another power storage block, try to balance power instead of blindly transmitting it
             if(rbe instanceof PoweredMachineBE pbe && isPowerStorage && pbe.isPowerStorage)
             {
-                // Leave a margin of 1 tick's worth of energy to prevent oscillating energy transfers
-                if(pbe.energyHandler.getEnergyStored() + type.powerOutputRate < this.energyHandler.getEnergyStored()){
+                // Balance energy based on fill percentages of the two storages
+                float fullThis = ((float)this.energyHandler.getEnergyStored()) / ((float)this.energyHandler.getMaxEnergyStored());
+                float fullOther = ((float)pbe.energyHandler.getEnergyStored()) / ((float)pbe.energyHandler.getMaxEnergyStored());
+                if(fullOther < fullThis){
                     int xfer = Math.min(this.energyHandler.getEnergyStored(), pbe.energyHandler.getMaxEnergyStored() - pbe.energyHandler.getEnergyStored());
                     int xfered = pbe.energyHandler.receiveEnergy(xfer, false);
                     this.energyHandler.extractEnergy(xfered, false);
                 }
             }else {
-                // See if the BE can accept power, and if so, try to push some
-                rbe.getCapability(CapabilityEnergy.ENERGY).ifPresent(c ->
+                // See if the BE can accept power, and if so, try to push some, ensuring that we respect sided-ness
+                rbe.getCapability(CapabilityEnergy.ENERGY, d.getOpposite()).ifPresent(c ->
                 {
                     if (c.canReceive()) {
                         int xfer = Math.min(this.energyHandler.getEnergyStored(), type.powerOutputRate);
@@ -155,5 +157,42 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
                 });
             }
         }
+    }
+
+    /**
+     * Creates a new Energy Handler which is tied to the internal energy storage, but is I/O restricted by the parameters
+     * give here. In other words, this acts like it's the internal storage, but can have extraction or insertion restricted.
+     */
+    protected FDEnergyStorage createDirectionalEHandler(boolean input, boolean output)
+    {
+        return new FDEnergyStorage(type.powerCapacity, input ? type.powerInputRate : 0, output ? type.powerOutputRate : 0)
+        {
+            @Override
+            public void setEnergy(int newEnergy) {
+                energyHandler.setEnergy(newEnergy);
+            }
+
+            @Override
+            public int receiveEnergy(int maxReceive, boolean simulate) {
+                if(!input) return 0;
+                return energyHandler.receiveEnergy(maxReceive, simulate);
+            }
+
+            @Override
+            public int extractEnergy(int maxExtract, boolean simulate) {
+                if(!output) return 0;
+                return energyHandler.extractEnergy(maxExtract, simulate);
+            }
+
+            @Override
+            public int getEnergyStored() {
+                return energyHandler.getEnergyStored();
+            }
+
+            @Override
+            public int getMaxEnergyStored() {
+                return energyHandler.getMaxEnergyStored();
+            }
+        };
     }
 }

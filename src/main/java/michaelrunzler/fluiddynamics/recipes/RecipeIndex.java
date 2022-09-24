@@ -82,6 +82,7 @@ public class RecipeIndex
             // Generate modded recipes (machines)
             MFMDRecipes.put(RecipeGenerator.getName(ore), gen.ingotToDustMachine(ore, crushed, type.hardness * CRUSHING_MULTIPLIER));
             PurifierRecipes.put(RecipeGenerator.getName(crushed), gen.crushedToPurified(crushed, purified, OreEnum.NATIVE_COPPER.hardness * PURIFICATION_MULTIPLIER));
+            PurifierRecipes.put(RecipeGenerator.getName(purified), gen.crushedToPurified(purified, OreProductIndex.CentrifugeProducts.get(ore)[0].ingredient().asItem(), OreEnum.NATIVE_COPPER.hardness * PURIFICATION_MULTIPLIER));
             CentrifugeRecipes.put(RecipeGenerator.getName(purified), gen.purifiedToDust(purified, type.hardness * SEPARATION_MULTIPLIER, OreProductIndex.CentrifugeProducts.get(ore)));
 
             if(product.meltPoint < VANILLA_FURNACE_TEMP)
@@ -206,6 +207,7 @@ public class RecipeIndex
 
         MFMDRecipes.put(RecipeGenerator.getName(ore), gen.ingotToDustMachine(ore, crushed, hardness * CRUSHING_MULTIPLIER));
         PurifierRecipes.put(RecipeGenerator.getName(crushed), gen.crushedToPurified(crushed, purified, OreEnum.NATIVE_COPPER.hardness * PURIFICATION_MULTIPLIER));
+        PurifierRecipes.put(RecipeGenerator.getName(purified), gen.crushedToPurified(purified, OreProductIndex.CentrifugeProducts.get(ore)[0].ingredient().asItem(), OreEnum.NATIVE_COPPER.hardness * PURIFICATION_MULTIPLIER));
         CentrifugeRecipes.put(RecipeGenerator.getName(purified), gen.purifiedToDust(purified, hardness * SEPARATION_MULTIPLIER, OreProductIndex.CentrifugeProducts.get(ore)));
         EFurnaceRecipes.put(RecipeGenerator.getName(crushed), gen.dustToIngotESmelting(crushed, ingot, temp * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));
         EFurnaceRecipes.put(RecipeGenerator.getName(purified), gen.dustToIngotESmelting(purified, ingot, temp * ACCELERATED_SMELT_MULTIPLIER, ORE_SMELT_XP));

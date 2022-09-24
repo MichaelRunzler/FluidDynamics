@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,12 @@ public class PowerCellBE extends PoweredMachineBE
 {
     private final LazyOptional<IItemHandler>[] slotHandlers; // Contains individual slot handlers for each block side
     private final IItemHandler[] rawHandlers;
+
+    // Sided energy output handlers for restricted I/O
+    private final FDEnergyStorage inputHandler = createDirectionalEHandler(true, false);
+    private final FDEnergyStorage outputHandler = createDirectionalEHandler(false, true);
+    private final LazyOptional<IEnergyStorage> EInputOpt = LazyOptional.of(() -> inputHandler);
+    private final LazyOptional<IEnergyStorage> EOutputOpt = LazyOptional.of(() -> outputHandler);
 
     public static final int SLOT_BATTERY_IN = 0;
     public static final int SLOT_BATTERY_OUT = 1;
@@ -66,7 +73,12 @@ public class PowerCellBE extends PoweredMachineBE
             else return (LazyOptional<T>) itemOpt;
         }
 
-        if(cap == CapabilityEnergy.ENERGY) return (LazyOptional<T>)energyOpt;
+        // In the Power Cell, energy I/O is also sided, since non-sided I/O results in energy loops
+        if(cap == CapabilityEnergy.ENERGY) {
+            if(side == relativeFacing.TOP || side == relativeFacing.LEFT || side == relativeFacing.BACK) return (LazyOptional<T>)EInputOpt;
+            else if(side == relativeFacing.BOTTOM || side == relativeFacing.RIGHT || side == relativeFacing.FRONT) return (LazyOptional<T>)EOutputOpt;
+            else return (LazyOptional<T>)energyOpt;
+        }
         return super.getCapability(cap, side);
     }
 
@@ -78,7 +90,13 @@ public class PowerCellBE extends PoweredMachineBE
         bStack = chargeBatteryItem(SLOT_BATTERY_OUT, itemHandler);
         if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY_OUT, bStack);
 
-        exportToNeighbors(Direction.values());
+        // Export only on directions which can export via getCapability()
+        for(Direction d : Direction.values()) {
+            this.getCapability(CapabilityEnergy.ENERGY, d).ifPresent(c -> {
+                if(c.canExtract()) exportToNeighbors(d);
+            });
+        }
+
         updatePowerState(energyHandler.getEnergyStored() > 0);
     }
 

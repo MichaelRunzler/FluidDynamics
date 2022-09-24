@@ -48,7 +48,11 @@ public abstract class FDMachineBase extends Block implements EntityBlock
                 .requiresCorrectToolForDrops()
                 .sound(SoundType.METAL)
                 .strength(type.strength)
-                .lightLevel((state) -> state.getValue(BlockStateProperties.POWERED) ? 12 : 0));
+                .lightLevel((state) -> {
+                    if(state.hasProperty(BlockStateProperties.POWERED))
+                        return state.getValue(BlockStateProperties.POWERED) ? 12 : 0;
+                    else return 0;
+                }));
 
         this.doItemDrops = true;
         this.type = type;

@@ -74,7 +74,7 @@ public class MachineRecipes
                 .pattern("nmn")
                 .pattern("nfn")
                 .pattern("oio")
-                .define('n', Items.NETHER_BRICK)
+                .define('n', Items.NETHER_BRICKS)
                 .define('m', Items.MAGMA_BLOCK)
                 .define('f', Items.BLAST_FURNACE)
                 .define('o', Items.OBSIDIAN)
@@ -133,5 +133,17 @@ public class MachineRecipes
                 .group("fluid_dynamics_machine_charging_table")
                 .unlockedBy("machine_charging_table_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_copper")))
                 .save(c, "machine_charging_table");
+
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase()), 8)
+                .pattern(" b ")
+                .pattern("rcr")
+                .pattern(" i ")
+                .define('b', RecipeGenerator.registryToItem("ingot_bronze"))
+                .define('r', Items.REDSTONE)
+                .define('c', RecipeGenerator.registryToItem("power_conduit"))
+                .define('i', Items.IRON_INGOT)
+                .group("fluid_dynamics_conduit_basic")
+                .unlockedBy("conduit_basic_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_bronze")))
+                .save(c, "conduit_basic");
     }
 }
