@@ -24,14 +24,18 @@ public abstract class BasePowerConduitBE extends PoweredMachineBE
     protected static final String PACKET_DIR_TAG = "PacketDir";
     protected static final String PACKET_AMT_TAG = "PacketAmount";
     protected static final int MAX_CONSECUTIVE_INSERTIONS = 2;
+    protected static final int FORWARD_MODE_THRESHOLD = 4;
+    protected boolean forwardMode;
     protected ConduitPowerPacket storedPacket;
     protected Direction lastSideAccess; // The direction from which the conduit's power API was last accessed by another BE
     protected Direction lastPacketInsertion; // The direction from which a packet was last accepted
     protected int nextForwardDir; // The next direction ordinal that the conduit should attempt to forward held packets to
     protected int sequentialInsertionCount; // The number of times the conduit has received a packet from the same side sequentially
+    protected int sequentialRetryCount; // The number of times another conduit has attempted to deliver a packet from the same side sequentially
 
     public BasePowerConduitBE(BlockPos pos, BlockState state, MachineEnum type) {
         super(pos, state, type, true, true, false);
+        forwardMode = true;
         storedPacket = null;
         lastSideAccess = null;
         lastPacketInsertion = null;
@@ -160,23 +164,30 @@ public abstract class BasePowerConduitBE extends PoweredMachineBE
      */
     protected boolean tryAcceptPacket(ConduitPowerPacket packet, Direction d)
     {
-        // TODO validate logic
-        // Register sequential insertions, and disallow acceptance of new packets if the limit has been reached
-        if(lastPacketInsertion == d) {
-            if(sequentialInsertionCount >= MAX_CONSECUTIVE_INSERTIONS) return false;
-            sequentialInsertionCount++;
-        }else { // If this insertion is non-sequential, update the insertion marker and clear the counter
-            lastPacketInsertion = d;
-            sequentialInsertionCount = 0;
-        }
+        // Change to routing mode if a packet insertion is attempted by another direction
+        // Also manage retry counters for changing back to forwarding mode
+        if(forwardMode && (lastPacketInsertion != null && lastPacketInsertion != d)) {
+            forwardMode = false;
+        } else if(!forwardMode && lastPacketInsertion == d) sequentialRetryCount++;
+        else sequentialRetryCount = 0;
 
-        // This is a non-sequential insertion, so try to insert the packet
-        if (this.storedPacket == null) {
-            this.storedPacket = new ConduitPowerPacket(d, packet.amount());
-            return true;
-        }
+        // We already have a packet; insertion is not allowed
+        if(this.storedPacket != null) return false;
 
-        return false;
+        // Update mode. If we have seen quite a few consecutive insertions, switch back to forwarding mode.
+        // If we are in routing mode and have seen more than the allowed number of
+        // consecutive insertions, deny any further insertions from that direction.
+        if(!forwardMode && sequentialRetryCount >= FORWARD_MODE_THRESHOLD) forwardMode = true;
+        else if(!forwardMode && sequentialInsertionCount >= MAX_CONSECUTIVE_INSERTIONS) return false;
+
+        // Register sequential insertions in routing mode
+        if(!forwardMode && (lastPacketInsertion == d || lastPacketInsertion == null)) sequentialInsertionCount++;
+        else sequentialInsertionCount = 0;
+        lastPacketInsertion = d;
+
+        // This is a validated insertion, so we accept the packet
+        this.storedPacket = new ConduitPowerPacket(d, packet.amount());
+        return true;
     }
 
     @Override
