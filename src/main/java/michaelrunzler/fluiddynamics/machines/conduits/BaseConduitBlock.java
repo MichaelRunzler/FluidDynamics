@@ -4,7 +4,6 @@ import michaelrunzler.fluiddynamics.machines.base.FDMachineBase;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -18,8 +17,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,13 +39,7 @@ public abstract class BaseConduitBlock extends FDMachineBase
     @Override
     public InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result) {
         // There isn't a GUI or other interaction, so don't do anything
-        //return InteractionResult.PASS;
-        // TODO remove this (debug)
-        if(level.getBlockEntity(pos) != null) {
-            player.sendMessage(new TextComponent("Energy: " + level.getBlockEntity(pos).getCapability(CapabilityEnergy.ENERGY).map(IEnergyStorage::getEnergyStored).orElse(0)), player.getUUID());
-            if(level.getBlockEntity(pos) instanceof BasePowerConduitBE cbe) player.sendMessage(new TextComponent(cbe.storedPacket == null ? "no packet stored" : cbe.storedPacket.toString()), player.getUUID());
-        }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     @Override

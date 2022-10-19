@@ -4,10 +4,10 @@ import michaelrunzler.fluiddynamics.FluidDynamics;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBE;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBE;
 import michaelrunzler.fluiddynamics.machines.charging_table.ChargingTableBE;
+import michaelrunzler.fluiddynamics.machines.conduits.power_conduit.PowerConduitBE;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBE;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBE;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBE;
-import michaelrunzler.fluiddynamics.machines.conduits.power_basic.BasicPowerConduitBE;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBE;
 import michaelrunzler.fluiddynamics.machines.rbe_generator.RsBeGenBE;
 import michaelrunzler.fluiddynamics.machines.redstone_generator.RsGenBE;
@@ -60,8 +60,14 @@ public class ModBlockEntities
         registerBE(MachineEnum.CHARGING_TABLE.name().toLowerCase(), () -> BlockEntityType.Builder.of(ChargingTableBE::new,
                 RecipeGenerator.registryToBlock(MachineEnum.CHARGING_TABLE.name().toLowerCase())).build(null));
 
-        registerBE(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase(), () -> BlockEntityType.Builder.of(BasicPowerConduitBE::new,
+        registerBE(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase(), () -> BlockEntityType.Builder.of((pos, state) -> new PowerConduitBE(pos, state, MachineEnum.POWER_CONDUIT_BASIC),
                 RecipeGenerator.registryToBlock(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase())).build(null));
+
+        registerBE(MachineEnum.POWER_CONDUIT_ENHANCED.name().toLowerCase(), () -> BlockEntityType.Builder.of((pos, state) -> new PowerConduitBE(pos, state, MachineEnum.POWER_CONDUIT_ENHANCED),
+                RecipeGenerator.registryToBlock(MachineEnum.POWER_CONDUIT_ENHANCED.name().toLowerCase())).build(null));
+
+        registerBE(MachineEnum.POWER_CONDUIT_SUPERCONDUCTING.name().toLowerCase(), () -> BlockEntityType.Builder.of((pos, state) -> new PowerConduitBE(pos, state, MachineEnum.POWER_CONDUIT_SUPERCONDUCTING),
+                RecipeGenerator.registryToBlock(MachineEnum.POWER_CONDUIT_SUPERCONDUCTING.name().toLowerCase())).build(null));
     }
 
     /**

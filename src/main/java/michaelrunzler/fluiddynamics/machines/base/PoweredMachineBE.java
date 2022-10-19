@@ -45,6 +45,13 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
         this.isPowerStorage = isPowerStorage;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public PoweredMachineBE(BlockPos pos, BlockState state, MachineEnum type) {
+        this(pos, state, type, true, true, false);
+    }
+
     @Override
     public void load(@NotNull CompoundTag tag) {
         super.load(tag);
@@ -55,13 +62,6 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
     protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put(ENERGY_NBT_TAG, energyHandler.serializeNBT());
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public PoweredMachineBE(BlockPos pos, BlockState state, MachineEnum type) {
-        this(pos, state, type, true, true, false);
     }
 
     /**
@@ -127,6 +127,8 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
         {
             // Don't continue checking directions if there is no energy left to distribute
             if(energyHandler.getEnergyStored() == 0) return;
+            // If this machine cannot export energy to the specified direction, skip to the next
+            if(!this.getCapability(CapabilityEnergy.ENERGY).map(IEnergyStorage::canExtract).orElse(false)) continue;
 
             // Grab the BE at the adjacent position
             BlockPos rel = this.worldPosition.relative(d);
@@ -137,14 +139,19 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
             // If the adjacent BE is another power storage block, try to balance power instead of blindly transmitting it
             if(rbe instanceof PoweredMachineBE pbe && isPowerStorage && pbe.isPowerStorage)
             {
-                // Balance energy based on fill percentages of the two storages
-                float fullThis = ((float)this.energyHandler.getEnergyStored()) / ((float)this.energyHandler.getMaxEnergyStored());
-                float fullOther = ((float)pbe.energyHandler.getEnergyStored()) / ((float)pbe.energyHandler.getMaxEnergyStored());
-                if(fullOther < fullThis){
-                    int xfer = Math.min(this.energyHandler.getEnergyStored(), pbe.energyHandler.getMaxEnergyStored() - pbe.energyHandler.getEnergyStored());
-                    int xfered = pbe.energyHandler.receiveEnergy(xfer, false);
-                    this.energyHandler.extractEnergy(xfered, false);
-                }
+                // Respect sided-ness even with storages
+                rbe.getCapability(CapabilityEnergy.ENERGY, d.getOpposite()).ifPresent(c ->
+                {
+                    if(c.canReceive())
+                    {
+                        // Balance energy based on fill levels of the two storages with a hysteresis margin to prevent looping
+                        if (c.getEnergyStored() <= this.energyHandler.getEnergyStored() - type.powerOutputRate) {
+                            int xfer = Math.min(this.energyHandler.getEnergyStored(), c.getMaxEnergyStored() - c.getEnergyStored());
+                            int xfered = c.receiveEnergy(xfer, false);
+                            this.energyHandler.extractEnergy(xfered, false);
+                        }
+                    }
+                });
             }else {
                 // See if the BE can accept power, and if so, try to push some, ensuring that we respect sided-ness
                 rbe.getCapability(CapabilityEnergy.ENERGY, d.getOpposite()).ifPresent(c ->

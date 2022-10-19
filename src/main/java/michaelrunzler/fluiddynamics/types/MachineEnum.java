@@ -17,9 +17,9 @@ public enum MachineEnum
     RS_GENERATOR("Catalytic Redstone Generator", 4.0f, 5000, 0, 10, 10, 2), // In this case, consumption represents output, not input
     RBE_GENERATOR("Rs-Be Reaction Generator", 6.0f, 9000, 0, 25, 25, 3), // Same as above
     CHARGING_TABLE("Charging Table", 2.0f, 0, -1, -1, 10, 2), // Consumption is transfer in this case
-    POWER_CONDUIT_BASIC("Rs-Be Power Conduit", 3.0f, 25, 25, 25, -1, 0); // Doesn't consume any power, nor does it have any inventory slots
-    //POWER_CONDUIT_ENHANCED("Enhanced Rs-Be Power Conduit", 3.0f, 40, 40, 40, -1, 0), // Same as above TODO coming soon to a mod near you!
-    //POWER_CONDUIT_SUPERCONDUCTING("Superconducting Rs-Be Power Conduit", 5.0f, 100, 100, 100, -1, 0); // Capacity etc. change with cooling
+    POWER_CONDUIT_BASIC("Rs-Be Power Conduit", 3.0f, 500, 25, 25, -1, 0), // Doesn't consume any power, nor does it have any inventory slots
+    POWER_CONDUIT_ENHANCED("Enhanced Rs-Be Power Conduit", 3.0f, 800, 40, 40, -1, 0), // Same as above
+    POWER_CONDUIT_SUPERCONDUCTING("Superconducting Rs-Be Power Conduit", 5.0f, 2000, 100, 100, -1, 0); // Capacity etc. change with cooling
 
     public final String englishName;
     public final float strength;

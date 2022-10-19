@@ -9,10 +9,10 @@ import michaelrunzler.fluiddynamics.interfaces.CreativeTabs;
 import michaelrunzler.fluiddynamics.machines.MFMD.MFMDBlock;
 import michaelrunzler.fluiddynamics.machines.centrifuge.CentrifugeBlock;
 import michaelrunzler.fluiddynamics.machines.charging_table.ChargingTableBlock;
+import michaelrunzler.fluiddynamics.machines.conduits.power_conduit.PowerConduitBlock;
 import michaelrunzler.fluiddynamics.machines.e_furnace.EFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.ht_furnace.HTFurnaceBlock;
 import michaelrunzler.fluiddynamics.machines.power_cell.PowerCellBlock;
-import michaelrunzler.fluiddynamics.machines.conduits.power_basic.BasicPowerConduitBlock;
 import michaelrunzler.fluiddynamics.machines.purifier.PurifierBlock;
 import michaelrunzler.fluiddynamics.machines.rbe_generator.RsBeGenBlock;
 import michaelrunzler.fluiddynamics.machines.redstone_generator.RsGenBlock;
@@ -154,12 +154,26 @@ public class ModBlocks
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, chargeTable.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, chargeTable.getKey());
 
-        RegistryObject<Block> powerConduit = specialRegisterBlock(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase(), BasicPowerConduitBlock::new,
+        RegistryObject<Block> powerConduit = specialRegisterBlock(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase(), () -> new PowerConduitBlock(MachineEnum.POWER_CONDUIT_BASIC),
                 new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.COMMON).stacksTo(64).setNoRepair());
         FDEnLangProvider.addBlockLangMapping(powerConduit, MachineEnum.POWER_CONDUIT_BASIC.englishName);
         FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase());
         FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, powerConduit.getKey());
         FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_STONE_TOOL, powerConduit.getKey());
+
+        RegistryObject<Block> powerConduitEnh = specialRegisterBlock(MachineEnum.POWER_CONDUIT_ENHANCED.name().toLowerCase(), () -> new PowerConduitBlock(MachineEnum.POWER_CONDUIT_ENHANCED),
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.UNCOMMON).stacksTo(64).setNoRepair());
+        FDEnLangProvider.addBlockLangMapping(powerConduitEnh, MachineEnum.POWER_CONDUIT_ENHANCED.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.POWER_CONDUIT_ENHANCED.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, powerConduitEnh.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_IRON_TOOL, powerConduitEnh.getKey());
+
+        RegistryObject<Block> powerConduitSuper = specialRegisterBlock(MachineEnum.POWER_CONDUIT_SUPERCONDUCTING.name().toLowerCase(), () -> new PowerConduitBlock(MachineEnum.POWER_CONDUIT_SUPERCONDUCTING),
+                new Item.Properties().tab(CreativeTabs.TAB_MACHINES).rarity(Rarity.RARE).stacksTo(64).setNoRepair());
+        FDEnLangProvider.addBlockLangMapping(powerConduitSuper, MachineEnum.POWER_CONDUIT_SUPERCONDUCTING.englishName);
+        FDBlockStateProvider.nonDefaultModelBlocks.add(MachineEnum.POWER_CONDUIT_SUPERCONDUCTING.name().toLowerCase());
+        FDBlockTagProvider.addTagMapping(BlockTags.MINEABLE_WITH_PICKAXE, powerConduitSuper.getKey());
+        FDBlockTagProvider.addTagMapping(BlockTags.NEEDS_DIAMOND_TOOL, powerConduitSuper.getKey());
 
         //
         // Special Non-Machine Blocks
