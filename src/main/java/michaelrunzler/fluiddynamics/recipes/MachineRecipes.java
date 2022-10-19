@@ -89,7 +89,7 @@ public class MachineRecipes
                 .pattern("pfp")
                 .pattern("ccc")
                 .define('c', RecipeGenerator.registryToItem("energy_cell"))
-                .define('p', RecipeGenerator.registryToItem("power_conduit"))
+                .define('p', RecipeGenerator.registryToItem("conduit_basic"))
                 .define('f', RecipeGenerator.registryToItem("machine_frame"))
                 .group("fluid_dynamics_machine_powercell")
                 .unlockedBy("machine_powercell_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("machine_frame")))
@@ -141,11 +141,11 @@ public class MachineRecipes
                 .pattern(" i ")
                 .define('b', RecipeGenerator.registryToItem("ingot_bronze"))
                 .define('r', Items.REDSTONE)
-                .define('c', RecipeGenerator.registryToItem("power_conduit"))
+                .define('c', RecipeGenerator.registryToItem("conduit_basic"))
                 .define('i', Items.IRON_INGOT)
                 .group("fluid_dynamics_conduit")
                 .unlockedBy("conduit_basic_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_bronze")))
-                .save(c, "conduit_basic");
+                .save(c, "power_conduit_basic");
 
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.POWER_CONDUIT_ENHANCED.name().toLowerCase()), 8)
@@ -154,11 +154,11 @@ public class MachineRecipes
                 .pattern(" i ")
                 .define('b', RecipeGenerator.registryToItem("ingot_bronze"))
                 .define('g', Items.GLOWSTONE)
-                .define('a', RecipeGenerator.registryToItem("power_conduit_enh")) // TODO add this component
+                .define('a', RecipeGenerator.registryToItem("conduit_enh"))
                 .define('i', Items.IRON_INGOT)
                 .group("fluid_dynamics_conduit")
                 .unlockedBy("conduit_enhanced_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase())))
-                .save(c, "conduit_enhanced");
+                .save(c, "power_conduit_enhanced");
 
         ShapelessRecipeBuilder.shapeless(RecipeGenerator.registryToItem(MachineEnum.POWER_CONDUIT_ENHANCED.name().toLowerCase()), 4)
                 .requires(RecipeGenerator.registryToItem(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase()), 4)
@@ -166,7 +166,7 @@ public class MachineRecipes
                 .requires(Items.GOLD_INGOT, 1)
                 .group("fluid_dynamics_conduit")
                 .unlockedBy("conduit_enhanced_upgrade_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem(MachineEnum.POWER_CONDUIT_BASIC.name().toLowerCase())))
-                .save(c, "conduit_enhanced_upgrade");
+                .save(c, "power_conduit_enhanced_upgrade");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem(MachineEnum.POWER_CONDUIT_SUPERCONDUCTING.name().toLowerCase()), 8)
                 .pattern(" t ")
@@ -174,11 +174,11 @@ public class MachineRecipes
                 .pattern("aba")
                 .define('b', Items.SLIME_BALL)
                 .define('g', Items.GLOWSTONE)
-                .define('s', RecipeGenerator.registryToItem("power_conduit_super")) // TODO add this component
+                .define('s', RecipeGenerator.registryToItem("conduit_super"))
                 .define('a', RecipeGenerator.registryToItem("ingot_aluminium"))
                 .define('t', RecipeGenerator.registryToItem("ingot_tungsten"))
                 .group("fluid_dynamics_conduit")
                 .unlockedBy("conduit_basic_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_bronze")))
-                .save(c, "conduit_basic");
+                .save(c, "power_conduit_superconducting");
     }
 }

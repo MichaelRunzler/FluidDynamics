@@ -145,8 +145,9 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
                     if(c.canReceive())
                     {
                         // Balance energy based on fill levels of the two storages with a hysteresis margin to prevent looping
+                        // todo shift back to a percentage-based system
                         if (c.getEnergyStored() <= this.energyHandler.getEnergyStored() - type.powerOutputRate) {
-                            int xfer = Math.min(this.energyHandler.getEnergyStored(), c.getMaxEnergyStored() - c.getEnergyStored());
+                            int xfer = Math.min(this.energyHandler.getEnergyStored(), Math.min(c.getMaxEnergyStored() - c.getEnergyStored(), type.powerOutputRate));
                             int xfered = c.receiveEnergy(xfer, false);
                             this.energyHandler.extractEnergy(xfered, false);
                         }

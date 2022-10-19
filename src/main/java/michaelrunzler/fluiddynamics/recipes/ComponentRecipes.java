@@ -27,15 +27,35 @@ public class ComponentRecipes
                 .unlockedBy("machine_frame_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_bronze")))
                 .save(c, "machine_frame");
 
-        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("power_conduit"))
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("conduit_basic"))
                 .pattern("ggg")
                 .pattern("cbc")
                 .pattern("ggg")
                 .define('b', RecipeGenerator.registryToItem("ingot_beryllium"))
                 .define('c', RecipeGenerator.registryToItem("ingot_copper"))
                 .define('g', Items.GLASS_PANE)
-                .unlockedBy("power_conduit_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_beryllium")))
-                .save(c, "power_conduit");
+                .unlockedBy("conduit_basic_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_beryllium")))
+                .save(c, "conduit_basic");
+
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("conduit_enh"))
+                .pattern("ggg")
+                .pattern("aba")
+                .pattern("ggg")
+                .define('g', Items.GLASS_PANE)
+                .define('a', Items.GOLD_INGOT)
+                .define('b', RecipeGenerator.registryToItem("ingot_beryllium"))
+                .unlockedBy("conduit_enh_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_beryllium")))
+                .save(c, "conduit_enh");
+
+        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("conduit_super"))
+                .pattern("ooo")
+                .pattern("ses")
+                .pattern("ooo")
+                .define('s', RecipeGenerator.registryToItem("ingot_superconductor"))
+                .define('e', Items.EMERALD)
+                .define('o', Items.OBSIDIAN)
+                .unlockedBy("conduit_super_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_superconductor")))
+                .save(c, "conduit_super_trigger");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("power_converter"))
                 .pattern("bcb")
@@ -121,16 +141,6 @@ public class ComponentRecipes
                 .define('s', RecipeGenerator.registryToItem("ingot_superconductor"))
                 .unlockedBy("superconductor_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_superconductor")))
                 .save(c, "superconductor");
-
-        ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("super_conduit"))
-                .pattern("ooo")
-                .pattern("ses")
-                .pattern("ooo")
-                .define('s', RecipeGenerator.registryToItem("ingot_superconductor"))
-                .define('e', Items.EMERALD)
-                .define('o', Items.OBSIDIAN)
-                .unlockedBy("super_conduit_trigger", InventoryChangeTrigger.TriggerInstance.hasItems(RecipeGenerator.registryToItem("ingot_superconductor")))
-                .save(c, "super_conduit");
 
         ShapedRecipeBuilder.shaped(RecipeGenerator.registryToItem("heat_exchanger"))
                 .pattern("ana")

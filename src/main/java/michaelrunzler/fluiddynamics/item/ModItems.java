@@ -145,7 +145,7 @@ public class ModItems
 
         Supplier<Item> componentSupplier = () -> new Item(new Item.Properties().stacksTo(64).tab(CreativeTabs.TAB_COMPONENTS).rarity(Rarity.COMMON));
 
-        RegistryObject<Item> powerConduit = registerItem("power_conduit", componentSupplier);
+        RegistryObject<Item> powerConduit = registerItem("conduit_basic", componentSupplier);
         FDEnLangProvider.addItemLangMapping(powerConduit, "Redstone-Beryllium Power Conduit");
 
         RegistryObject<Item> powerConverter = registerItem("power_converter", componentSupplier);
@@ -172,7 +172,10 @@ public class ModItems
         RegistryObject<Item> superconductor = registerItem("superconductor", componentSupplier);
         FDEnLangProvider.addItemLangMapping(superconductor, "Superconducting Electromagnet Armature");
 
-        RegistryObject<Item> superConduit = registerItem("super_conduit", componentSupplier);
+        RegistryObject<Item> enhConduit = registerItem("conduit_enh", componentSupplier);
+        FDEnLangProvider.addItemLangMapping(enhConduit, "Enhanced Power Conduit");
+
+        RegistryObject<Item> superConduit = registerItem("conduit_super", componentSupplier);
         FDEnLangProvider.addItemLangMapping(superConduit, "Superconducting Power Conduit");
 
         RegistryObject<Item> heatExchanger = registerItem("heat_exchanger", componentSupplier);

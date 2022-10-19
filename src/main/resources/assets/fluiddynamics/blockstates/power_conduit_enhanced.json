@@ -1,0 +1,70 @@
+{
+  "multipart":
+  [
+    {
+      "apply": {
+        "model": "fluiddynamics:block/conduit/enhanced/none"
+      }
+    },
+    {
+      "when": {
+        "north": "true"
+      },
+      "apply": {
+        "model": "fluiddynamics:block/conduit/enhanced/connection",
+        "y": 0,
+        "uvlock": false
+      }
+    },
+    {
+      "when": {
+        "south": "true"
+      },
+      "apply": {
+        "model": "fluiddynamics:block/conduit/enhanced/connection",
+        "y": 180,
+        "uvlock": false
+      }
+    },
+    {
+      "when": {
+        "east": "true"
+      },
+      "apply": {
+        "model": "fluiddynamics:block/conduit/enhanced/connection",
+        "y": 90,
+        "uvlock": false
+      }
+    },
+    {
+      "when": {
+        "west": "true"
+      },
+      "apply": {
+        "model": "fluiddynamics:block/conduit/enhanced/connection",
+        "y": 270,
+        "uvlock": false
+      }
+    },
+    {
+      "when": {
+        "up": "true"
+      },
+      "apply": {
+        "model": "fluiddynamics:block/conduit/enhanced/connection",
+        "x": 90,
+        "uvlock": false
+      }
+    },
+    {
+      "when": {
+        "down": "true"
+      },
+      "apply": {
+        "model": "fluiddynamics:block/conduit/enhanced/connection",
+        "x": 270,
+        "uvlock": false
+      }
+    }
+  ]
+}
