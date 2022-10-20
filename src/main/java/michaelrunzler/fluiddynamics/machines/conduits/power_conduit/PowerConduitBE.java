@@ -28,7 +28,7 @@ public class PowerConduitBE extends PoweredMachineBE
 
     public void tickServer() {
         // This just acts as a small power cell. That's it.
-        exportToNeighbors(Direction.values());
+        exportToNeighborsRR();
     }
 
     @Override
