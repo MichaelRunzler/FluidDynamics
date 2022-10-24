@@ -47,7 +47,7 @@ public class EFurnaceBE extends PoweredMachineBE implements IProcessingBE
     @SuppressWarnings("unchecked")
     public EFurnaceBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.E_FURNACE, false, true, false);
+        super(pos, state, MachineEnum.E_FURNACE, false, true, PowerInteraction.MACHINE);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         progress = new AtomicInteger(0);

@@ -32,11 +32,12 @@ public class PowerCellBE extends PoweredMachineBE
     public static final int SLOT_BATTERY_OUT = 1;
 
     public RelativeFacing relativeFacing;
+    protected int nextExportDir;
 
     @SuppressWarnings("unchecked")
     public PowerCellBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.POWER_CELL, true, true, true);
+        super(pos, state, MachineEnum.POWER_CELL, true, true, PowerInteraction.STORAGE);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         lastPowerState = false;
@@ -54,6 +55,8 @@ public class PowerCellBE extends PoweredMachineBE
             slotHandlers[k] = LazyOptional.of(() -> rawHandlers[k]);
             optionals.add(slotHandlers[k]);
         }
+
+        nextExportDir = 0;
     }
 
     @Override
@@ -90,12 +93,17 @@ public class PowerCellBE extends PoweredMachineBE
         bStack = chargeBatteryItem(SLOT_BATTERY_OUT, itemHandler);
         if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY_OUT, bStack);
 
-        // Export only on directions which can export via getCapability()
-        for(Direction d : Direction.values()) {
-            this.getCapability(CapabilityEnergy.ENERGY, d).ifPresent(c -> {
-                if(c.canExtract()) exportToNeighbors(d);
-            });
-        }
+        // Export only on directions which can export via getCapability() using the same RR algorithm used in the superclass,
+        // but only trying directions which can export via sided handlers
+        int startDir = nextExportDir;
+        do {
+            if(energyHandler.getEnergyStored() == 0) break;
+            Direction d = Direction.values()[nextExportDir];
+            IEnergyStorage es = this.getCapability(CapabilityEnergy.ENERGY, d).resolve().orElse(null);
+            nextExportDir++;
+            if(nextExportDir < 0 || nextExportDir >= Direction.values().length) nextExportDir = 0;
+            if(es != null && es.canExtract() && exportToNeighbor(d)) break;
+        }while(startDir != nextExportDir);
 
         updatePowerState(energyHandler.getEnergyStored() > 0);
     }

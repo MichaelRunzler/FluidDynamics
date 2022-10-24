@@ -66,7 +66,7 @@ public class CentrifugeBE extends PoweredMachineBE implements IProcessingBE
     @SuppressWarnings("unchecked")
     public CentrifugeBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.CENTRIFUGE, false, true, false);
+        super(pos, state, MachineEnum.CENTRIFUGE, false, true, PowerInteraction.MACHINE);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         progress = new AtomicInteger(0);

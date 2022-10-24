@@ -2,6 +2,7 @@ package michaelrunzler.fluiddynamics.machines.conduits.power_conduit;
 
 import michaelrunzler.fluiddynamics.machines.base.PoweredMachineBE;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
+import michaelrunzler.fluiddynamics.types.PowerInteraction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class PowerConduitBE extends PoweredMachineBE
 {
     public PowerConduitBE(BlockPos pos, BlockState state, MachineEnum type) {
-        super(pos, state, type, true, true, true);
+        super(pos, state, type, true, true, PowerInteraction.CONDUIT);
     }
 
     @SuppressWarnings("unchecked")

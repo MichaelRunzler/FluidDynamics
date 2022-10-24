@@ -38,7 +38,7 @@ public class RsGenBE extends PoweredMachineBE
     @SuppressWarnings("unchecked")
     public RsGenBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.RS_GENERATOR, true, false, false);
+        super(pos, state, MachineEnum.RS_GENERATOR, true, false, PowerInteraction.MACHINE);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         lastPowerState = false;
@@ -97,7 +97,7 @@ public class RsGenBE extends PoweredMachineBE
         ItemStack bStack = chargeBatteryItem(SLOT_BATTERY, itemHandler);
         if(bStack != null) itemHandler.setStackInSlot(SLOT_BATTERY, bStack);
 
-        exportToNeighbors(Direction.values());
+        exportToNeighborsRR();
 
         // Consume fuel if required
         boolean powered = false;

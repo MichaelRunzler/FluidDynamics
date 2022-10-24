@@ -42,7 +42,7 @@ public class MFMDBE extends PoweredMachineBE implements IProcessingBE
     @SuppressWarnings("unchecked")
     public MFMDBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.MOLECULAR_DECOMPILER, false, true, false);
+        super(pos, state, MachineEnum.MOLECULAR_DECOMPILER, false, true, PowerInteraction.MACHINE);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         progress = new AtomicInteger(0);

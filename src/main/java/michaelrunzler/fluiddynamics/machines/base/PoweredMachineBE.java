@@ -3,6 +3,7 @@ package michaelrunzler.fluiddynamics.machines.base;
 import michaelrunzler.fluiddynamics.types.FDEnergyStorage;
 import michaelrunzler.fluiddynamics.types.IChargeableItem;
 import michaelrunzler.fluiddynamics.types.MachineEnum;
+import michaelrunzler.fluiddynamics.types.PowerInteraction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -23,17 +24,18 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
 {
     public boolean canExportPower;
     public boolean canImportPower;
-    protected boolean isPowerStorage;
+    protected PowerInteraction interactionType;
 
     protected final FDEnergyStorage energyHandler;
     protected final LazyOptional<IEnergyStorage> energyOpt;
     protected static final String ENERGY_NBT_TAG = "Energy";
-    protected int lastDir;
+    protected int nextDir;
 
     /**
-     * A variant of the standard constructor which allows specification of power import/export properties.
+     * A variant of the standard constructor which allows specification of power import/export properties and interaction
+     * behavior
      */
-    public PoweredMachineBE(BlockPos pos, BlockState state, MachineEnum type, boolean canExportPower, boolean canImportPower, boolean isPowerStorage)
+    public PoweredMachineBE(BlockPos pos, BlockState state, MachineEnum type, boolean canExportPower, boolean canImportPower, PowerInteraction interactionType)
     {
         super(pos, state, type);
 
@@ -43,15 +45,15 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
 
         this.canExportPower = canExportPower;
         this.canImportPower = canImportPower;
-        this.isPowerStorage = isPowerStorage;
-        lastDir = 0;
+        this.interactionType = interactionType;
+        nextDir = 0;
     }
 
     /**
      * @inheritDoc
      */
     public PoweredMachineBE(BlockPos pos, BlockState state, MachineEnum type) {
-        this(pos, state, type, true, true, false);
+        this(pos, state, type, true, true, PowerInteraction.MACHINE);
     }
 
     @Override
@@ -129,37 +131,22 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
         if(level == null) return false;
         BlockEntity rbe = level.getBlockEntity(rel);
         if(rbe == null) return false;
+        // Respect sided-ness by getting the energy handler via capability call instead of directly
+        IEnergyStorage c = rbe.getCapability(CapabilityEnergy.ENERGY, d.getOpposite()).resolve().orElse(null);
+        if(c == null || !c.canReceive() || c.getEnergyStored() == c.getMaxEnergyStored()) return false;
 
-        // If the adjacent BE is another power storage block, try to balance power instead of blindly transmitting it
-        if(rbe instanceof PoweredMachineBE pbe && isPowerStorage && pbe.isPowerStorage)
-        {
-            // Respect sided-ness even with storages
-            rbe.getCapability(CapabilityEnergy.ENERGY, d.getOpposite()).ifPresent(c ->
-            {
-                if(c.canReceive())
-                {
-                    // Balance energy based on fill levels of the two storages with a hysteresis margin to prevent looping
-                    float fullThis = ((float)this.energyHandler.getEnergyStored() - type.powerOutputRate) / ((float)this.energyHandler.getMaxEnergyStored());
-                    float fullOther = ((float)c.getEnergyStored()) / ((float)c.getMaxEnergyStored());
-                    if (fullOther < fullThis) {
-                        int xfer = Math.min(this.energyHandler.getEnergyStored(), Math.min(c.getMaxEnergyStored() - c.getEnergyStored(), type.powerOutputRate));
-                        int xfered = c.receiveEnergy(xfer, false);
-                        this.energyHandler.extractEnergy(xfered, false);
-                    }
-                }
-            });
-        }else {
-            // See if the BE can accept power, and if so, try to push some, ensuring that we respect sided-ness
-            rbe.getCapability(CapabilityEnergy.ENERGY, d.getOpposite()).ifPresent(c ->
-            {
-                if (c.canReceive()) {
-                    int xfer = Math.min(this.energyHandler.getEnergyStored(), type.powerOutputRate);
-                    int xfered = c.receiveEnergy(xfer, false);
-                    this.energyHandler.extractEnergy(xfered, false);
-                }
-            });
+        // If the adjacent BE is another of the same balance-type BE, try to balance power by checking levels instead
+        // of blindly transmitting it
+        if(rbe instanceof PoweredMachineBE pbe && interactionType.doBalancing && interactionType == pbe.interactionType) {
+            float fullThis = ((float) this.energyHandler.getEnergyStored()) / ((float) this.energyHandler.getMaxEnergyStored());
+            float fullOther = ((float) c.getEnergyStored() + type.powerOutputRate) / ((float) c.getMaxEnergyStored());
+            if (fullOther > fullThis) return false;
         }
 
+        // Try to push some power to the adjacent block
+        int xfer = Math.min(this.energyHandler.getEnergyStored(), type.powerOutputRate);
+        int xfered = c.receiveEnergy(xfer, false);
+        this.energyHandler.extractEnergy(xfered, false);
         return true;
     }
 
@@ -187,15 +174,15 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
      */
     protected void exportToNeighborsRR()
     {
-        // TODO add a flag which forces the inventory to ignore gating and empty all of its capacity (for cells only)
-        int firstTried = lastDir;
+
+        int firstTried = nextDir;
         do {
-            if(lastDir < 0 || lastDir >= Direction.values().length) lastDir = 0; // Loop back around to the beginning of the direction list if we hit the end
-            if(energyHandler.getEnergyStored() == 0) return; // Stop trying more directions if we're out of energy
-            boolean result = exportToNeighbor(Direction.values()[lastDir]); // Attempt to export to the next direction
-            lastDir++;
-            if(result) return; // If the export was successful, stop trying more directions
-        }while(lastDir != firstTried); // If we tried all directions, stop trying until the next tick
+            if(energyHandler.getEnergyStored() == 0) return;
+            boolean result = exportToNeighbor(Direction.values()[nextDir]); // Attempt to export to the next direction
+            nextDir++;
+            if(nextDir < 0 || nextDir >= Direction.values().length) nextDir = 0; // Loop back around to the beginning of the direction list if we hit the end
+            if(result) return; // If the export was successful or we're out of energy, stop trying more directions
+        }while(nextDir != firstTried); // If we tried all directions, stop trying until the next tick
     }
 
     /**

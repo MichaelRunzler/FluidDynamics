@@ -61,7 +61,7 @@ public class PurifierBE extends PoweredMachineBE implements IProcessingBE
     @SuppressWarnings("unchecked")
     public PurifierBE(BlockPos pos, BlockState state)
     {
-        super(pos, state, MachineEnum.PURIFIER, false, true, false);
+        super(pos, state, MachineEnum.PURIFIER, false, true, PowerInteraction.MACHINE);
 
         relativeFacing = new RelativeFacing(super.getBlockState().getValue(BlockStateProperties.FACING));
         progress = new AtomicInteger(0);
