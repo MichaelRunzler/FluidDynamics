@@ -96,13 +96,19 @@ public class PowerCellBE extends PoweredMachineBE
         // Export only on directions which can export via getCapability() using the same RR algorithm used in the superclass,
         // but only trying directions which can export via sided handlers
         int startDir = nextExportDir;
-        do {
+        do
+        {
             if(energyHandler.getEnergyStored() == 0) break;
             Direction d = Direction.values()[nextExportDir];
-            IEnergyStorage es = this.getCapability(CapabilityEnergy.ENERGY, d).resolve().orElse(null);
             nextExportDir++;
-            if(nextExportDir < 0 || nextExportDir >= Direction.values().length) nextExportDir = 0;
-            if(es != null && es.canExtract() && exportToNeighbor(d)) break;
+            if(nextExportDir >= Direction.values().length) nextExportDir = 0;
+
+            // First check to see if the neighboring BE is a storage device, in which case balancing should be done
+            // regardless of I/O directionality. Otherwise, check to make sure the EnergyHandler in this direction is
+            // allowed to export power. Once both are checked, if one passes, try to export.
+            if((getNeighborBE(d) instanceof PoweredMachineBE pbe && pbe.interactionType == PowerInteraction.STORAGE
+                || this.getCapability(CapabilityEnergy.ENERGY, d).resolve().orElse(this.energyHandler).canExtract())
+                 && exportToNeighbor(d)) break;
         }while(startDir != nextExportDir);
 
         updatePowerState(energyHandler.getEnergyStored() > 0);

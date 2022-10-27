@@ -15,6 +15,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -268,5 +270,40 @@ public abstract class MachineBlockEntityBase extends BlockEntity implements IInv
         }
 
         return true;
+    }
+
+    /**
+     * Gets the Energy Storage Handler for a given neighboring block, or null if the neighbor cannot handle energy.
+     */
+    @SuppressWarnings("unused")
+    protected @Nullable IEnergyStorage getNeighborES(Direction d)
+    {
+        if(d == null) return null;
+        BlockEntity rbe = getNeighborBE(d);
+        if(rbe == null) return null;
+        return getNeighborES(rbe, d);
+    }
+
+    /**
+     * Gets the Energy Storage Handler for a given neighboring block, or null if the neighbor cannot handle energy.
+     * Does not perform a world lookup for the block entity to be queried, only checks if it has a handler and gets it
+     * if it does.
+     */
+    protected @Nullable IEnergyStorage getNeighborES(@Nullable BlockEntity be, Direction d)
+    {
+        if(be == null) return null;
+        // Respect sided-ness by getting the energy handler via capability call instead of directly
+        return be.getCapability(CapabilityEnergy.ENERGY, d.getOpposite()).resolve().orElse(null);
+    }
+
+    /**
+     * Gets the BlockEntity in a given relative direction, or null if there is no BE in that direction.
+     */
+    protected @Nullable BlockEntity getNeighborBE(Direction d)
+    {
+        if(d == null) return null;
+        BlockPos rel = this.worldPosition.relative(d);
+        if(level == null) return null;
+        return level.getBlockEntity(rel);
     }
 }

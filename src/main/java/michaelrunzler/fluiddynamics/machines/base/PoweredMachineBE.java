@@ -24,7 +24,7 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
 {
     public boolean canExportPower;
     public boolean canImportPower;
-    protected PowerInteraction interactionType;
+    public PowerInteraction interactionType;
 
     protected final FDEnergyStorage energyHandler;
     protected final LazyOptional<IEnergyStorage> energyOpt;
@@ -126,26 +126,28 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
         // If this machine cannot export energy to the specified direction, skip to the next
         if(!this.getCapability(CapabilityEnergy.ENERGY).map(IEnergyStorage::canExtract).orElse(false) || energyHandler.getEnergyStored() == 0) return false;
 
-        // Grab the BE at the adjacent position
-        BlockPos rel = this.worldPosition.relative(d);
-        if(level == null) return false;
-        BlockEntity rbe = level.getBlockEntity(rel);
-        if(rbe == null) return false;
-        // Respect sided-ness by getting the energy handler via capability call instead of directly
-        IEnergyStorage c = rbe.getCapability(CapabilityEnergy.ENERGY, d.getOpposite()).resolve().orElse(null);
-        if(c == null || !c.canReceive() || c.getEnergyStored() == c.getMaxEnergyStored()) return false;
+        // Get the BE and energy storage handler for this neighbor
+        BlockEntity rbe = getNeighborBE(d);
+        IEnergyStorage c = getNeighborES(rbe, d);
+        if(rbe == null || c == null) return false;
 
         // If the adjacent BE is another of the same balance-type BE, try to balance power by checking levels instead
-        // of blindly transmitting it
-        if(rbe instanceof PoweredMachineBE pbe && interactionType.doBalancing && interactionType == pbe.interactionType) {
+        // of blindly transmitting it. This type of transfer also ignores sided-ness if the block is a storage-type.
+        IEnergyStorage rmtES = null;
+        if(rbe instanceof PoweredMachineBE pbe && interactionType.doBalancing && interactionType == pbe.interactionType)
+        {
             float fullThis = ((float) this.energyHandler.getEnergyStored()) / ((float) this.energyHandler.getMaxEnergyStored());
             float fullOther = ((float) c.getEnergyStored() + type.powerOutputRate) / ((float) c.getMaxEnergyStored());
             if (fullOther > fullThis) return false;
+            else if(pbe.interactionType == PowerInteraction.STORAGE) rmtES = pbe.energyHandler;
         }
+
+        // If balancing is required with another storage BE, ignore sided-ness by using the direct handler instead of the sided handlers
+        IEnergyStorage rmt = rmtES == null ? c : rmtES;
 
         // Try to push some power to the adjacent block
         int xfer = Math.min(this.energyHandler.getEnergyStored(), type.powerOutputRate);
-        int xfered = c.receiveEnergy(xfer, false);
+        int xfered = rmt.receiveEnergy(xfer, false);
         this.energyHandler.extractEnergy(xfered, false);
         return true;
     }
@@ -174,7 +176,6 @@ public abstract class PoweredMachineBE extends MachineBlockEntityBase
      */
     protected void exportToNeighborsRR()
     {
-
         int firstTried = nextDir;
         do {
             if(energyHandler.getEnergyStored() == 0) return;
